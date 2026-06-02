@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpsDesk — IT Service Desk & Identity Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0C0F18; --navy2:#141820; --navy3:#1C2030; --navy4:#252840;
+  --blue:#7B6AE8; --blue2:#A99FFF; --teal:#0B9480;
+  --amber:#E89510; --amber2:#F5C042;
+  --green:#10B981; --green2:#6EE7B7; --red:#EF4444;
+  --white:#FAF8F5; --muted:#6E6A84; --muted2:#9D9AB6;
+  --border:rgba(255,255,255,0.07);
+  --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--navy); color:var(--white);
+  font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.55;
+  display:flex; min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 50% 40% at 80% 0%, rgba(123,106,232,0.10) 0%, transparent 70%),
+    linear-gradient(rgba(255,255,255,0.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.014) 1px, transparent 1px);
+  background-size:auto, 48px 48px, 48px 48px;
+}
+::selection{background:rgba(123,106,232,0.35);}
+
+/* SIDEBAR */
+.sidebar{
+  width:236px; flex:0 0 236px; min-height:100vh;
+  background:rgba(20,24,32,0.7); border-right:1px solid var(--border);
+  padding:1.5rem 1rem; position:sticky; top:0; height:100vh;
+  display:flex; flex-direction:column; backdrop-filter:blur(8px);
+}
+.brand{display:flex; align-items:center; gap:10px; padding:0 .5rem 1.5rem; margin-bottom:.5rem; border-bottom:1px solid var(--border);}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;font-family:'Syne';font-weight:800;font-size:1rem;color:#fff;box-shadow:0 4px 14px rgba(123,106,232,0.35);}
+.brand-name{font-family:'Syne';font-weight:800;font-size:1.05rem;letter-spacing:-.01em;}
+.brand-sub{font-size:.66rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.nav{list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:2px;flex:1;}
+.nav li{padding:.6rem .75rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:11px;color:var(--muted2);font-weight:500;font-size:.9rem;transition:all .15s;user-select:none;}
+.nav li:hover{background:rgba(255,255,255,0.04);color:var(--white);}
+.nav li.active{background:rgba(123,106,232,0.14);color:var(--white);box-shadow:inset 2px 0 0 var(--blue);}
+.nav li .ico{width:18px;text-align:center;font-size:.95rem;opacity:.9;}
+.nav li .badge{margin-left:auto;font-size:.66rem;background:var(--navy4);color:var(--blue2);padding:1px 7px;border-radius:100px;font-family:var(--mono);}
+.sidebar-foot{font-size:.7rem;color:var(--muted);padding:.75rem .5rem 0;border-top:1px solid var(--border);}
+.sidebar-foot a{color:var(--blue2);text-decoration:none;}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1rem;
+  padding:1.1rem 2rem;border-bottom:1px solid var(--border);
+  background:rgba(12,15,24,0.82);backdrop-filter:blur(10px);
+}
+.topbar h1{font-family:'Syne';font-size:1.25rem;font-weight:700;letter-spacing:-.01em;}
+.topbar .sub{font-size:.78rem;color:var(--muted);}
+.topbar .spacer{flex:1;}
+.env-pill{font-size:.7rem;font-family:var(--mono);color:var(--green2);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);padding:3px 10px;border-radius:100px;display:flex;align-items:center;gap:6px;}
+.env-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+.view{padding:1.75rem 2rem;animation:fade .4s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1.75rem;}
+.kpi{background:var(--navy2);border:1px solid var(--border);border-radius:13px;padding:1.25rem;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;}
+.kpi:hover{transform:translateY(-2px);border-color:rgba(123,106,232,0.3);}
+.kpi-label{font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;}
+.kpi-val{font-family:'Syne';font-size:2.1rem;font-weight:800;line-height:1;}
+.kpi-val small{font-size:1rem;color:var(--muted);font-weight:500;}
+.kpi-num{font-variant-numeric:tabular-nums;}
+.kpi-meta{font-size:.76rem;margin-top:.55rem;display:flex;align-items:center;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.kpi .ring{position:absolute;right:-12px;bottom:-12px;width:84px;height:84px;border-radius:50%;opacity:.12;background:conic-gradient(var(--blue) 0,var(--blue) var(--p),transparent var(--p));}
+
+/* PANELS */
+.cols{display:grid;grid-template-columns:1.4fr 1fr;gap:1.25rem;}
+@media(max-width:1080px){.cols{grid-template-columns:1fr;}}
+.panel{background:var(--navy2);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.panel-head{display:flex;align-items:center;gap:.6rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.panel-head h3{font-family:'Syne';font-size:.98rem;font-weight:700;}
+.panel-head .count{font-size:.72rem;color:var(--muted);font-family:var(--mono);}
+.panel-head .spacer{flex:1;}
+.panel-body{padding:.5rem .5rem;}
+
+/* PRIORITY BARS */
+.pbar-row{display:flex;align-items:center;gap:.75rem;padding:.55rem 1rem;}
+.pbar-row .pk{font-family:var(--mono);font-size:.78rem;width:74px;color:var(--muted2);}
+.pbar-track{flex:1;height:8px;background:var(--navy4);border-radius:100px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:100px;transition:width .6s ease;}
+.pbar-row .pn{font-family:var(--mono);font-size:.8rem;width:24px;text-align:right;color:var(--white);}
+
+/* LISTS */
+.row{display:flex;align-items:center;gap:.85rem;padding:.7rem 1rem;border-radius:9px;cursor:pointer;transition:background .15s;}
+.row:hover{background:rgba(255,255,255,0.035);}
+.row .rid{font-family:var(--mono);font-size:.72rem;color:var(--muted);flex:0 0 auto;}
+.row .rmain{flex:1;min-width:0;}
+.row .rtitle{font-size:.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row .rmeta{font-size:.72rem;color:var(--muted);margin-top:1px;}
+.pill{font-size:.68rem;font-weight:600;font-family:var(--mono);padding:2px 8px;border-radius:6px;white-space:nowrap;}
+.p-P1{background:rgba(239,68,68,0.15);color:#FCA5A5;border:1px solid rgba(239,68,68,0.3);}
+.p-P2{background:rgba(232,149,16,0.15);color:var(--amber2);border:1px solid rgba(232,149,16,0.3);}
+.p-P3{background:rgba(123,106,232,0.15);color:var(--blue2);border:1px solid rgba(123,106,232,0.3);}
+.p-P4{background:rgba(110,106,132,0.15);color:var(--muted2);border:1px solid var(--border);}
+.st{font-size:.72rem;padding:2px 9px;border-radius:100px;border:1px solid var(--border);white-space:nowrap;}
+.st-New{color:var(--blue2);background:rgba(123,106,232,0.1);}
+.st-InProgress{color:var(--amber2);background:rgba(232,149,16,0.1);}
+.st-Pending{color:var(--muted2);background:rgba(255,255,255,0.04);}
+.st-Resolved{color:var(--green2);background:rgba(16,185,129,0.1);}
+.st-Closed{color:var(--muted);background:rgba(255,255,255,0.03);}
+.sla{font-family:var(--mono);font-size:.72rem;}
+.sla.ok{color:var(--green2);} .sla.warn{color:var(--amber2);} .sla.breach{color:#FCA5A5;}
+
+/* TABLE/FILTER BARS */
+.toolbar{display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem;flex-wrap:wrap;}
+.chip{font-size:.78rem;padding:.4rem .85rem;border-radius:100px;border:1px solid var(--border);background:var(--navy2);color:var(--muted2);cursor:pointer;transition:all .15s;user-select:none;}
+.chip:hover{color:var(--white);}
+.chip.on{background:rgba(123,106,232,0.16);border-color:rgba(123,106,232,0.4);color:var(--white);}
+.search{flex:1;min-width:160px;max-width:320px;background:var(--navy2);border:1px solid var(--border);border-radius:9px;padding:.5rem .85rem;color:var(--white);font-family:'DM Sans';font-size:.85rem;}
+.search:focus{outline:none;border-color:rgba(123,106,232,0.5);}
+.btn{font-family:'DM Sans';font-size:.83rem;font-weight:600;padding:.5rem 1rem;border-radius:8px;border:none;cursor:pointer;transition:all .15s;}
+.btn-pri{background:var(--blue);color:#fff;}
+.btn-pri:hover{background:var(--blue2);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--muted2);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,255,255,0.25);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* GRID OF CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;}
+.tcard{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:1.1rem;cursor:pointer;transition:transform .18s,border-color .18s;}
+.tcard:hover{transform:translateY(-3px);border-color:rgba(123,106,232,0.35);}
+.tcard-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem;}
+.tcard h4{font-size:.95rem;font-weight:600;margin:.2rem 0 .5rem;line-height:1.35;}
+.tcard .meta{font-size:.74rem;color:var(--muted);display:flex;gap:.85rem;flex-wrap:wrap;}
+
+/* IDENTITY / DEVICE TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:.85rem;}
+.tbl th{text-align:left;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:.7rem 1rem;border-bottom:1px solid var(--border);}
+.tbl td{padding:.8rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,0.02);}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:inline-flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:700;font-family:'Syne';color:#fff;margin-right:.6rem;vertical-align:middle;}
+.yes{color:var(--green2);} .no{color:#FCA5A5;}
+.tag{font-size:.68rem;font-family:var(--mono);background:var(--navy4);color:var(--blue2);padding:1px 7px;border-radius:5px;margin:1px;display:inline-block;}
+
+/* WORKFLOW CHECKLIST */
+.flow{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+@media(max-width:880px){.flow{grid-template-columns:1fr;}}
+.flow-col h3{font-family:'Syne';font-size:1rem;margin-bottom:.3rem;}
+.flow-col .desc{font-size:.78rem;color:var(--muted);margin-bottom:1rem;}
+.step{display:flex;align-items:flex-start;gap:.75rem;padding:.7rem .9rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.55rem;background:var(--navy2);cursor:pointer;transition:all .15s;}
+.step:hover{border-color:rgba(123,106,232,0.3);}
+.step.done{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.22);}
+.step .ck{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--muted);flex:0 0 auto;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:transparent;transition:all .15s;}
+.step.done .ck{background:var(--green);border-color:var(--green);color:#062;}
+.step .sx{font-size:.86rem;font-weight:500;}
+.step .sd{font-size:.74rem;color:var(--muted);margin-top:2px;}
+.progress{height:6px;background:var(--navy4);border-radius:100px;overflow:hidden;margin:.4rem 0 1rem;}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .4s;}
+
+/* DETAIL DRAWER */
+.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;}
+.drawer-bg.open{opacity:1;pointer-events:auto;}
+.drawer{position:fixed;top:0;right:0;width:min(520px,94vw);height:100vh;background:var(--navy2);border-left:1px solid var(--border);z-index:51;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
+.drawer.open{transform:translateX(0);}
+.drawer-head{padding:1.4rem 1.5rem 1rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--navy2);}
+.drawer-head .x{position:absolute;top:1.2rem;right:1.3rem;cursor:pointer;color:var(--muted);font-size:1.3rem;}
+.drawer-head .x:hover{color:var(--white);}
+.drawer-body{padding:1.4rem 1.5rem;}
+.kv{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.kv .k{color:var(--muted);}
+.note{background:var(--navy3);border:1px solid var(--border);border-radius:9px;padding:.7rem .85rem;font-size:.82rem;margin-bottom:.55rem;}
+.note .nh{font-size:.7rem;color:var(--muted);font-family:var(--mono);margin-bottom:.25rem;}
+.ta{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:9px;padding:.7rem;color:var(--white);font-family:'DM Sans';font-size:.85rem;resize:vertical;min-height:64px;}
+.ta:focus{outline:none;border-color:rgba(123,106,232,0.5);}
+.sel{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.45rem .7rem;color:var(--white);font-family:'DM Sans';font-size:.83rem;}
+.ai-box{background:linear-gradient(135deg,rgba(123,106,232,0.08),rgba(11,148,128,0.06));border:1px solid rgba(123,106,232,0.25);border-radius:11px;padding:1rem;margin-top:1rem;font-size:.85rem;line-height:1.6;white-space:pre-wrap;}
+.ai-box .aih{font-family:'Syne';font-size:.82rem;color:var(--blue2);margin-bottom:.5rem;display:flex;align-items:center;gap:6px;}
+
+/* KB */
+.kb-grid{display:grid;grid-template-columns:300px 1fr;gap:1.25rem;}
+@media(max-width:880px){.kb-grid{grid-template-columns:1fr;}}
+.kb-item{padding:.8rem 1rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.5rem;cursor:pointer;background:var(--navy2);transition:all .15s;}
+.kb-item:hover,.kb-item.on{border-color:rgba(123,106,232,0.4);background:rgba(123,106,232,0.06);}
+.kb-item .kt{font-size:.88rem;font-weight:600;margin-bottom:.2rem;}
+.kb-item .kc{font-size:.7rem;color:var(--muted);font-family:var(--mono);}
+.kb-reader{background:var(--navy2);border:1px solid var(--border);border-radius:13px;padding:1.75rem;}
+.kb-reader h2{font-family:'Syne';font-size:1.35rem;margin-bottom:.3rem;}
+.kb-reader .kbmeta{font-size:.74rem;color:var(--muted);margin-bottom:1.25rem;font-family:var(--mono);}
+.kb-reader .kbody{font-size:.92rem;line-height:1.7;color:var(--muted2);white-space:pre-wrap;}
+.kb-reader .kbody strong{color:var(--white);font-weight:600;}
+
+/* MATRIX */
+.matrix{display:grid;grid-template-columns:auto repeat(3,1fr);gap:6px;max-width:480px;margin-top:.5rem;}
+.matrix .mh{font-size:.72rem;color:var(--muted);text-align:center;padding:.3rem;font-family:var(--mono);}
+.matrix .ml{font-size:.72rem;color:var(--muted);display:flex;align-items:center;font-family:var(--mono);}
+.matrix .mc{border-radius:7px;padding:.6rem;text-align:center;font-family:var(--mono);font-size:.8rem;font-weight:600;}
+
+.empty{text-align:center;color:var(--muted);padding:3rem 1rem;font-size:.88rem;}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy4);border:1px solid rgba(123,106,232,0.4);color:var(--white);padding:.7rem 1.3rem;border-radius:100px;font-size:.85rem;z-index:99;opacity:0;transition:all .3s;box-shadow:0 8px 30px rgba(0,0,0,0.4);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.field-lbl{font-size:.74rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:1rem 0 .4rem;}
+input.txt{width:100%;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.55rem .75rem;color:var(--white);font-family:'DM Sans';font-size:.85rem;}
+input.txt:focus{outline:none;border-color:rgba(123,106,232,0.5);}
+
+.menu-toggle{display:none;}
+@media(max-width:760px){
+  body{flex-direction:column;}
+  .sidebar{position:fixed;left:0;top:0;z-index:60;transform:translateX(-100%);transition:transform .25s;}
+  .sidebar.open{transform:translateX(0);}
+  .menu-toggle{display:inline-flex;background:var(--navy3);border:1px solid var(--border);border-radius:8px;color:var(--white);padding:.4rem .7rem;cursor:pointer;font-size:1rem;}
+  .view{padding:1.25rem;}
+  .topbar{padding:1rem 1.25rem;}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-mark">OD</div>
+    <div>
+      <div class="brand-name">OpsDesk</div>
+      <div class="brand-sub">IT Service Desk</div>
+    </div>
+  </div>
+  <ul class="nav" id="nav">
+    <li data-view="dashboard" class="active"><span class="ico">▦</span> Dashboard</li>
+    <li data-view="tickets"><span class="ico">◷</span> Tickets <span class="badge" id="navTickets">0</span></li>
+    <li data-view="identity"><span class="ico">⬡</span> Identity &amp; Access</li>
+    <li data-view="devices"><span class="ico">▢</span> Devices <span class="badge" id="navDevices">0</span></li>
+    <li data-view="kb"><span class="ico">≡</span> Knowledge Base</li>
+    <li data-view="settings"><span class="ico">⚙</span> Settings</li>
+  </ul>
+  <div class="sidebar-foot">
+    Demo build · Microsoft 365 environment<br>
+    Built by <a href="index.html">Ethan Bouterey</a>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div>
+      <h1 id="vTitle">Operations Dashboard</h1>
+      <div class="sub" id="vSub">Service desk overview for a cloud-first health organisation</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="env-pill">M365 · Entra · Intune</div>
+  </header>
+  <main class="view" id="view"></main>
+</div>
+
+<div class="drawer-bg" id="drawerBg"></div>
+<aside class="drawer" id="drawer"></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ────────────────────────────────────────────────────────────────────────
+   OpsDesk — single-file IT service desk, identity & endpoint console.
+   No backend. State held in memory and mirrored to localStorage when allowed.
+   AI features (triage, KB drafting) use the Anthropic API with the user key.
+   ──────────────────────────────────────────────────────────────────────── */
+
+const SLA = { P1:30, P2:240, P3:480, P4:1440 }; // minutes to resolve, by priority
+const STATUSES = ["New","In Progress","Pending","Resolved","Closed"];
+
+function mins(n){ return n*60*1000; }
+function now(){ return Date.now(); }
+
+/* ── Seed data — themed to a Taranaki kaupapa Māori health provider ────────── */
+function seed(){
+  const t = now();
+  return {
+    view:"dashboard",
+    settings:{ apiKey:"" },
+    kbActive:null,
+    onboardName:"",
+    tickets:[
+      { id:"INC-2041", title:"Cannot sign in to Indici after password reset", type:"Incident", priority:"P2", status:"In Progress", category:"Identity / Access", requester:"Aroha Ngata", dept:"Clinical", created:t-mins(95), assignee:"You",
+        notes:[{ by:"Aroha Ngata", at:t-mins(95), text:"Reset my password this morning, now Indici keeps rejecting it." },{ by:"You", at:t-mins(60), text:"Confirmed Entra password sync. Indici uses separate credentials — checking provisioning." }] },
+      { id:"REQ-2042", title:"Provision access for new community nurse (starts Mon)", type:"Service Request", priority:"P3", status:"New", category:"Onboarding", requester:"Team Lead", dept:"Whānau Ora", created:t-mins(180), assignee:"You",
+        notes:[{ by:"Team Lead", at:t-mins(180), text:"New starter Monday — needs M365, Indici and a device. Whānau Tahi read access too." }] },
+      { id:"INC-2043", title:"Laptop showing repeated BitLocker recovery prompt", type:"Incident", priority:"P3", status:"In Progress", category:"Endpoint", requester:"Tane Wiremu", dept:"Community Health", created:t-mins(220), assignee:"You",
+        notes:[{ by:"Tane Wiremu", at:t-mins(220), text:"Asks for a recovery key every boot. Cannot get into the device reliably." }] },
+      { id:"REQ-2044", title:"Shared mailbox access for reception team", type:"Service Request", priority:"P4", status:"New", category:"Microsoft 365", requester:"Reception", dept:"Front of House", created:t-mins(40), assignee:"You", notes:[] },
+      { id:"INC-2045", title:"MFA not prompting on replacement phone", type:"Incident", priority:"P2", status:"New", category:"Identity / Access", requester:"Mere Tahi", dept:"Clinical", created:t-mins(20), assignee:"You",
+        notes:[{ by:"Mere Tahi", at:t-mins(20), text:"Got a new phone, Authenticator not set up, locked out of email." }] },
+      { id:"INC-2046", title:"Teams audio dropping in Clinic Room 2", type:"Incident", priority:"P3", status:"Pending", category:"Microsoft 365", requester:"Clinic Room 2", dept:"Clinical", created:t-mins(400), assignee:"You",
+        notes:[{ by:"You", at:t-mins(120), text:"Suspect network. Waiting on after-hours window to test." }] },
+      { id:"REQ-2047", title:"Offboard departing kaimahi — revoke all access", type:"Service Request", priority:"P2", status:"New", category:"Offboarding", requester:"People & Culture", dept:"Corporate", created:t-mins(15), assignee:"You",
+        notes:[{ by:"People & Culture", at:t-mins(15), text:"Hemi Rangi finishes Friday. Disable access EOD, keep mailbox 90 days." }] },
+      { id:"INC-2048", title:"Whānau Tahi report export failing to CSV", type:"Incident", priority:"P3", status:"Resolved", category:"Applications", requester:"Data team", dept:"Corporate", created:t-mins(900), assignee:"You",
+        notes:[{ by:"You", at:t-mins(700), text:"Browser pop-up blocker. Whitelisted the domain, export works." }] },
+      { id:"INC-2050", title:"Intune flagged device non-compliant — OS out of date", type:"Incident", priority:"P3", status:"New", category:"Endpoint", requester:"Hone Park", dept:"Social Services", created:t-mins(55), assignee:"You", notes:[] }
+    ],
+    users:[
+      { id:"u1", name:"Aroha Ngata", role:"Clinical Nurse", dept:"Clinical", status:"Active", license:"Microsoft 365 E3", groups:["All-Staff","Clinical","Indici-Users"], mfa:true, lastSignIn:"12 min ago" },
+      { id:"u2", name:"Tane Wiremu", role:"Community Health Worker", dept:"Community Health", status:"Active", license:"Microsoft 365 E3", groups:["All-Staff","Community"], mfa:true, lastSignIn:"2 hr ago" },
+      { id:"u3", name:"Mere Tahi", role:"Registered Nurse", dept:"Clinical", status:"Active", license:"Microsoft 365 E3", groups:["All-Staff","Clinical","Indici-Users"], mfa:false, lastSignIn:"3 days ago" },
+      { id:"u4", name:"Hone Park", role:"Social Worker", dept:"Social Services", status:"Active", license:"Microsoft 365 E1", groups:["All-Staff","Social","WhanauTahi-Read"], mfa:true, lastSignIn:"1 hr ago" },
+      { id:"u5", name:"New Community Nurse", role:"Community Nurse", dept:"Whānau Ora", status:"Onboarding", license:"— pending —", groups:[], mfa:false, lastSignIn:"never" },
+      { id:"u6", name:"Hemi Rangi", role:"Admin Coordinator", dept:"Corporate", status:"Offboarding", license:"Microsoft 365 E3", groups:["All-Staff","Corporate"], mfa:true, lastSignIn:"5 hr ago" }
+    ],
+    devices:[
+      { id:"LAP-0421", user:"Aroha Ngata", type:"Laptop", os:"Windows 11 23H2", compliant:true, encrypted:true, enrolled:true, checkIn:"12 min ago", issue:"" },
+      { id:"LAP-0388", user:"Tane Wiremu", type:"Laptop", os:"Windows 11 23H2", compliant:false, encrypted:false, enrolled:true, checkIn:"2 hr ago", issue:"BitLocker not yet applied" },
+      { id:"PHN-0510", user:"Mere Tahi", type:"iPhone", os:"iOS 17.4", compliant:false, encrypted:true, enrolled:true, checkIn:"3 days ago", issue:"MFA not registered" },
+      { id:"LAP-0297", user:"Hone Park", type:"Laptop", os:"Windows 10 22H2", compliant:false, encrypted:true, enrolled:true, checkIn:"3 hr ago", issue:"OS below minimum — update required" },
+      { id:"LAP-0455", user:"Reception", type:"Laptop", os:"Windows 11 23H2", compliant:true, encrypted:true, enrolled:true, checkIn:"30 min ago", issue:"" },
+      { id:"TAB-0123", user:"Clinic Room 2", type:"iPad", os:"iPadOS 17.4", compliant:true, encrypted:true, enrolled:true, checkIn:"45 min ago", issue:"" }
+    ],
+    kb:[
+      { id:"KB-001", title:"Resetting a password and re-registering MFA in Entra ID", cat:"Identity", updated:"Updated 3 days ago",
+        body:"**When to use:** a kaimahi is locked out, has a new device, or reports MFA not prompting.\n\n**Steps**\n1. In the Microsoft Entra admin centre, find the user and select Reset password. Use a temporary password and require change at next sign-in.\n2. Under Authentication methods, choose Require re-register multifactor authentication. This clears the old device.\n3. Ask the user to sign in at office.com, set a new password, then add the Microsoft Authenticator app when prompted.\n4. Confirm the new method shows under Authentication methods and remove any stale phone numbers.\n\n**Note:** Indici and Whānau Tahi use their own credentials — an Entra reset does not change those. Check app-specific access separately." },
+      { id:"KB-002", title:"Onboarding checklist — provisioning a new kaimahi in Microsoft 365", cat:"Onboarding", updated:"Updated 1 week ago",
+        body:"Run this for every new starter. Aim to complete the day before they begin.\n\n**Identity**\n- Create the Entra ID account and set the UPN to firstname.lastname@org.\n- Assign the correct Microsoft 365 licence (E3 clinical, E1 casual).\n- Add to role-based security and distribution groups — never assign permissions directly to a person.\n\n**Security**\n- Enrol MFA via the Authenticator app on first sign-in.\n- Confirm Conditional Access policy applies.\n\n**Device & apps**\n- Enrol the device in Intune and confirm it reports compliant.\n- Grant access to Indici and Whānau Tahi as the role requires.\n\n**Handover**\n- Send the welcome email and first-sign-in guide, and book a 10-minute orientation." },
+      { id:"KB-003", title:"Resolving repeated BitLocker recovery prompts via Intune", cat:"Endpoint", updated:"Updated 2 weeks ago",
+        body:"**Symptom:** device asks for a BitLocker recovery key on every boot.\n\n**Cause:** usually a TPM/firmware change, a pending update, or encryption not fully applied by the Intune policy.\n\n**Resolve**\n1. Retrieve the recovery key from the device record in Intune to get the user back in.\n2. Check the BitLocker policy in Intune is assigned and reporting Succeeded for the device.\n3. Install pending firmware and Windows updates, then reboot.\n4. If encryption never completed, force the policy to re-evaluate and confirm Compliant within 30 minutes.\n5. Document the recovery-key event in the ticket." },
+      { id:"KB-004", title:"Incident vs Service Request — how we triage (ITIL)", cat:"Process", updated:"Updated 1 month ago",
+        body:"**Incident:** something is broken or degraded — restore service as fast as possible. Examples: cannot sign in, device offline, app error.\n\n**Service Request:** a standard, pre-approved ask — access, equipment, onboarding. Fulfil it through the agreed process.\n\n**Priority = Impact × Urgency.** One person blocked is lower than a whole clinic blocked.\n\n**SLA targets:** P1 30 min · P2 4 hr · P3 8 hr · P4 24 hr.\n\nSet priority honestly. Inflated priorities erode the queue for everyone." },
+      { id:"KB-005", title:"Granting shared mailbox access in Exchange Online", cat:"Microsoft 365", updated:"Updated 3 weeks ago",
+        body:"**Request:** a team needs shared access to a mailbox (e.g. reception@org).\n\n**Steps**\n1. In the Exchange admin centre, open the shared mailbox and select Delegation.\n2. Add the team members under Full access and Send as, matching what the request specifies.\n3. Add the members to the role-based group rather than listing them individually where possible.\n4. Ask one member to confirm the mailbox auto-maps in Outlook within an hour.\n\nKeep shared-mailbox membership tied to a group so offboarding removes it automatically." }
+    ]
+  };
+}
+
+const ONBOARD_STEPS = [
+  { x:"Create Entra ID account", sd:"Set UPN, display name, usage location (NZ)." },
+  { x:"Assign Microsoft 365 licence", sd:"E3 for clinical, E1 for casual / kiosk." },
+  { x:"Add to role-based groups", sd:"All-Staff plus role group — never direct permissions." },
+  { x:"Enrol MFA (Authenticator)", sd:"Required on first sign-in by Conditional Access." },
+  { x:"Enrol device in Intune", sd:"Confirm it reports compliant before day one." },
+  { x:"Grant app access", sd:"Indici and Whānau Tahi as the role requires." },
+  { x:"Send welcome + first sign-in guide", sd:"Book a 10-minute orientation." }
+];
+const OFFBOARD_STEPS = [
+  { x:"Block sign-in in Entra ID", sd:"Disable the account at end of last day." },
+  { x:"Revoke sessions & reset MFA", sd:"Sign out everywhere, clear auth methods." },
+  { x:"Convert mailbox to shared", sd:"Retain per policy; set a delegate if needed." },
+  { x:"Remove / reassign licence", sd:"Free the E3 once mailbox is converted." },
+  { x:"Retire device in Intune", sd:"Wipe and remove from the device record." },
+  { x:"Remove from all groups", sd:"This strips app and share access cleanly." },
+  { x:"Log in the offboarding register", sd:"Note date, ticket and who actioned it." }
+];
+
+/* ── Persistence (degrades gracefully if storage is blocked) ───────────────── */
+let state;
+function load(){
+  try{ const raw = localStorage.getItem("opsdesk"); if(raw){ state = JSON.parse(raw); return; } }catch(_){}
+  state = seed();
+}
+function save(){
+  try{ localStorage.setItem("opsdesk", JSON.stringify(state)); }catch(_){}
+}
+function resetData(){ state = seed(); save(); render(); toast("Demo data reset"); }
+
+/* ── SLA helper ────────────────────────────────────────────────────────────── */
+function slaInfo(tk){
+  if(tk.status==="Resolved"||tk.status==="Closed") return { cls:"ok", label:"met" };
+  const target = mins(SLA[tk.priority] || 1440);
+  const elapsed = now() - tk.created;
+  const remain = target - elapsed;
+  const fmt = (ms)=>{ const m=Math.round(Math.abs(ms)/60000); if(m<60) return m+"m"; const h=Math.floor(m/60); return h+"h "+(m%60)+"m"; };
+  if(remain < 0) return { cls:"breach", label:"overdue "+fmt(remain) };
+  if(remain < target*0.25) return { cls:"warn", label:"due in "+fmt(remain) };
+  return { cls:"ok", label:"due in "+fmt(remain) };
+}
+function stClass(s){ return "st-"+s.replace(/\s/g,""); }
+function initials(n){ return n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
+
+/* ── Routing ───────────────────────────────────────────────────────────────── */
+const TITLES = {
+  dashboard:["Operations Dashboard","Service desk overview for a cloud-first health organisation"],
+  tickets:["Ticket Queue","Incidents and service requests, prioritised by SLA"],
+  identity:["Identity & Access","Entra ID accounts, licences, groups and MFA"],
+  devices:["Device Compliance","Intune-managed endpoints and compliance state"],
+  kb:["Knowledge Base","Documented procedures for the team"],
+  settings:["Settings","API key and demo controls"]
+};
+function go(view){
+  state.view = view; save();
+  document.querySelectorAll("#nav li").forEach(li=>li.classList.toggle("active", li.dataset.view===view));
+  document.getElementById("sidebar").classList.remove("open");
+  render();
+}
+function render(){
+  const [title,sub] = TITLES[state.view] || TITLES.dashboard;
+  document.getElementById("vTitle").textContent = title;
+  document.getElementById("vSub").textContent = sub;
+  document.getElementById("navTickets").textContent = state.tickets.filter(t=>t.status!=="Closed"&&t.status!=="Resolved").length;
+  document.getElementById("navDevices").textContent = state.devices.filter(d=>!d.compliant).length;
+  const v = document.getElementById("view");
+  if(state.view==="dashboard") v.innerHTML = viewDashboard();
+  else if(state.view==="tickets") v.innerHTML = viewTickets();
+  else if(state.view==="identity") v.innerHTML = viewIdentity();
+  else if(state.view==="devices") v.innerHTML = viewDevices();
+  else if(state.view==="kb") v.innerHTML = viewKB();
+  else if(state.view==="settings") v.innerHTML = viewSettings();
+  bindView();
+}
+
+/* ── Dashboard ─────────────────────────────────────────────────────────────── */
+function viewDashboard(){
+  const open = state.tickets.filter(t=>t.status!=="Closed"&&t.status!=="Resolved");
+  const atRisk = open.filter(t=>{ const s=slaInfo(t); return s.cls!=="ok"; }).length;
+  const mfaCov = Math.round(100*state.users.filter(u=>u.mfa).length/state.users.length);
+  const devCov = Math.round(100*state.devices.filter(d=>d.compliant).length/state.devices.length);
+  const byP = ["P1","P2","P3","P4"].map(p=>({p, n:open.filter(t=>t.priority===p).length}));
+  const maxP = Math.max(1, ...byP.map(x=>x.n));
+  const pColor = {P1:"var(--red)",P2:"var(--amber)",P3:"var(--blue)",P4:"var(--muted)"};
+  const recent = [...state.tickets].sort((a,b)=>b.created-a.created).slice(0,6);
+  const onboarding = state.users.filter(u=>u.status==="Onboarding"||u.status==="Offboarding");
+
+  return `
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Open tickets</div><div class="kpi-val"><span class="kpi-num" data-count="${open.length}">${open.length}</span></div><div class="kpi-meta"><span class="dot" style="background:var(--blue)"></span>${state.tickets.filter(t=>t.status==="New").length} new today</div></div>
+    <div class="kpi"><div class="kpi-label">SLA at risk</div><div class="kpi-val" style="color:${atRisk?'var(--amber2)':'var(--green2)'}"><span class="kpi-num" data-count="${atRisk}">${atRisk}</span></div><div class="kpi-meta"><span class="dot" style="background:${atRisk?'var(--amber)':'var(--green)'}"></span>${atRisk?'needs attention':'all within target'}</div></div>
+    <div class="kpi" style="--p:${mfaCov}%"><div class="ring"></div><div class="kpi-label">MFA coverage</div><div class="kpi-val"><span class="kpi-num" data-count="${mfaCov}">${mfaCov}</span><small>%</small></div><div class="kpi-meta"><span class="dot" style="background:${mfaCov>=90?'var(--green)':'var(--amber)'}"></span>${state.users.filter(u=>!u.mfa).length} accounts without MFA</div></div>
+    <div class="kpi" style="--p:${devCov}%"><div class="ring"></div><div class="kpi-label">Device compliance</div><div class="kpi-val"><span class="kpi-num" data-count="${devCov}">${devCov}</span><small>%</small></div><div class="kpi-meta"><span class="dot" style="background:${devCov>=90?'var(--green)':'var(--amber)'}"></span>${state.devices.filter(d=>!d.compliant).length} non-compliant</div></div>
+  </div>
+
+  <div class="cols">
+    <div class="panel">
+      <div class="panel-head"><h3>Recent activity</h3><span class="spacer"></span><span class="count">last 6</span></div>
+      <div class="panel-body">
+        ${recent.map(t=>{ const s=slaInfo(t); return `
+        <div class="row" data-ticket="${t.id}">
+          <span class="pill p-${t.priority}">${t.priority}</span>
+          <div class="rmain"><div class="rtitle">${esc(t.title)}</div><div class="rmeta">${esc(t.requester)} · ${esc(t.dept)} · ${esc(t.category)}</div></div>
+          <span class="st ${stClass(t.status)}">${t.status}</span>
+          <span class="sla ${s.cls}">${s.label}</span>
+        </div>`;}).join("")}
+      </div>
+    </div>
+    <div>
+      <div class="panel" style="margin-bottom:1.25rem">
+        <div class="panel-head"><h3>Open by priority</h3></div>
+        <div class="panel-body" style="padding:.75rem .5rem">
+          ${byP.map(x=>`<div class="pbar-row"><span class="pk">${x.p} · ${SLA[x.p]<60?SLA[x.p]+"m":Math.round(SLA[x.p]/60)+"h"}</span><div class="pbar-track"><div class="pbar-fill" style="width:0%;background:${pColor[x.p]}" data-w="${100*x.n/maxP}"></div></div><span class="pn">${x.n}</span></div>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Identity lifecycle</h3><span class="spacer"></span><span class="count">in progress</span></div>
+        <div class="panel-body">
+          ${onboarding.length? onboarding.map(u=>`
+          <div class="row" data-user="${u.id}">
+            <span class="avatar">${initials(u.name)}</span>
+            <div class="rmain"><div class="rtitle">${esc(u.name)}</div><div class="rmeta">${esc(u.role)} · ${esc(u.dept)}</div></div>
+            <span class="st ${u.status==='Onboarding'?'st-New':'st-Pending'}">${u.status}</span>
+          </div>`).join("") : '<div class="empty">No lifecycle tasks in progress.</div>'}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── Tickets ───────────────────────────────────────────────────────────────── */
+let tFilter = {status:"open", q:""};
+function viewTickets(){
+  const chips = [["open","Open"],["New","New"],["In Progress","In Progress"],["Pending","Pending"],["Resolved","Resolved"],["all","All"]];
+  return `
+  <div class="toolbar">
+    ${chips.map(c=>`<span class="chip ${tFilter.status===c[0]?'on':''}" data-fstatus="${c[0]}">${c[1]}</span>`).join("")}
+    <input class="search" id="tSearch" placeholder="Search tickets…" value="${esc(tFilter.q)}">
+    <span class="spacer" style="flex:1"></span>
+    <button class="btn btn-ghost" id="showMatrix">Priority matrix</button>
+  </div>
+  <div id="matrixBox"></div>
+  <div class="cards" id="tCards">${ticketCards()}</div>`;
+}
+function ticketCards(){
+  let list = state.tickets.slice();
+  if(tFilter.status==="open") list = list.filter(t=>t.status!=="Closed"&&t.status!=="Resolved");
+  else if(tFilter.status!=="all") list = list.filter(t=>t.status===tFilter.status);
+  if(tFilter.q){ const q=tFilter.q.toLowerCase(); list = list.filter(t=>(t.title+t.requester+t.dept+t.category+t.id).toLowerCase().includes(q)); }
+  list.sort((a,b)=>{ const o={P1:0,P2:1,P3:2,P4:3}; if(o[a.priority]!==o[b.priority]) return o[a.priority]-o[b.priority]; return a.created-b.created; });
+  if(!list.length) return '<div class="empty">No tickets match this filter.</div>';
+  return list.map(t=>{ const s=slaInfo(t); return `
+    <div class="tcard" data-ticket="${t.id}">
+      <div class="tcard-top">
+        <span class="pill p-${t.priority}">${t.priority}</span>
+        <span class="st ${stClass(t.status)}">${t.status}</span>
+        <span class="spacer" style="flex:1"></span>
+        <span class="rid">${t.id}</span>
+      </div>
+      <h4>${esc(t.title)}</h4>
+      <div class="meta">
+        <span>${t.type==="Incident"?"◈ Incident":"⊕ Request"}</span>
+        <span>${esc(t.requester)}</span>
+        <span>${esc(t.dept)}</span>
+        <span class="sla ${s.cls}">${s.label}</span>
+      </div>
+    </div>`;}).join("");
+}
+function matrixHTML(){
+  const cell=(label,color)=>`<div class="mc" style="background:${color}15;color:${color};border:1px solid ${color}40">${label}</div>`;
+  return `<div class="panel" style="margin-bottom:1.1rem"><div class="panel-head"><h3>Priority matrix — Impact × Urgency</h3></div>
+  <div class="panel-body" style="padding:1rem 1.25rem">
+    <div class="matrix">
+      <div class="mh"></div><div class="mh">High urgency</div><div class="mh">Medium</div><div class="mh">Low</div>
+      <div class="ml">High impact</div>${cell("P1","#EF4444")}${cell("P2","#E89510")}${cell("P3","#7B6AE8")}
+      <div class="ml">Medium</div>${cell("P2","#E89510")}${cell("P3","#7B6AE8")}${cell("P3","#7B6AE8")}
+      <div class="ml">Low impact</div>${cell("P3","#7B6AE8")}${cell("P4","#6E6A84")}${cell("P4","#6E6A84")}
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-top:.9rem">SLA to resolve — P1 30 min · P2 4 hr · P3 8 hr · P4 24 hr. A whole clinic blocked outranks one person blocked.</p>
+  </div></div>`;
+}
+
+/* ── Identity ──────────────────────────────────────────────────────────────── */
+function viewIdentity(){
+  return `
+  ${identityFlow()}
+  <div class="panel">
+    <div class="panel-head"><h3>Accounts</h3><span class="spacer"></span><span class="count">${state.users.length} users</span></div>
+    <table class="tbl">
+      <thead><tr><th>Kaimahi / Staff</th><th>Licence</th><th>Groups</th><th>MFA</th><th>Last sign-in</th><th>Status</th></tr></thead>
+      <tbody>
+        ${state.users.map(u=>`
+        <tr>
+          <td><span class="avatar">${initials(u.name)}</span><strong>${esc(u.name)}</strong><div style="font-size:.74rem;color:var(--muted);margin-left:2.5rem">${esc(u.role)} · ${esc(u.dept)}</div></td>
+          <td style="font-size:.8rem">${esc(u.license)}</td>
+          <td>${u.groups.length? u.groups.map(g=>`<span class="tag">${esc(g)}</span>`).join("") : '<span style="color:var(--muted)">—</span>'}</td>
+          <td class="${u.mfa?'yes':'no'}">${u.mfa?"✓ Enrolled":"✕ Missing"}</td>
+          <td style="font-size:.8rem;color:var(--muted)">${esc(u.lastSignIn)}</td>
+          <td><span class="st ${u.status==='Active'?'st-Resolved':u.status==='Onboarding'?'st-New':'st-Pending'}">${u.status}</span></td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+function identityFlow(){
+  const onP = onboardProgress(), offP = offboardProgress();
+  return `
+  <div class="flow" style="margin-bottom:1.5rem">
+    <div class="flow-col panel" style="padding:1.25rem">
+      <h3>Onboarding — ${esc(state.onboardName||"New Community Nurse")}</h3>
+      <div class="desc">Standard provisioning sequence for a new kaimahi in Microsoft 365.</div>
+      <div class="progress"><span style="width:${onP}%"></span></div>
+      ${ONBOARD_STEPS.map((s,i)=>`<div class="step ${state.onboardDone&&state.onboardDone[i]?'done':''}" data-flow="on" data-i="${i}"><div class="ck">✓</div><div><div class="sx">${esc(s.x)}</div><div class="sd">${esc(s.sd)}</div></div></div>`).join("")}
+    </div>
+    <div class="flow-col panel" style="padding:1.25rem">
+      <h3>Offboarding — Hemi Rangi</h3>
+      <div class="desc">Revoke access cleanly so nothing is left behind.</div>
+      <div class="progress"><span style="width:${offP}%"></span></div>
+      ${OFFBOARD_STEPS.map((s,i)=>`<div class="step ${state.offboardDone&&state.offboardDone[i]?'done':''}" data-flow="off" data-i="${i}"><div class="ck">✓</div><div><div class="sx">${esc(s.x)}</div><div class="sd">${esc(s.sd)}</div></div></div>`).join("")}
+    </div>
+  </div>`;
+}
+function onboardProgress(){ const d=state.onboardDone||[]; return Math.round(100*d.filter(Boolean).length/ONBOARD_STEPS.length); }
+function offboardProgress(){ const d=state.offboardDone||[]; return Math.round(100*d.filter(Boolean).length/OFFBOARD_STEPS.length); }
+
+/* ── Devices ───────────────────────────────────────────────────────────────── */
+function viewDevices(){
+  return `
+  <div class="panel">
+    <div class="panel-head"><h3>Intune-managed devices</h3><span class="spacer"></span><span class="count">${state.devices.filter(d=>d.compliant).length}/${state.devices.length} compliant</span></div>
+    <table class="tbl">
+      <thead><tr><th>Device</th><th>Assigned to</th><th>OS</th><th>Encrypted</th><th>Last check-in</th><th>Compliance</th></tr></thead>
+      <tbody>
+        ${state.devices.map(d=>`
+        <tr>
+          <td><strong style="font-family:var(--mono);font-size:.82rem">${d.id}</strong><div style="font-size:.74rem;color:var(--muted)">${d.type}</div></td>
+          <td style="font-size:.84rem">${esc(d.user)}</td>
+          <td style="font-size:.82rem;color:var(--muted2)">${esc(d.os)}</td>
+          <td class="${d.encrypted?'yes':'no'}">${d.encrypted?"✓":"✕"}</td>
+          <td style="font-size:.8rem;color:var(--muted)">${esc(d.checkIn)}</td>
+          <td>${d.compliant?'<span class="st st-Resolved">✓ Compliant</span>':`<span class="st st-InProgress" title="${esc(d.issue)}">✕ ${esc(d.issue||"Non-compliant")}</span>`}</td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.78rem;color:var(--muted);margin-top:1rem">Non-compliant devices fall out of Conditional Access and lose app access until remediated — mirrors a real Intune compliance posture.</p>`;
+}
+
+/* ── Knowledge Base ────────────────────────────────────────────────────────── */
+function viewKB(){
+  const active = state.kb.find(a=>a.id===state.kbActive) || state.kb[0];
+  state.kbActive = active.id;
+  return `
+  <div class="toolbar"><input class="search" id="kbSearch" placeholder="Search articles…"><span class="spacer" style="flex:1"></span><button class="btn btn-pri" id="kbDraft">✦ Draft article with AI</button></div>
+  <div class="kb-grid">
+    <div id="kbList">${kbList("")}</div>
+    <div class="kb-reader" id="kbReader">
+      <h2>${esc(active.title)}</h2>
+      <div class="kbmeta">${active.id} · ${esc(active.cat)} · ${esc(active.updated)}</div>
+      <div class="kbody">${fmtBody(active.body)}</div>
+    </div>
+  </div>`;
+}
+function kbList(q){
+  let list = state.kb;
+  if(q){ const s=q.toLowerCase(); list = list.filter(a=>(a.title+a.cat+a.body).toLowerCase().includes(s)); }
+  if(!list.length) return '<div class="empty">No articles found.</div>';
+  return list.map(a=>`<div class="kb-item ${a.id===state.kbActive?'on':''}" data-kb="${a.id}"><div class="kt">${esc(a.title)}</div><div class="kc">${a.id} · ${esc(a.cat)}</div></div>`).join("");
+}
+function fmtBody(b){ return esc(b).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>"); }
+
+/* ── Settings ──────────────────────────────────────────────────────────────── */
+function viewSettings(){
+  return `
+  <div style="max-width:560px">
+    <div class="panel" style="padding:1.5rem;margin-bottom:1.25rem">
+      <h3 style="font-family:'Syne';margin-bottom:.4rem">AI assist (optional)</h3>
+      <p style="font-size:.84rem;color:var(--muted);line-height:1.6">OpsDesk can use Claude to triage a ticket and draft knowledge-base articles. Add an Anthropic API key to enable it — get a free one at console.anthropic.com. The key stays in your browser only.</p>
+      <div class="field-lbl">Anthropic API key</div>
+      <input class="txt" id="apiKey" type="password" placeholder="sk-ant-…" value="${esc(state.settings.apiKey)}">
+      <div style="margin-top:1rem;display:flex;gap:.6rem">
+        <button class="btn btn-pri" id="saveKey">Save key</button>
+        <button class="btn btn-ghost" id="testKey">Test connection</button>
+      </div>
+      <div id="keyStatus" style="font-size:.8rem;margin-top:.75rem"></div>
+    </div>
+    <div class="panel" style="padding:1.5rem">
+      <h3 style="font-family:'Syne';margin-bottom:.4rem">Demo data</h3>
+      <p style="font-size:.84rem;color:var(--muted);line-height:1.6">Tickets, accounts, devices and articles are sample data themed for a cloud-first health organisation. Reset returns everything to the seeded state.</p>
+      <button class="btn btn-ghost" id="resetBtn" style="margin-top:1rem">Reset demo data</button>
+    </div>
+    <p style="font-size:.76rem;color:var(--muted);margin-top:1.25rem;line-height:1.6">OpsDesk is a portfolio demonstration — a single-file app with no backend. The workflows model Microsoft 365, Entra ID and Intune practice for an ICT support context.</p>
+  </div>`;
+}
+
+/* ── Ticket drawer ─────────────────────────────────────────────────────────── */
+function openTicket(id){
+  const t = state.tickets.find(x=>x.id===id); if(!t) return;
+  const s = slaInfo(t);
+  const d = document.getElementById("drawer");
+  d.innerHTML = `
+    <div class="drawer-head">
+      <span class="x" data-close>✕</span>
+      <div style="display:flex;gap:.5rem;margin-bottom:.6rem"><span class="pill p-${t.priority}">${t.priority}</span><span class="rid" style="align-self:center">${t.id}</span></div>
+      <h2 style="font-family:'Syne';font-size:1.2rem;line-height:1.3">${esc(t.title)}</h2>
+    </div>
+    <div class="drawer-body">
+      <div class="kv"><span class="k">Type</span><span>${t.type}</span></div>
+      <div class="kv"><span class="k">Requester</span><span>${esc(t.requester)} · ${esc(t.dept)}</span></div>
+      <div class="kv"><span class="k">Category</span><span>${esc(t.category)}</span></div>
+      <div class="kv"><span class="k">SLA</span><span class="sla ${s.cls}">${s.label}</span></div>
+      <div class="kv"><span class="k">Status</span>
+        <select class="sel" id="stSel">${STATUSES.map(st=>`<option ${st===t.status?'selected':''}>${st}</option>`).join("")}</select>
+      </div>
+      <div class="kv" style="border:none"><span class="k">Priority</span>
+        <select class="sel" id="prSel">${["P1","P2","P3","P4"].map(p=>`<option ${p===t.priority?'selected':''}>${p}</option>`).join("")}</select>
+      </div>
+
+      <button class="btn btn-pri" id="triageBtn" style="width:100%;margin-top:.5rem">✦ AI triage &amp; first steps</button>
+      <div id="triageOut"></div>
+
+      <div class="field-lbl">Activity</div>
+      <div id="notes">${t.notes.map(n=>noteHTML(n)).join("") || '<p style="font-size:.82rem;color:var(--muted)">No activity yet.</p>'}</div>
+      <textarea class="ta" id="noteInput" placeholder="Add a note or resolution…"></textarea>
+      <button class="btn btn-ghost" id="addNote" style="margin-top:.6rem">Add note</button>
+    </div>`;
+  d.classList.add("open");
+  document.getElementById("drawerBg").classList.add("open");
+
+  d.querySelector("[data-close]").onclick = closeDrawer;
+  document.getElementById("stSel").onchange = (e)=>{ t.status=e.target.value; save(); render(); toast("Status → "+t.status); openTicket(id); };
+  document.getElementById("prSel").onchange = (e)=>{ t.priority=e.target.value; save(); render(); openTicket(id); };
+  document.getElementById("addNote").onclick = ()=>{
+    const txt = document.getElementById("noteInput").value.trim(); if(!txt) return;
+    t.notes.push({by:"You", at:now(), text:txt}); save(); openTicket(id); toast("Note added");
+  };
+  document.getElementById("triageBtn").onclick = ()=>triage(t);
+}
+function noteHTML(n){
+  const when = (typeof n.at==="number") ? timeAgo(n.at) : n.at;
+  return `<div class="note"><div class="nh">${esc(n.by)} · ${when}</div>${esc(n.text)}</div>`;
+}
+function timeAgo(ts){ const m=Math.round((now()-ts)/60000); if(m<1) return "just now"; if(m<60) return m+" min ago"; const h=Math.floor(m/60); if(h<24) return h+" hr ago"; return Math.floor(h/24)+" days ago"; }
+function closeDrawer(){ document.getElementById("drawer").classList.remove("open"); document.getElementById("drawerBg").classList.remove("open"); }
+
+/* ── AI features ───────────────────────────────────────────────────────────── */
+async function callClaude(userMsg, systemMsg, maxTokens){
+  const key = (state.settings.apiKey||"").trim();
+  if(!key){ const e=new Error("NO_KEY"); e.code="NO_KEY"; throw e; }
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true",
+      "x-api-key":key
+    },
+    body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:maxTokens||700, system:systemMsg, messages:[{role:"user",content:userMsg}] })
+  });
+  const d = await res.json();
+  if(d.content && d.content[0] && d.content[0].text) return d.content[0].text;
+  throw new Error((d.error && d.error.message) || "API error");
+}
+async function triage(t){
+  const out = document.getElementById("triageOut");
+  out.innerHTML = `<div class="ai-box"><div class="aih">✦ AI triage</div>Analysing…</div>`;
+  const sys = "You are a senior IT service desk analyst at a New Zealand healthcare organisation running Microsoft 365, Entra ID and Intune. Be concise and practical. Respond in plain text, no markdown headers.";
+  const prompt = `Triage this ticket. Give: (1) confirm Incident vs Service Request, (2) a sensible priority P1-P4 with one-line reasoning, (3) the first 3 concrete steps you would take. Keep it under 130 words.\n\nTitle: ${t.title}\nFrom: ${t.requester}, ${t.dept}\nCategory: ${t.category}\nNotes: ${t.notes.map(n=>n.text).join(" | ")||"none"}`;
+  try{
+    const txt = await callClaude(prompt, sys, 400);
+    out.innerHTML = `<div class="ai-box"><div class="aih">✦ AI triage</div>${esc(txt)}</div>`;
+  }catch(e){
+    if(e.code==="NO_KEY") out.innerHTML = `<div class="ai-box"><div class="aih">✦ AI triage</div>Add an Anthropic API key in Settings to enable AI triage. Without a key, OpsDesk still runs fully — this feature is optional.</div>`;
+    else out.innerHTML = `<div class="ai-box"><div class="aih">✦ AI triage</div>Could not reach the API: ${esc(e.message)}</div>`;
+  }
+}
+async function kbDraft(){
+  const title = prompt("Article title (e.g. Configuring a new conditional access policy):");
+  if(!title) return;
+  const reader = document.getElementById("kbReader");
+  reader.innerHTML = `<h2>${esc(title)}</h2><div class="kbmeta">Drafting…</div><div class="kbody">✦ Generating a procedure…</div>`;
+  const sys = "You write internal IT knowledge-base articles for a NZ healthcare organisation on Microsoft 365, Entra ID and Intune. Write a clear, step-numbered procedure. Use **bold** for short section labels. Keep under 220 words. No preamble.";
+  try{
+    const txt = await callClaude("Write a KB article titled: "+title, sys, 600);
+    const art = { id:"KB-"+String(state.kb.length+1).padStart(3,"0"), title, cat:"Drafted", updated:"Just now (AI draft)", body:txt };
+    state.kb.unshift(art); state.kbActive=art.id; save(); render(); toast("Draft created — review before publishing");
+  }catch(e){
+    if(e.code==="NO_KEY") reader.innerHTML = `<h2>${esc(title)}</h2><div class="kbmeta">AI disabled</div><div class="kbody">Add an Anthropic API key in Settings to draft articles with AI.</div>`;
+    else reader.innerHTML = `<h2>${esc(title)}</h2><div class="kbmeta">Error</div><div class="kbody">Could not reach the API: ${esc(e.message)}</div>`;
+  }
+}
+
+/* ── Event binding per view ────────────────────────────────────────────────── */
+function animateDashboard(){
+  try{
+    document.querySelectorAll(".kpi-num[data-count]").forEach(el=>{
+      const target = parseInt(el.getAttribute("data-count"),10) || 0;
+      const dur = 900, t0 = performance.now();
+      el.textContent = "0";
+      function step(now){
+        const p = Math.min(1,(now-t0)/dur);
+        const eased = 1-Math.pow(1-p,3);
+        el.textContent = Math.round(eased*target);
+        if(p<1) requestAnimationFrame(step); else el.textContent = target;
+      }
+      requestAnimationFrame(step);
+    });
+    requestAnimationFrame(()=>{
+      document.querySelectorAll(".pbar-fill[data-w]").forEach(el=>{ el.style.width = el.getAttribute("data-w")+"%"; });
+    });
+  }catch(e){
+    document.querySelectorAll(".kpi-num[data-count]").forEach(el=>{ el.textContent = el.getAttribute("data-count"); });
+    document.querySelectorAll(".pbar-fill[data-w]").forEach(el=>{ el.style.width = el.getAttribute("data-w")+"%"; });
+  }
+}
+function bindView(){
+  document.querySelectorAll("[data-ticket]").forEach(el=>el.onclick=()=>openTicket(el.dataset.ticket));
+
+  if(state.view==="dashboard"){ requestAnimationFrame(animateDashboard); }
+
+  if(state.view==="tickets"){
+    document.querySelectorAll("[data-fstatus]").forEach(c=>c.onclick=()=>{ tFilter.status=c.dataset.fstatus; render(); });
+    const ts=document.getElementById("tSearch"); if(ts) ts.oninput=(e)=>{ tFilter.q=e.target.value; document.getElementById("tCards").innerHTML=ticketCards(); document.querySelectorAll("#tCards [data-ticket]").forEach(el=>el.onclick=()=>openTicket(el.dataset.ticket)); };
+    const sm=document.getElementById("showMatrix"); if(sm) sm.onclick=()=>{ const b=document.getElementById("matrixBox"); b.innerHTML = b.innerHTML? "" : matrixHTML(); };
+  }
+
+  if(state.view==="identity"){
+    document.querySelectorAll("[data-flow]").forEach(st=>st.onclick=()=>{
+      const f=st.dataset.flow, i=+st.dataset.i;
+      if(f==="on"){ state.onboardDone=state.onboardDone||[]; state.onboardDone[i]=!state.onboardDone[i]; }
+      else { state.offboardDone=state.offboardDone||[]; state.offboardDone[i]=!state.offboardDone[i]; }
+      save(); render();
+    });
+    document.querySelectorAll("[data-user]").forEach(el=>el.onclick=()=>go("identity"));
+  }
+
+  if(state.view==="kb"){
+    const ks=document.getElementById("kbSearch"); if(ks) ks.oninput=(e)=>{ document.getElementById("kbList").innerHTML=kbList(e.target.value); bindKb(); };
+    bindKb();
+    const kd=document.getElementById("kbDraft"); if(kd) kd.onclick=kbDraft;
+  }
+
+  if(state.view==="settings"){
+    document.getElementById("saveKey").onclick=()=>{ state.settings.apiKey=document.getElementById("apiKey").value.trim(); save(); setKeyStatus(state.settings.apiKey?"Key saved.":"Key cleared.", state.settings.apiKey?"var(--green2)":"var(--muted)"); };
+    document.getElementById("testKey").onclick=testKey;
+    document.getElementById("resetBtn").onclick=resetData;
+  }
+}
+function bindKb(){ document.querySelectorAll("[data-kb]").forEach(el=>el.onclick=()=>{ state.kbActive=el.dataset.kb; save(); render(); }); }
+function setKeyStatus(msg,color){ const s=document.getElementById("keyStatus"); if(s){ s.textContent=msg; s.style.color=color||"var(--muted)"; } }
+async function testKey(){
+  setKeyStatus("Testing…","var(--muted2)");
+  state.settings.apiKey=document.getElementById("apiKey").value.trim(); save();
+  try{ await callClaude("Reply with the single word: ok", "You are a connection test.", 10); setKeyStatus("✓ Connected — AI features are live.","var(--green2)"); }
+  catch(e){ setKeyStatus(e.code==="NO_KEY"?"Enter a key first.":"✕ "+e.message,"#FCA5A5"); }
+}
+
+/* ── Utils ─────────────────────────────────────────────────────────────────── */
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+let toastTimer;
+function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2200); }
+
+/* ── Boot ──────────────────────────────────────────────────────────────────── */
+load();
+document.getElementById("nav").addEventListener("click",(e)=>{ const li=e.target.closest("li"); if(li) go(li.dataset.view); });
+document.getElementById("drawerBg").addEventListener("click",closeDrawer);
+document.getElementById("menuToggle").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeDrawer(); });
+go(state.view||"dashboard");
+</script>
+</body>
+</html>
