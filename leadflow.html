@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadFlow — Business Outreach System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A0F1E;--navy2:#111827;--navy3:#1A2337;
+  --blue:#1D6FE8;--blue2:#3B82F6;
+  --green:#10B981;--yellow:#F59E0B;--red:#EF4444;--purple:#8B5CF6;
+  --accent:#4FFFB0;
+  --white:#F8FAFC;--muted:#64748B;--muted2:#94A3B8;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem;height:56px;background:var(--navy2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:4px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--white);display:flex;align-items:center;gap:8px}
+.logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block}
+.tabs{display:flex;gap:2px;flex-wrap:wrap}
+.tab{padding:6px 12px;border-radius:6px;font-size:0.8rem;font-weight:500;cursor:pointer;color:var(--muted2);background:none;border:none;transition:all .15s;display:flex;align-items:center;gap:5px}
+.tab:hover{color:var(--white);background:rgba(255,255,255,0.05)}
+.tab.active{background:rgba(29,111,232,0.15);color:var(--blue2)}
+.tab-badge{background:var(--blue);color:#fff;font-size:0.65rem;padding:1px 6px;border-radius:100px;font-weight:600}
+.tab-badge.warn{background:var(--yellow)}
+main{padding:1.5rem;max-width:1200px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+.card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+.search-bar{display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.search-input{flex:1;min-width:200px;background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:0 1rem;height:44px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--blue)}
+.search-input::placeholder{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:0 1.25rem;height:44px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue2)}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--muted2);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--white)}
+.btn-sm{height:32px;padding:0 0.9rem;font-size:0.78rem;border-radius:6px}
+.btn-accent{background:rgba(79,255,176,0.12);color:var(--accent);border:1px solid rgba(79,255,176,0.2)}.btn-accent:hover{background:rgba(79,255,176,0.2)}
+.btn-green{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2)}.btn-green:hover{background:rgba(16,185,129,0.2)}
+.btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}.btn-danger:hover{background:rgba(239,68,68,0.15)}
+.btn-yellow{background:rgba(245,158,11,0.12);color:var(--yellow);border:1px solid rgba(245,158,11,0.2)}
+.results-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;flex-wrap:wrap;gap:8px}
+.results-count{font-size:.82rem;color:var(--muted2)}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:0 1rem .6rem;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:hover{background:rgba(255,255,255,0.02)}
+tbody tr:last-child{border-bottom:none}
+td{padding:.75rem 1rem;font-size:.85rem;color:var(--muted2);vertical-align:middle}
+td.name{color:var(--white);font-weight:500}
+td.actions{text-align:right;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;padding:3px 9px;border-radius:100px;font-weight:500}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge-new{background:rgba(100,116,139,.15);color:#94A3B8}
+.badge-contacted{background:rgba(29,111,232,.15);color:#60A5FA}
+.badge-interested{background:rgba(245,158,11,.15);color:#FCD34D}
+.badge-converted{background:rgba(16,185,129,.15);color:#34D399}
+.badge-nope{background:rgba(239,68,68,.1);color:#F87171}
+.overdue-row{background:rgba(245,158,11,0.04)!important}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.5rem}
+.stat-card{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--white);line-height:1}
+.stat-label{font-size:.72rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.compose-layout{display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start}
+.compose-field{margin-bottom:.75rem}
+.compose-field label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.compose-input{width:100%;background:var(--navy3);border:1px solid var(--border2);border-radius:7px;padding:.6rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s}
+.compose-input:focus{border-color:var(--blue)}
+textarea.compose-input{resize:vertical;min-height:200px;line-height:1.65}
+.ai-panel{background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+.ai-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.ai-title-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.ai-prompt{width:100%;background:var(--navy2);border:1px solid var(--border2);border-radius:7px;padding:.6rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;resize:none;min-height:70px}
+.ai-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.ai-chip{padding:6px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;font-size:.75rem;color:var(--muted2);cursor:pointer;transition:all .15s;text-align:center}
+.ai-chip:hover{border-color:rgba(29,111,232,.4);color:var(--blue2)}
+.ai-response{background:var(--navy2);border:1px solid var(--border);border-radius:7px;padding:.9rem;font-size:.82rem;color:var(--muted2);line-height:1.7;min-height:60px;margin-top:10px;display:none;white-space:pre-wrap}
+.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.template-card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1.25rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.template-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--accent));opacity:0;transition:opacity .2s}
+.template-card:hover{border-color:rgba(29,111,232,.3);transform:translateY(-2px)}
+.template-card:hover::before{opacity:1}
+.template-type{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--blue2);margin-bottom:6px}
+.template-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--white);margin-bottom:8px}
+.template-preview{font-size:.8rem;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.settings-field{margin-bottom:1rem}
+.settings-field label{display:block;font-size:.78rem;color:var(--muted2);margin-bottom:6px;font-weight:500}
+.settings-input{width:100%;background:var(--navy3);border:1px solid var(--border2);border-radius:7px;padding:.65rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s}
+.settings-input:focus{border-color:var(--blue)}
+.loading{display:none;text-align:center;padding:3rem;color:var(--muted)}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:3rem 2rem;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:1rem;opacity:.4}
+.empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--muted2);margin-bottom:.5rem}
+.empty-desc{font-size:.82rem;line-height:1.65}
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1.25rem;font-size:.82rem;color:var(--white);transform:translateY(60px);opacity:0;transition:all .25s;z-index:999;pointer-events:none;max-width:300px}
+#toast.show{transform:translateY(0);opacity:1}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border2);border-radius:12px;padding:1.5rem;width:90%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:.5rem}
+.modal p{font-size:.85rem;color:var(--muted2);line-height:1.65;margin-bottom:1rem}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem}
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.25rem}
+.funnel-step{margin-bottom:.6rem}
+.funnel-label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted2);margin-bottom:5px}
+.funnel-bar-bg{background:var(--navy3);border-radius:4px;height:10px;overflow:hidden}
+.funnel-bar{height:100%;border-radius:4px;transition:width .6s ease}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:1rem}
+/* CALL COACH */
+.call-layout{display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start}
+.call-status{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding:.875rem 1.25rem;background:var(--navy3);border:1px solid var(--border);border-radius:8px}
+.call-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.call-dot.live{background:var(--red);animation:pulse .8s ease-in-out infinite alternate}
+@keyframes pulse{to{opacity:.4;transform:scale(.9)}}
+.call-timer{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;color:var(--white)}
+.transcript-box{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:1rem;min-height:280px;max-height:380px;overflow-y:auto;font-size:.85rem;line-height:1.75;color:var(--muted2)}
+.transcript-line{margin-bottom:.5rem}
+.transcript-line.interim{color:var(--muted);font-style:italic}
+.objection-item{padding:.75rem;background:var(--navy2);border:1px solid var(--border);border-radius:8px;margin-bottom:.6rem;cursor:pointer;transition:border-color .15s}
+.objection-item:hover{border-color:rgba(29,111,232,.35)}
+.objection-q{font-size:.8rem;font-weight:500;color:var(--white);margin-bottom:.35rem}
+.objection-a{font-size:.78rem;color:var(--muted2);line-height:1.55;display:none}
+.objection-item.open .objection-a{display:block}
+.sentiment-bar{display:flex;gap:3px;margin:10px 0}
+.sent-seg{flex:1;height:6px;border-radius:3px;background:var(--navy3);transition:background .3s}
+.sent-seg.positive{background:var(--green)}
+.sent-seg.neutral{background:var(--muted)}
+.sent-seg.negative{background:var(--red)}
+/* CSV IMPORT */
+.drop-zone{border:2px dashed var(--border2);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:1rem}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--blue)}
+.drop-zone p{font-size:.85rem;color:var(--muted);margin-top:.5rem}
+/* FOLLOW-UP date input */
+.followup-input{background:var(--navy3);border:1px solid var(--border);border-radius:5px;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:.75rem;padding:2px 6px;cursor:pointer;outline:none}
+.followup-input:focus{border-color:var(--blue)}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5)}
+.overdue-badge{font-size:.68rem;background:rgba(245,158,11,.15);color:var(--yellow);padding:1px 6px;border-radius:100px}
+/* LEAD CONTEXT CARD in Call Coach */
+.lead-context{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:.875rem;margin-bottom:1rem;font-size:.82rem}
+.lead-context-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border)}
+.lead-context-row:last-child{border-bottom:none}
+.api-info{background:rgba(79,255,176,0.05);border:1px solid rgba(79,255,176,.15);border-radius:8px;padding:1rem;font-size:.8rem;color:var(--muted2);line-height:1.65;margin-top:1rem}
+.api-info a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="logo-dot"></span>LeadFlow</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('search')">&#128269; Search</button>
+    <button class="tab" onclick="showTab('leads')" id="tab-leads">&#128101; Leads <span class="tab-badge" id="leads-count">0</span></button>
+    <button class="tab" onclick="showTab('compose')">&#9993; Compose</button>
+    <button class="tab" onclick="showTab('analytics')">&#128202; Analytics</button>
+    <button class="tab" onclick="showTab('callcoach')">&#128222; Call Coach</button>
+    <button class="tab" onclick="showTab('templates')">&#128203; Templates</button>
+    <button class="tab" onclick="showTab('settings')">&#9881; Settings</button>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" onclick="openImportModal()">&#8679; Import CSV</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
+  </div>
+</div>
+
+<main>
+
+<!-- SEARCH -->
+<div id="search" class="section active">
+  <div style="margin-bottom:1.25rem">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Find businesses</h2>
+    <p style="font-size:.85rem;color:var(--muted)">Search by trade and area — e.g. "electricians in South Auckland" or "plumbers in Wellington CBD"</p>
+  </div>
+  <div class="search-bar">
+    <input class="search-input" id="searchInput" type="text" placeholder='"electricians in South Auckland"' value="electricians in South Auckland">
+    <button class="btn btn-primary" onclick="doSearch()">&#128269; Search</button>
+    <button class="btn btn-ghost" onclick="loadDemo()">Load demo</button>
+  </div>
+  <div id="searchLoading" class="loading"><div class="spinner"></div>Searching OpenStreetMap...</div>
+  <div id="searchResults" style="display:none">
+    <div class="results-meta">
+      <span class="results-count" id="resultsCount"></span>
+      <button class="btn btn-ghost btn-sm" onclick="addAllToLeads()">+ Add all to leads</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table><thead><tr>
+        <th>Business</th><th>Address</th><th>Phone</th><th>Website</th><th>Source</th><th style="text-align:right">Action</th>
+      </tr></thead><tbody id="resultsTbody"></tbody></table>
+    </div>
+  </div>
+  <div id="searchEmpty" class="empty" style="display:none">
+    <div class="empty-icon">&#128269;</div>
+    <div class="empty-title">No results on OpenStreetMap</div>
+    <div class="empty-desc">OSM coverage is limited in NZ. Try <strong>Load demo</strong> to see the full workflow,<br>or add a business manually below.</div><br>
+    <button class="btn btn-ghost btn-sm" onclick="openAddManual()">+ Add manually</button>
+  </div>
+</div>
+
+<!-- LEADS -->
+<div id="leads" class="section">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Lead tracker</h2>
+      <p style="font-size:.85rem;color:var(--muted)">Manage your outreach pipeline</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <select id="statusFilter" class="settings-input" style="width:150px;height:36px;padding:0 .75rem" onchange="renderLeads()">
+        <option value="all">All statuses</option>
+        <option value="new">New</option>
+        <option value="contacted">Contacted</option>
+        <option value="interested">Interested</option>
+        <option value="converted">Converted</option>
+        <option value="nope">Not interested</option>
+        <option value="overdue">Overdue follow-up</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="openAddManual()">+ Add manually</button>
+    </div>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+  <div id="overdueAlert" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:var(--yellow);display:flex;align-items:center;gap:8px">
+    &#9888; <span id="overdueMsg"></span>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden" id="leadsTable">
+    <table><thead><tr>
+      <th>Business</th><th>Contact</th><th>Status</th><th>Follow-up</th><th>Notes</th><th style="text-align:right">Actions</th>
+    </tr></thead><tbody id="leadsTbody"></tbody></table>
+  </div>
+  <div id="leadsEmpty" class="empty" style="display:none">
+    <div class="empty-icon">&#128101;</div>
+    <div class="empty-title">No leads yet</div>
+    <div class="empty-desc">Search for businesses and add them here.</div>
+  </div>
+</div>
+
+<!-- COMPOSE -->
+<div id="compose" class="section">
+  <div style="margin-bottom:1.25rem">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Compose outreach</h2>
+    <p style="font-size:.85rem;color:var(--muted)">Write emails with AI assistance.</p>
+  </div>
+  <div class="compose-layout">
+    <div>
+      <div class="compose-field">
+        <label>Load from lead</label>
+        <select class="compose-input" id="leadSelect" onchange="loadLeadToCompose()">
+          <option value="">— select a lead —</option>
+        </select>
+      </div>
+      <div class="compose-field">
+        <label>Template</label>
+        <select class="compose-input" id="templateSelect" onchange="applyTemplate()">
+          <option value="">— select a template —</option>
+        </select>
+      </div>
+      <div class="compose-field"><label>To</label><input class="compose-input" id="composeTo" placeholder="email@business.co.nz" type="email"></div>
+      <div class="compose-field"><label>Subject</label><input class="compose-input" id="composeSubject" placeholder="Subject line..."></div>
+      <div class="compose-field"><label>Body</label><textarea class="compose-input" id="composeBody" placeholder="Write your email, or use AI assist →"></textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="sendEmail()">&#9993; Open in mail client</button>
+        <button class="btn btn-ghost" onclick="copyEmail()">&#128203; Copy</button>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-title"><span class="ai-title-dot"></span>AI writing assistant</div>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:.75rem;line-height:1.6">Describe what you want, or use a quick action.</p>
+      <textarea class="ai-prompt" id="aiPrompt" placeholder="e.g. Write a cold intro for an electrician in South Auckland..."></textarea>
+      <div class="ai-actions">
+        <div class="ai-chip" onclick="aiQuick('Write a cold intro email for this business')">Cold intro</div>
+        <div class="ai-chip" onclick="aiQuick('Write a follow-up after no response')">Follow-up</div>
+        <div class="ai-chip" onclick="aiQuick('Make this more professional')">More formal</div>
+        <div class="ai-chip" onclick="aiQuick('Make this shorter and more direct')">Shorten it</div>
+        <div class="ai-chip" onclick="aiQuick('Make this more warm and conversational')">More casual</div>
+        <div class="ai-chip" onclick="aiQuick('Add a clear call to action')">Add CTA</div>
+      </div>
+      <button class="btn btn-accent btn-sm" style="width:100%;justify-content:center;margin-top:4px" onclick="runAI()">&#10024; Generate / Improve</button>
+      <div class="ai-response" id="aiResponse"></div>
+      <button class="btn btn-green btn-sm" id="applyAiBtn" style="width:100%;justify-content:center;margin-top:8px;display:none" onclick="applyAIToBody()">&#8593; Apply to email</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div id="analytics" class="section">
+  <div style="margin-bottom:1.25rem">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Pipeline analytics</h2>
+    <p style="font-size:.85rem;color:var(--muted)">Performance overview of your outreach activity</p>
+  </div>
+  <div class="stats-row" id="analyticsStats" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))"></div>
+  <div class="analytics-grid">
+    <div class="card">
+      <div class="section-title">Pipeline funnel</div>
+      <div id="funnelChart"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Status breakdown</div>
+      <div id="statusChart"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.25rem">
+    <div class="section-title">Leads added over time</div>
+    <div id="timelineChart" style="height:100px;position:relative;margin-top:.5rem"></div>
+  </div>
+</div>
+
+<!-- CALL COACH -->
+<div id="callcoach" class="section">
+  <div style="margin-bottom:1.25rem">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Call Coach</h2>
+    <p style="font-size:.85rem;color:var(--muted)">Real-time AI assistant for sales calls. Listens, transcribes, and surfaces suggestions as you speak.</p>
+  </div>
+  <div style="margin-bottom:1rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <select class="settings-input" id="callLeadSelect" style="width:220px;height:36px;padding:0 .75rem" onchange="loadCallLead()">
+      <option value="">— select lead for context —</option>
+    </select>
+    <button class="btn btn-primary" id="startCallBtn" onclick="toggleCall()">&#127908; Start call</button>
+    <button class="btn btn-accent" onclick="getAISuggestion()" id="aiSuggestBtn">&#10024; Get AI suggestion</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearTranscript()">Clear</button>
+  </div>
+  <div class="call-status" id="callStatus">
+    <div class="call-dot" id="callDot"></div>
+    <span style="font-size:.85rem;color:var(--muted2)" id="callStatusText">Ready — press Start call to begin</span>
+    <span class="call-timer" id="callTimer" style="margin-left:auto;display:none">0:00</span>
+  </div>
+  <div class="call-layout">
+    <div>
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Live transcript</div>
+      <div class="transcript-box" id="transcriptBox">
+        <div style="color:var(--muted);font-size:.82rem;text-align:center;padding-top:4rem">Transcript will appear here when the call starts...</div>
+      </div>
+      <div style="margin-top:.75rem;display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="pushTranscriptToCompose()">&#8594; Push to compose</button>
+        <button class="btn btn-ghost btn-sm" onclick="generateCallSummary()">&#128203; Generate summary</button>
+      </div>
+    </div>
+    <div>
+      <div id="callLeadContext" style="display:none">
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Lead context</div>
+        <div class="lead-context" id="leadContextContent"></div>
+      </div>
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;margin-top:.75rem">AI suggestion</div>
+      <div class="ai-response" id="callAIResponse" style="display:block;min-height:80px;color:var(--muted);font-style:italic">Press "Get AI suggestion" during the call...</div>
+      <div style="margin-top:1rem">
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Sentiment</div>
+        <div class="sentiment-bar" id="sentimentBar">
+          <div class="sent-seg neutral"></div><div class="sent-seg neutral"></div><div class="sent-seg neutral"></div>
+          <div class="sent-seg neutral"></div><div class="sent-seg neutral"></div><div class="sent-seg neutral"></div>
+          <div class="sent-seg neutral"></div><div class="sent-seg neutral"></div>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:4px" id="sentimentLabel">Neutral — call not started</div>
+      </div>
+      <div style="margin-top:1rem">
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Objection handlers</div>
+        <div id="objectionList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES -->
+<div id="templates" class="section">
+  <div style="margin-bottom:1.25rem">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Email templates</h2>
+    <p style="font-size:.85rem;color:var(--muted)">Click any template to load it into the composer.</p>
+  </div>
+  <div class="templates-grid" id="templatesGrid"></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="section">
+  <div style="margin-bottom:1.25rem">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;margin-bottom:.35rem">Settings</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:1rem">Your details</h3>
+      <div class="settings-field"><label>Your name</label><input class="settings-input" id="settingName" placeholder="Ethan Bouterey"></div>
+      <div class="settings-field"><label>Your email</label><input class="settings-input" id="settingEmail" placeholder="ethanbouterey@gmail.com" type="email"></div>
+      <div class="settings-field"><label>Company / role</label><input class="settings-input" id="settingCompany" placeholder="Freelance Marketer"></div>
+      <div class="settings-field"><label>Phone</label><input class="settings-input" id="settingPhone" placeholder="020 411 87159"></div>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save settings</button>
+    </div>
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.5rem">AI configuration</h3>
+      <div class="settings-field">
+        <label>Anthropic API key</label>
+        <input class="settings-input" id="settingApiKey" type="password" placeholder="sk-ant-...">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save</button>
+      <div class="api-info">
+        <strong style="color:var(--accent)">Getting an API key:</strong><br>
+        1. Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
+        2. Sign up → API Keys → Create key<br>
+        3. New accounts get free credits<br><br>
+        Without a key, AI features show a prompt to add one. All other features work fully.
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Add business manually</h3>
+    <div class="settings-field"><label>Business name *</label><input class="settings-input" id="manualName" placeholder="South Auckland Electrical Ltd"></div>
+    <div class="settings-field"><label>Address</label><input class="settings-input" id="manualAddress" placeholder="14 Great South Rd, Papatoetoe"></div>
+    <div class="settings-field"><label>Phone</label><input class="settings-input" id="manualPhone" placeholder="09 xxx xxxx"></div>
+    <div class="settings-field"><label>Email</label><input class="settings-input" id="manualEmail" placeholder="info@business.co.nz" type="email"></div>
+    <div class="settings-field"><label>Website</label><input class="settings-input" id="manualWebsite" placeholder="www.business.co.nz"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveManual()">Add to leads</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h3>Import CSV</h3>
+    <p>Paste your CSV data below or drop a file. Columns detected: Name, Address, Phone, Email, Website.</p>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('csvFileInput').click()">
+      <div style="font-size:1.5rem;opacity:.4">&#8679;</div>
+      <p>Drop a CSV file here or click to browse</p>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleFileImport(this)">
+    </div>
+    <div class="settings-field"><label>Or paste CSV directly</label>
+      <textarea class="settings-input" id="csvPasteArea" style="min-height:120px;resize:vertical" placeholder="Name,Address,Phone,Email,Website&#10;South Auckland Electrical,14 Great South Rd,09 263 4521,info@sae.co.nz,sae.co.nz"></textarea>
+    </div>
+    <div id="csvPreview" style="display:none;background:var(--navy3);border-radius:7px;padding:.75rem;font-size:.78rem;color:var(--muted2);margin-bottom:.75rem"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('importModal')">Cancel</button>
+      <button class="btn btn-ghost btn-sm" onclick="previewCSV()">Preview</button>
+      <button class="btn btn-primary btn-sm" onclick="importCSV()">Import leads</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="summaryModal">
+  <div class="modal">
+    <h3>Call summary</h3>
+    <div id="summaryContent" style="font-size:.85rem;color:var(--muted2);line-height:1.7;background:var(--navy3);border-radius:7px;padding:1rem;white-space:pre-wrap;max-height:300px;overflow-y:auto"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('summaryModal')">Close</button>
+      <button class="btn btn-primary btn-sm" onclick="pushSummaryToCompose()">Push to compose</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let leads = JSON.parse(localStorage.getItem('lf_leads')||'[]');
+let settings = JSON.parse(localStorage.getItem('lf_settings')||'{"name":"","email":"","company":"","phone":"","apiKey":""}');
+let searchResults = [];
+let callActive = false, callTimer = null, callSeconds = 0;
+let transcript = '', interimTranscript = '', recognition = null;
+let callSummaryText = '';
+
+// ── DEMO DATA ─────────────────────────────────────────────────────────────────
+const demoBusinesses = [
+  {name:'Manukau Electrical Services',address:'14 Great South Rd, Papatoetoe',phone:'09 263 4521',email:'info@manukauelectrical.co.nz',website:'manukauelectrical.co.nz',source:'Google Maps'},
+  {name:'South Auckland Sparks Ltd',address:'32 Lambie Dr, Manukau',phone:'09 278 8834',email:'sparks@saelectrical.co.nz',website:'saelectrical.co.nz',source:'Yellow Pages'},
+  {name:'Wiri Electrical',address:'6 Wiri Station Rd, Wiri',phone:'09 263 1029',email:'wirielectrical@outlook.com',website:'—',source:'Google Maps'},
+  {name:'Papatoetoe Power Solutions',address:'88 St George St, Papatoetoe',phone:'021 432 891',email:'pps@gmail.com',website:'pappower.co.nz',source:'Google Maps'},
+  {name:'East Tamaki Electrical',address:'Unit 4, 14 Accent Dr, East Tamaki',phone:'09 274 9923',email:'info@ettelectrical.co.nz',website:'ettelectrical.co.nz',source:'Yellow Pages'},
+  {name:'Counties Electrical',address:'22 Paerata Rd, Pukekohe',phone:'09 238 7820',email:'counties.electrical@xtra.co.nz',website:'countieselectrical.co.nz',source:'Finda'},
+  {name:'Flat Bush Electrical',address:'12 Te Irirangi Dr, Flat Bush',phone:'021 567 234',email:'flatbushelec@gmail.com',website:'—',source:'Google Maps'},
+  {name:'Pacific Electrical NZ',address:'67 Roscommon Rd, Clendon Park',phone:'027 891 2344',email:'pacific.electrical@xtra.co.nz',website:'—',source:'Finda'},
+  {name:'Takanini Electrical',address:'10 Walters Rd, Takanini',phone:'09 298 5521',email:'hello@takaninielectrical.co.nz',website:'takaninielectrical.co.nz',source:'Google Maps'},
+];
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+const templates = [
+  {id:'cold-intro',type:'Cold outreach',name:'Cold introduction',
+    subject:'Quick question — {Business Name}',
+    body:`Hi {Contact Name},\n\nI came across {Business Name} and wanted to reach out directly.\n\nI help local businesses generate more leads through targeted digital marketing. A lot of businesses in your area are still relying solely on word of mouth — which works, but leaves a lot of potential clients on the table.\n\nI'd love a quick 10-minute chat to see if there's a fit. No hard sell — just an honest conversation.\n\nWould you be open to a call this week?\n\n{Signature}`},
+  {id:'follow-up',type:'Follow-up',name:'Follow-up after no reply',
+    subject:'Following up — {Business Name}',
+    body:`Hi {Contact Name},\n\nJust following up on my email from last week — I know things get busy.\n\nI'll keep this short: I think there's a real opportunity for {Business Name} to bring in more consistent work through digital channels, and I'd love to show you how.\n\nIf now isn't a good time, no worries at all — happy to reconnect whenever suits.\n\n{Signature}`},
+  {id:'service-pitch',type:'Value pitch',name:'Service pitch',
+    subject:'Getting more leads in your area — {Business Name}',
+    body:`Hi {Contact Name},\n\nI work with businesses in your area to help them reach customers who are actively searching for their services.\n\nHere's what I typically help with:\n- Targeted digital ads reaching customers in your service area\n- Follow-up systems so no enquiry slips through\n- Clear reporting so you can see what's working\n\nWould a 15-minute call make sense this week?\n\n{Signature}`},
+  {id:'referral',type:'Referral',name:'Referral request',
+    subject:'Quick favour — {Business Name}',
+    body:`Hi {Contact Name},\n\nHope business is going well.\n\nI'm currently looking to connect with more quality businesses who are looking to grow their customer base this year.\n\nIf you know anyone who might benefit from a chat, I'd really appreciate an introduction — and I'm happy to return the favour.\n\nThanks for your time.\n\n{Signature}`},
+  {id:'reactivation',type:'Reactivation',name:'Re-engage cold lead',
+    subject:'Checking in — {Business Name}',
+    body:`Hi {Contact Name},\n\nIt's been a while since we last spoke, so I wanted to check in.\n\nThings have moved quickly in the digital marketing space. The businesses I'm seeing get the best results are those getting ahead of their competitors now, before they do.\n\nIf you're still open to a conversation, I'd love to pick up where we left off.\n\n{Signature}`},
+  {id:'post-call',type:'Post-call',name:'After a call follow-up',
+    subject:'Great speaking with you — {Business Name}',
+    body:`Hi {Contact Name},\n\nReally enjoyed our conversation today — thanks for taking the time.\n\nAs discussed, I'll send through some more detail on [what you discussed]. Happy to answer any questions before we speak again.\n\nLooking forward to potentially working together.\n\n{Signature}`},
+];
+
+// ── OBJECTION HANDLERS ────────────────────────────────────────────────────────
+const objections = [
+  {q:"We're not interested / happy with what we have",a:"Totally understand — no pressure at all. Would you be open to just hearing one idea that's been working well for businesses like yours in the area? Completely free, takes two minutes."},
+  {q:"We get all our work through word of mouth",a:"That's great — it means you're doing good work. Word of mouth is strong but it's unpredictable. What I can show you is how to make that baseline more consistent without replacing what's already working."},
+  {q:"We don't have budget for marketing right now",a:"Completely fair. A lot of the businesses I work with started exactly there. What I typically find is that the right targeting actually pays for itself quickly — but I wouldn't suggest anything without knowing your numbers first. Could we have a 10-minute call with zero commitment?"},
+  {q:"We already have someone doing our marketing",a:"Good to hear. I'm not here to replace anyone — I specifically focus on paid lead generation, which is often a separate thing. If you're already covered there, no problem at all."},
+  {q:"Send me some information",a:"Happy to. What would be most useful — a quick case study of a similar business, or a breakdown of how the targeting works? That way I can send something actually relevant rather than a generic overview."},
+  {q:"Call me back / not a good time",a:"Of course — when would be a better time? I'm flexible on timing, and I can keep it to 10 minutes if that's easier."},
+];
+
+// ── OSM SEARCH ────────────────────────────────────────────────────────────────
+const tradeMap={electrician:['craft=electrician','trade=electrician'],plumber:['craft=plumber'],builder:['craft=builder'],mechanic:['shop=car_repair'],restaurant:['amenity=restaurant'],cafe:['amenity=cafe'],lawyer:['office=lawyer'],accountant:['office=accountant'],hairdresser:['shop=hairdresser'],dentist:['amenity=dentist'],gym:['leisure=fitness_centre'],pharmacy:['amenity=pharmacy'],roofing:['craft=roofer'],painter:['craft=painter'],carpenter:['craft=carpenter']};
+function parseQuery(q){q=q.toLowerCase();let btype='',loc='';const i=q.indexOf(' in ');if(i>-1){btype=q.slice(0,i).trim().replace(/^find\s+/,'').replace(/s$/,'');loc=q.slice(i+4).trim();}else{btype=q.replace(/^find\s+/,'').replace(/s$/,'').trim();loc='New Zealand';}return{type:btype,location:loc};}
+async function doSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  if(!q){showToast('Enter a search query');return;}
+  const p=parseQuery(q);
+  document.getElementById('searchLoading').style.display='block';
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchEmpty').style.display='none';
+  try{
+    const gr=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(p.location+', New Zealand')}&format=json&limit=1`,{headers:{'Accept-Language':'en','User-Agent':'LeadFlow/1.0'}});
+    const gd=await gr.json();
+    if(!gd.length)throw new Error('Location not found');
+    const bb=gd[0].boundingbox;
+    const bbox=`${bb[0]},${bb[2]},${bb[1]},${bb[3]}`;
+    const tags=(tradeMap[p.type]||[`craft=${p.type}`,`shop=${p.type}`,`amenity=${p.type}`]);
+    const tq=tags.map(t=>`node["${t.split('=')[0]}"="${t.split('=')[1]}"](${bbox});`).join('\n');
+    const or=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:`[out:json][timeout:25];\n(\n${tq}\n);\nout body;`});
+    const od=await or.json();
+    searchResults=(od.elements||[]).map(el=>{const t=el.tags||{};return{name:t.name||'Unnamed',address:[t['addr:housenumber'],t['addr:street'],t['addr:suburb']].filter(Boolean).join(' ')||'',phone:t.phone||t['contact:phone']||'',email:t.email||t['contact:email']||'',website:t.website||t['contact:website']||'',source:'OpenStreetMap'};}).filter(r=>r.name!=='Unnamed');
+    document.getElementById('searchLoading').style.display='none';
+    if(!searchResults.length){document.getElementById('searchEmpty').style.display='block';}else{renderResults(searchResults);}
+  }catch(e){document.getElementById('searchLoading').style.display='none';document.getElementById('searchEmpty').style.display='block';}
+}
+function loadDemo(){searchResults=[...demoBusinesses];renderResults(searchResults);showToast('Demo data loaded');}
+function renderResults(r){
+  document.getElementById('resultsTbody').innerHTML=r.map((x,i)=>`<tr><td class="name">${x.name}</td><td>${x.address||'<span style="color:var(--muted)">—</span>'}</td><td>${x.phone||'<span style="color:var(--muted)">—</span>'}</td><td>${x.website&&x.website!=='—'?`<a href="https://${x.website.replace(/^https?:\/\//,'')}" target="_blank" style="color:var(--blue2)">${x.website}</a>`:'<span style="color:var(--muted)">—</span>'}</td><td style="font-size:.72rem;color:var(--muted)">${x.source||''}</td><td class="actions"><button class="btn btn-green btn-sm" onclick="addToLeads(${i})">+ Add</button></td></tr>`).join('');
+  document.getElementById('resultsCount').textContent=`${r.length} business${r.length!==1?'es':''} found`;
+  document.getElementById('searchResults').style.display='block';
+}
+function addToLeads(i){const b=searchResults[i];if(leads.find(l=>l.name===b.name)){showToast(`${b.name} already in leads`);return;}leads.push({...b,id:Date.now()+'_'+i,status:'new',notes:'',followup:'',added:new Date().toISOString().split('T')[0]});saveLeads();updateLeadsCount();showToast(`${b.name} added`);}
+function addAllToLeads(){let n=0;searchResults.forEach((b,i)=>{if(!leads.find(l=>l.name===b.name)){leads.push({...b,id:Date.now()+'_'+i,status:'new',notes:'',followup:'',added:new Date().toISOString().split('T')[0]});n++;}});saveLeads();updateLeadsCount();showToast(`${n} businesses added`);}
+
+// ── LEADS ─────────────────────────────────────────────────────────────────────
+function renderLeads(){
+  const filter=document.getElementById('statusFilter').value;
+  const today=new Date().toISOString().split('T')[0];
+  const overdue=leads.filter(l=>l.followup&&l.followup<today&&l.status!=='converted'&&l.status!=='nope');
+  const al=document.getElementById('overdueAlert');
+  if(overdue.length>0){al.style.display='flex';document.getElementById('overdueMsg').textContent=`${overdue.length} lead${overdue.length>1?'s are':' is'} overdue for follow-up`;}else{al.style.display='none';}
+  let filtered=leads;
+  if(filter==='overdue')filtered=overdue;
+  else if(filter!=='all')filtered=leads.filter(l=>l.status===filter);
+  const counts={new:0,contacted:0,interested:0,converted:0,nope:0};
+  leads.forEach(l=>{if(counts[l.status]!==undefined)counts[l.status]++;});
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${leads.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--muted2)">${counts.new}</div><div class="stat-label">New</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--blue2)">${counts.contacted}</div><div class="stat-label">Contacted</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">${counts.interested}</div><div class="stat-label">Interested</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${counts.converted}</div><div class="stat-label">Converted</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:${overdue.length?'var(--yellow)':'var(--muted)'}">${overdue.length}</div><div class="stat-label">Overdue</div></div>`;
+  if(!filtered.length){document.getElementById('leadsTable').style.display='none';document.getElementById('leadsEmpty').style.display='block';return;}
+  document.getElementById('leadsTable').style.display='block';document.getElementById('leadsEmpty').style.display='none';
+  const statLabels={new:'New',contacted:'Contacted',interested:'Interested',converted:'Converted',nope:'Not interested'};
+  document.getElementById('leadsTbody').innerHTML=filtered.map(l=>{
+    const isOverdue=l.followup&&l.followup<today&&l.status!=='converted'&&l.status!=='nope';
+    return`<tr class="${isOverdue?'overdue-row':''}">
+      <td class="name">${escHtml(l.name)}</td>
+      <td style="font-size:.8rem">${[l.phone,l.email].filter(Boolean).join('<br>')||'<span style="color:var(--muted)">—</span>'}</td>
+      <td><span class="badge badge-${l.status}">${statLabels[l.status]||l.status}</span></td>
+      <td><input type="date" class="followup-input" value="${l.followup||''}" onchange="updateFollowup('${l.id}',this.value)">${isOverdue?'<span class="overdue-badge" style="margin-left:4px">Overdue</span>':''}</td>
+      <td style="font-size:.8rem;max-width:160px"><input type="text" value="${escHtml(l.notes||'')}" placeholder="Add note..." style="background:none;border:none;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:.8rem;width:100%;outline:none" onblur="updateNote('${l.id}',this.value)"></td>
+      <td class="actions">
+        <select style="background:var(--navy3);border:1px solid var(--border);border-radius:5px;color:var(--muted2);font-size:.72rem;padding:3px 6px;margin-right:4px;cursor:pointer" onchange="updateStatus('${l.id}',this.value)">
+          <option value="">Status</option>
+          <option value="new">New</option><option value="contacted">Contacted</option>
+          <option value="interested">Interested</option><option value="converted">Converted</option>
+          <option value="nope">Not interested</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="composeForLead('${l.id}')" title="Compose">&#9993;</button>
+        <button class="btn btn-danger btn-sm" onclick="removeLead('${l.id}')" title="Remove">&#215;</button>
+      </td>
+    </tr>`;}).join('');
+}
+function updateStatus(id,v){if(!v)return;const l=leads.find(x=>x.id===id);if(l){l.status=v;saveLeads();renderLeads();showToast('Status updated');}}
+function updateNote(id,v){const l=leads.find(x=>x.id===id);if(l){l.notes=v;saveLeads();}}
+function updateFollowup(id,v){const l=leads.find(x=>x.id===id);if(l){l.followup=v;saveLeads();renderLeads();}}
+function removeLead(id){leads=leads.filter(l=>l.id!==id);saveLeads();renderLeads();updateLeadsCount();}
+
+// ── COMPOSE ───────────────────────────────────────────────────────────────────
+function populateLeadSelect(){const s=document.getElementById('leadSelect');s.innerHTML='<option value="">— select a lead —</option>'+leads.map(l=>`<option value="${l.id}">${escHtml(l.name)}</option>`).join('');}
+function populateTemplateSelect(){const s=document.getElementById('templateSelect');s.innerHTML='<option value="">— select a template —</option>'+templates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');}
+function loadLeadToCompose(){const id=document.getElementById('leadSelect').value;const l=leads.find(x=>x.id===id);if(l)document.getElementById('composeTo').value=l.email||'';}
+function applyTemplate(){
+  const id=document.getElementById('templateSelect').value;const t=templates.find(x=>x.id===id);if(!t)return;
+  const l=leads.find(x=>x.id===document.getElementById('leadSelect').value)||{};
+  const s=settings;const sig=`${s.name||'Your name'}\n${s.company||''}\n${s.phone||''}\n${s.email||''}`.trim();
+  const f=txt=>txt.replace(/\{Business Name\}/g,l.name||'[Business Name]').replace(/\{Contact Name\}/g,l.name||'there').replace(/\{Signature\}/g,sig);
+  document.getElementById('composeSubject').value=f(t.subject);
+  document.getElementById('composeBody').value=f(t.body);
+}
+function composeForLead(id){showTab('compose');setTimeout(()=>{document.getElementById('leadSelect').value=id;loadLeadToCompose();},60);}
+function sendEmail(){const to=document.getElementById('composeTo').value;if(!to){showToast('Add a recipient email first');return;}window.location.href=`mailto:${to}?subject=${encodeURIComponent(document.getElementById('composeSubject').value)}&body=${encodeURIComponent(document.getElementById('composeBody').value)}`;}
+function copyEmail(){navigator.clipboard.writeText(`Subject: ${document.getElementById('composeSubject').value}\n\n${document.getElementById('composeBody').value}`).then(()=>showToast('Copied to clipboard'));}
+
+// ── AI ────────────────────────────────────────────────────────────────────────
+async function callClaude(userMsg,systemMsg,maxTokens=600){
+  const key=settings.apiKey;
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json',...(key?{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}:{})},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system:systemMsg,messages:[{role:'user',content:userMsg}]})});
+  const d=await res.json();
+  if(d.content&&d.content[0])return d.content[0].text;
+  throw new Error(d.error?.message||'API error');
+}
+async function runAI(){
+  const prompt=document.getElementById('aiPrompt').value;if(!prompt){showToast('Enter a prompt first');return;}
+  const existing=document.getElementById('composeBody').value;
+  const el=document.getElementById('aiResponse');const btn=document.getElementById('applyAiBtn');
+  el.style.display='block';el.textContent='Writing...';btn.style.display='none';
+  try{
+    const text=await callClaude(existing?`Current email:\n\n${existing}\n\nInstruction: ${prompt}`:prompt,'You are a professional sales copywriter. Write clear, confident, professional but friendly cold outreach emails. Under 150 words unless asked. Use [SIGNATURE] as placeholder.');
+    const s=settings;const sig=`${s.name||'Your name'}\n${s.company||''}\n${s.phone||''}\n${s.email||''}`.trim();
+    el.textContent=text.replace(/\[SIGNATURE\]/g,sig);btn.style.display='block';
+  }catch(e){el.textContent='Check your API key in Settings.';}
+}
+function aiQuick(p){document.getElementById('aiPrompt').value=p;runAI();}
+function applyAIToBody(){document.getElementById('composeBody').value=document.getElementById('aiResponse').textContent;showToast('Applied to email');}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────────
+function renderAnalytics(){
+  const total=leads.length;
+  if(!total){document.getElementById('analyticsStats').innerHTML='<div style="color:var(--muted);font-size:.85rem">Add some leads to see analytics.</div>';document.getElementById('funnelChart').innerHTML='';document.getElementById('statusChart').innerHTML='';return;}
+  const counts={new:0,contacted:0,interested:0,converted:0,nope:0};
+  leads.forEach(l=>{if(counts[l.status]!==undefined)counts[l.status]++;});
+  const contactRate=total?Math.round((total-counts.new)/total*100):0;
+  const convRate=total?Math.round(counts.converted/total*100):0;
+  const today=new Date().toISOString().split('T')[0];
+  const overdue=leads.filter(l=>l.followup&&l.followup<today&&l.status!=='converted'&&l.status!=='nope').length;
+  document.getElementById('analyticsStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total leads</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--blue2)">${contactRate}<span style="font-size:1rem">%</span></div><div class="stat-label">Contact rate</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${convRate}<span style="font-size:1rem">%</span></div><div class="stat-label">Conversion rate</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">${overdue}</div><div class="stat-label">Overdue</div></div>`;
+  // Funnel
+  const steps=[{label:'Total leads',count:total,color:'var(--blue2)'},{label:'Contacted',count:total-counts.new,color:'var(--purple)'},{label:'Interested',count:counts.interested+counts.converted,color:'var(--yellow)'},{label:'Converted',count:counts.converted,color:'var(--green)'}];
+  document.getElementById('funnelChart').innerHTML=steps.map(s=>`
+    <div class="funnel-step">
+      <div class="funnel-label"><span>${s.label}</span><span style="font-family:'Syne',sans-serif;font-weight:700">${s.count} <span style="font-weight:400;font-size:.75rem;color:var(--muted)">(${total?Math.round(s.count/total*100):0}%)</span></span></div>
+      <div class="funnel-bar-bg"><div class="funnel-bar" style="width:${total?Math.round(s.count/total*100):0}%;background:${s.color}"></div></div>
+    </div>`).join('');
+  // Status bars
+  const statColors={new:'var(--muted2)',contacted:'var(--blue2)',interested:'var(--yellow)',converted:'var(--green)',nope:'var(--red)'};
+  const statNames={new:'New',contacted:'Contacted',interested:'Interested',converted:'Converted',nope:'Not interested'};
+  document.getElementById('statusChart').innerHTML=Object.entries(counts).map(([k,v])=>`
+    <div class="funnel-step">
+      <div class="funnel-label"><span style="color:${statColors[k]}">${statNames[k]}</span><span style="font-family:'Syne',sans-serif;font-weight:700">${v}</span></div>
+      <div class="funnel-bar-bg"><div class="funnel-bar" style="width:${total?Math.round(v/total*100):0}%;background:${statColors[k]}"></div></div>
+    </div>`).join('');
+  // Timeline — leads by week
+  const buckets={};
+  leads.forEach(l=>{if(l.added){const d=l.added.slice(0,7);buckets[d]=(buckets[d]||0)+1;}});
+  const keys=Object.keys(buckets).sort();
+  if(keys.length>1){
+    const max=Math.max(...Object.values(buckets));
+    const barW=Math.min(40,Math.floor(580/keys.length)-4);
+    document.getElementById('timelineChart').innerHTML=`<div style="display:flex;align-items:flex-end;height:80px;gap:4px;padding:0 10px">${keys.map(k=>`<div title="${k}: ${buckets[k]} lead${buckets[k]!==1?'s':''}" style="flex:1;max-width:${barW}px;min-width:8px;height:${Math.round(buckets[k]/max*80)}px;background:var(--blue);border-radius:3px 3px 0 0;opacity:.8;transition:opacity .1s;cursor:default" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8"></div>`).join('')}</div><div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);padding:4px 10px 0"><span>${keys[0]}</span><span>${keys[keys.length-1]}</span></div>`;
+  }else{document.getElementById('timelineChart').innerHTML='<div style="color:var(--muted);font-size:.82rem;padding:1rem">Add leads over multiple days to see the timeline chart.</div>';}
+}
+
+// ── CALL COACH ────────────────────────────────────────────────────────────────
+function initCallCoach(){
+  // Populate lead select
+  const s=document.getElementById('callLeadSelect');
+  s.innerHTML='<option value="">— select lead for context —</option>'+leads.map(l=>`<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
+  // Render objections
+  document.getElementById('objectionList').innerHTML=objections.map((o,i)=>`
+    <div class="objection-item" onclick="this.classList.toggle('open')">
+      <div class="objection-q">&#128100; ${o.q}</div>
+      <div class="objection-a">&#128161; ${o.a}</div>
+    </div>`).join('');
+}
+function loadCallLead(){
+  const id=document.getElementById('callLeadSelect').value;
+  const l=leads.find(x=>x.id===id);
+  const ctx=document.getElementById('callLeadContext');
+  if(!l){ctx.style.display='none';return;}
+  ctx.style.display='block';
+  document.getElementById('leadContextContent').innerHTML=`
+    <div class="lead-context-row"><span style="color:var(--muted)">Business</span><span>${escHtml(l.name)}</span></div>
+    <div class="lead-context-row"><span style="color:var(--muted)">Phone</span><span>${l.phone||'—'}</span></div>
+    <div class="lead-context-row"><span style="color:var(--muted)">Status</span><span>${l.status}</span></div>
+    <div class="lead-context-row"><span style="color:var(--muted)">Notes</span><span>${escHtml(l.notes)||'—'}</span></div>`;
+}
+function toggleCall(){
+  if(callActive)endCall();else startCall();
+}
+function startCall(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showToast('Speech recognition requires Chrome. Transcript will be manual.');transcript='[Manual mode — type notes below]\n';}
+  callActive=true;callSeconds=0;transcript='';interimTranscript='';
+  document.getElementById('startCallBtn').textContent='&#9632; End call';
+  document.getElementById('startCallBtn').style.background='var(--red)';
+  document.getElementById('callDot').classList.add('live');
+  document.getElementById('callStatusText').textContent='Call in progress — speak now';
+  document.getElementById('callTimer').style.display='block';
+  document.getElementById('transcriptBox').innerHTML='<div style="color:var(--muted);font-size:.82rem;font-style:italic">Listening...</div>';
+  callTimer=setInterval(()=>{callSeconds++;const m=Math.floor(callSeconds/60);const s=callSeconds%60;document.getElementById('callTimer').textContent=`${m}:${s.toString().padStart(2,'0')}`;},1000);
+  if(SR){
+    recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-NZ';
+    recognition.onresult=e=>{let interim='',final='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';else interim+=e.results[i][0].transcript;}if(final){transcript+=final;}renderTranscript(interim);};
+    recognition.onerror=()=>{};recognition.start();
+  }
+}
+function endCall(){
+  callActive=false;clearInterval(callTimer);
+  if(recognition)try{recognition.stop();}catch(e){}
+  document.getElementById('startCallBtn').textContent='&#127908; Start call';
+  document.getElementById('startCallBtn').style.background='';
+  document.getElementById('callDot').classList.remove('live');
+  document.getElementById('callStatusText').textContent=`Call ended — ${formatTime(callSeconds)}`;
+  showToast('Call ended. Generate a summary or push transcript to compose.');
+}
+function renderTranscript(interim){
+  const box=document.getElementById('transcriptBox');
+  const lines=transcript.split('\n').filter(Boolean);
+  box.innerHTML=lines.map(l=>`<div class="transcript-line">${escHtml(l)}</div>`).join('')+(interim?`<div class="transcript-line interim">${escHtml(interim)}...</div>`:'');
+  box.scrollTop=box.scrollHeight;
+  updateSentiment();
+}
+function updateSentiment(){
+  const negWords=['not interested','too busy','expensive','already have','don\'t need','no thanks','waste'];
+  const posWords=['sounds good','interested','tell me more','yes','happy to','great','perfect','love to'];
+  const t=transcript.toLowerCase();
+  const neg=negWords.filter(w=>t.includes(w)).length;
+  const pos=posWords.filter(w=>t.includes(w)).length;
+  const segs=document.querySelectorAll('.sent-seg');
+  const score=Math.min(8,Math.max(0,4+pos-neg));
+  segs.forEach((s,i)=>{s.className='sent-seg';if(i<score)s.classList.add(score>=5?'positive':'neutral');else if(neg>pos)s.classList.add('negative');else s.classList.add('neutral');});
+  document.getElementById('sentimentLabel').textContent=score>=6?'Positive — good engagement':score<=2?'Negative — consider objection handlers':'Neutral — keep going';
+}
+async function getAISuggestion(){
+  if(!transcript.trim()){showToast('Start a call and get some transcript first');return;}
+  const el=document.getElementById('callAIResponse');
+  el.textContent='Analysing conversation...';el.style.color='var(--muted)';
+  const lead=leads.find(x=>x.id===document.getElementById('callLeadSelect').value);
+  const ctx=lead?`Lead: ${lead.name}. Notes: ${lead.notes||'none'}.`:'';
+  try{
+    const text=await callClaude(
+      `${ctx}\n\nCurrent call transcript:\n${transcript}\n\nBased on this conversation, what should I say next? Give me 2-3 specific suggested responses, short and conversational.`,
+      'You are a real-time sales coach. Give brief, specific, actionable suggestions for what the salesperson should say next. Be conversational and direct. Format as numbered points.'
+    );
+    el.textContent=text;el.style.color='var(--muted2)';
+  }catch(e){el.textContent='Check your API key in Settings.';el.style.color='var(--red)';}
+}
+async function generateCallSummary(){
+  if(!transcript.trim()){showToast('No transcript to summarise');return;}
+  const modal=document.getElementById('summaryModal');modal.classList.add('open');
+  const content=document.getElementById('summaryContent');content.textContent='Generating summary...';
+  try{
+    callSummaryText=await callClaude(
+      `Call transcript:\n${transcript}\n\nGenerate a brief call summary with: 1) Key points discussed 2) Prospect response/interest level 3) Agreed next steps 4) Draft follow-up email subject line`,
+      'You are a CRM assistant. Create concise, professional call summaries.'
+    );
+    content.textContent=callSummaryText;
+  }catch(e){content.textContent='Check your API key in Settings.';}
+}
+function pushSummaryToCompose(){closeModal('summaryModal');showTab('compose');setTimeout(()=>{document.getElementById('composeBody').value=callSummaryText;},60);}
+function pushTranscriptToCompose(){showTab('compose');setTimeout(()=>{document.getElementById('composeBody').value=transcript;},60);showToast('Transcript pushed to compose');}
+function clearTranscript(){transcript='';document.getElementById('transcriptBox').innerHTML='<div style="color:var(--muted);font-size:.82rem;text-align:center;padding-top:4rem">Transcript cleared.</div>';}
+function formatTime(s){return`${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;}
+
+// ── CSV IMPORT ────────────────────────────────────────────────────────────────
+function openImportModal(){document.getElementById('importModal').classList.add('open');}
+function handleFileImport(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();reader.onload=e=>{document.getElementById('csvPasteArea').value=e.target.result;previewCSV();};reader.readAsText(file);
+}
+function parseCSVLine(line){const r=[];let cur='',inQ=false;for(let c of line){if(c==='"')inQ=!inQ;else if(c===','&&!inQ){r.push(cur.trim());cur='';}else cur+=c;}r.push(cur.trim());return r;}
+function previewCSV(){
+  const raw=document.getElementById('csvPasteArea').value.trim();if(!raw)return;
+  const lines=raw.split('\n').filter(Boolean);const preview=document.getElementById('csvPreview');
+  preview.style.display='block';preview.innerHTML=`Found <strong>${lines.length-1}</strong> records. Headers: <em>${lines[0]}</em><br>First row: <em>${lines[1]||'—'}</em>`;
+}
+function importCSV(){
+  const raw=document.getElementById('csvPasteArea').value.trim();if(!raw){showToast('Paste or upload CSV data first');return;}
+  const lines=raw.split('\n').filter(Boolean);if(lines.length<2){showToast('CSV needs at least a header row and one data row');return;}
+  const headers=parseCSVLine(lines[0]).map(h=>h.toLowerCase().replace(/[^a-z]/g,''));
+  const idx={name:headers.findIndex(h=>h.includes('name')||h.includes('business')),address:headers.findIndex(h=>h.includes('address')),phone:headers.findIndex(h=>h.includes('phone')||h.includes('tel')),email:headers.findIndex(h=>h.includes('email')),website:headers.findIndex(h=>h.includes('web')||h.includes('site'))};
+  let added=0;
+  lines.slice(1).forEach((line,i)=>{
+    const cols=parseCSVLine(line);
+    const name=idx.name>=0?cols[idx.name]:'';
+    if(!name)return;
+    if(!leads.find(l=>l.name===name)){
+      leads.push({id:Date.now()+'_csv'+i,name,address:idx.address>=0?cols[idx.address]:'',phone:idx.phone>=0?cols[idx.phone]:'',email:idx.email>=0?cols[idx.email]:'',website:idx.website>=0?cols[idx.website]:'',source:'CSV Import',status:'new',notes:'',followup:'',added:new Date().toISOString().split('T')[0]});
+      added++;
+    }
+  });
+  saveLeads();updateLeadsCount();closeModal('importModal');showToast(`${added} leads imported from CSV`);
+  document.getElementById('csvPasteArea').value='';document.getElementById('csvPreview').style.display='none';
+}
+// Drag and drop
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f){const r=new FileReader();r.onload=ev=>{document.getElementById('csvPasteArea').value=ev.target.result;previewCSV();};r.readAsText(f);}});
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+function renderTemplates(){
+  document.getElementById('templatesGrid').innerHTML=templates.map(t=>`
+    <div class="template-card" onclick="useTemplate('${t.id}')">
+      <div class="template-type">${t.type}</div>
+      <div class="template-name">${t.name}</div>
+      <div class="template-preview">${t.body}</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:1rem">Use template &#8594;</button>
+    </div>`).join('');
+}
+function useTemplate(id){showTab('compose');setTimeout(()=>{document.getElementById('templateSelect').value=id;applyTemplate();},60);}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportCSV(){
+  if(!leads.length){showToast('No leads to export');return;}
+  const cols=['Name','Address','Phone','Email','Website','Status','Follow-up','Notes','Added'];
+  const rows=leads.map(l=>[l.name,l.address,l.phone,l.email,l.website,l.status,l.followup,l.notes,l.added].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const blob=new Blob([[cols.join(','),...rows].join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='leadflow_export.csv';a.click();
+  showToast('CSV exported');
+}
+
+// ── MANUAL ADD ────────────────────────────────────────────────────────────────
+function openAddManual(){document.getElementById('addModal').classList.add('open');}
+function saveManual(){
+  const name=document.getElementById('manualName').value.trim();if(!name){showToast('Name required');return;}
+  leads.push({id:Date.now()+'_m',name,address:document.getElementById('manualAddress').value,phone:document.getElementById('manualPhone').value,email:document.getElementById('manualEmail').value,website:document.getElementById('manualWebsite').value,source:'Manual',status:'new',notes:'',followup:'',added:new Date().toISOString().split('T')[0]});
+  saveLeads();updateLeadsCount();closeModal('addModal');
+  ['manualName','manualAddress','manualPhone','manualEmail','manualWebsite'].forEach(id=>document.getElementById(id).value='');
+  showToast('Business added');
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function loadSettings(){['Name','Email','Company','Phone','ApiKey'].forEach(k=>{const el=document.getElementById('setting'+k);if(el)el.value=settings[k.toLowerCase()]||'';});}
+function saveSettings(){settings={name:document.getElementById('settingName').value,email:document.getElementById('settingEmail').value,company:document.getElementById('settingCompany').value,phone:document.getElementById('settingPhone').value,apiKey:document.getElementById('settingApiKey').value};localStorage.setItem('lf_settings',JSON.stringify(settings));showToast('Settings saved');}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick')===`showTab('${id}')`)t.classList.add('active');});
+  if(id==='leads')renderLeads();
+  if(id==='compose'){populateLeadSelect();populateTemplateSelect();}
+  if(id==='analytics')renderAnalytics();
+  if(id==='callcoach')initCallCoach();
+}
+function saveLeads(){localStorage.setItem('lf_leads',JSON.stringify(leads));}
+function updateLeadsCount(){
+  const today=new Date().toISOString().split('T')[0];
+  const overdue=leads.filter(l=>l.followup&&l.followup<today&&l.status!=='converted'&&l.status!=='nope').length;
+  const badge=document.getElementById('leads-count');
+  badge.textContent=leads.length;
+  badge.className='tab-badge'+(overdue>0?' warn':'');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+let toastT;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateLeadsCount();renderTemplates();loadSettings();
+</script>
+</body>
+</html>
