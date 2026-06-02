@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launchpad — Your career, accelerated</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Warm dark palette */
+  --navy:#0C0F18;--navy2:#141820;--navy3:#1C2030;--navy4:#252840;
+  --blue:#7B6AE8;--blue2:#A99FFF;
+  --teal:#0B9480;--teal2:#4ECDB8;
+  --amber:#E89510;--amber2:#F5C042;
+  --green:#10B981;--green2:#6EE7B7;
+  --red:#EF4444;--red2:#FCA5A5;
+  --purple:#7B6AE8;--purple2:#C4B5FD;
+  --accent:#F5C042;
+  --white:#FAF8F5;--muted:#6E6A84;--muted2:#9D9AB6;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;font-family:'DM Sans',sans-serif;color:var(--white);font-size:15px;background:var(--navy)}
+.screen{display:none}.screen.active{display:block}
+
+/* LANDING */
+.landing-nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 3rem;border-bottom:1px solid var(--border)}
+.logo-wrap{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:8px}
+.logo-pill{background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:8px;padding:3px 10px;font-size:.82rem}
+.landing-hero{max-width:960px;margin:0 auto;padding:6rem 2rem 4rem;text-align:center}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.25);border-radius:100px;padding:6px 16px;font-size:.77rem;color:var(--blue2);margin-bottom:1.5rem;letter-spacing:.04em}
+.hero-h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,7vw,5.5rem);line-height:1;letter-spacing:-.03em;margin-bottom:1.25rem}
+.hero-h1 span{color:transparent;background:linear-gradient(135deg,var(--blue2),var(--teal2));-webkit-background-clip:text;background-clip:text}
+.hero-desc{font-size:1.05rem;color:var(--muted2);max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-hero{padding:13px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:.92rem;cursor:pointer;border:none;transition:all .2s}
+.btn-hero-p{background:var(--blue);color:#fff}.btn-hero-p:hover{background:#1D4ED8;transform:translateY(-2px)}
+.btn-hero-g{background:rgba(255,255,255,.07);color:var(--white);border:1px solid var(--border2)}.btn-hero-g:hover{background:rgba(255,255,255,.12)}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;max-width:960px;margin:5rem auto 0;padding:0 2rem 3rem}
+.feat{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:border-color .2s}
+.feat:hover{border-color:rgba(37,99,235,.3)}
+.feat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:1rem}
+.feat h3{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.4rem}
+.feat p{font-size:.8rem;color:var(--muted2);line-height:1.65}
+.land-foot{text-align:center;padding:1.5rem;font-size:.76rem;color:var(--muted);border-top:1px solid var(--border)}
+
+/* ONBOARDING */
+#screen-onboard{min-height:100vh}
+.ob-wrap{max-width:660px;margin:0 auto;padding:2.5rem 1.5rem}
+.ob-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem}
+.ob-dots{display:flex;align-items:center;gap:8px;margin-bottom:2.25rem}
+.ob-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:500;transition:all .3s;flex-shrink:0;border:1px solid var(--border2)}
+.ob-dot.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.ob-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
+.ob-dot.pending{background:var(--navy3);color:var(--muted)}
+.ob-line{flex:1;height:1px;background:var(--border2);transition:background .3s}
+.ob-line.done{background:var(--teal)}
+.ob-step{display:none}.ob-step.active{display:block}
+.ob-head{margin-bottom:1.75rem}
+.ob-head h2{font-family:'Syne',sans-serif;font-weight:800;font-size:1.65rem;margin-bottom:.35rem}
+.ob-head p{font-size:.87rem;color:var(--muted2);line-height:1.6}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.req{color:var(--red2);margin-left:2px}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* APP SHELL */
+#screen-app{min-height:100vh;display:none;flex-direction:column}
+#screen-app.active{display:flex}
+.appbar{display:flex;align-items:center;gap:10px;padding:0 1.25rem;height:52px;background:var(--navy2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-wrap:wrap}
+.app-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.app-pill{background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:6px;padding:2px 8px;font-size:.75rem}
+.xp-area{display:flex;align-items:center;gap:7px;flex:1;max-width:200px}
+.xp-bg{flex:1;height:4px;background:var(--navy3);border-radius:2px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:2px;transition:width .5s ease}
+.streak-pill{display:flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;padding:3px 9px;background:rgba(217,119,6,.1);border:1px solid rgba(217,119,6,.2);border-radius:100px;color:var(--amber2);white-space:nowrap}
+.apptabs{display:flex;gap:2px;flex-wrap:wrap}
+.apptab{padding:5px 11px;border-radius:6px;font-size:.77rem;font-weight:500;cursor:pointer;color:var(--muted2);background:none;border:none;transition:all .15s;white-space:nowrap}
+.apptab:hover{color:var(--white);background:rgba(255,255,255,.05)}
+.apptab.active{background:rgba(37,99,235,.15);color:var(--blue2)}
+.app-main{flex:1;padding:1.5rem;max-width:1200px;width:100%;margin:0 auto}
+.appsec{display:none}.appsec.active{display:block}
+
+/* SHARED */
+.card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1.25rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 1.1rem;height:40px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--blue);color:#fff}.btn-p:hover{background:#1D4ED8}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#0F766E}
+.btn-g{background:rgba(255,255,255,.05);color:var(--muted2);border:1px solid var(--border2)}.btn-g:hover{color:var(--white)}
+.btn-amber{background:rgba(217,119,6,.1);color:var(--amber2);border:1px solid rgba(217,119,6,.2)}
+.btn-green{background:rgba(5,150,105,.1);color:var(--green2);border:1px solid rgba(5,150,105,.2)}
+.btn-red{background:rgba(220,38,38,.08);color:var(--red2);border:1px solid rgba(220,38,38,.18)}
+.btn-sm{height:30px;padding:0 .75rem;font-size:.74rem;border-radius:6px}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.72rem;font-weight:500;color:var(--muted2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.inp{width:100%;background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:.62rem .875rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--blue)}.inp::placeholder{color:var(--muted)}.inp.err{border-color:var(--red2)}
+textarea.inp{resize:vertical;min-height:78px;line-height:1.6}
+.pg-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:.25rem}
+.pg-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.25rem}
+.chip{padding:4px 11px;border-radius:100px;font-size:.72rem;cursor:pointer;border:1px solid var(--border2);background:none;color:var(--muted2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.chip:hover,.chip.on{background:rgba(37,99,235,.14);border-color:rgba(37,99,235,.3);color:var(--blue2)}
+
+/* DASHBOARD */
+.dash-welcome{background:linear-gradient(135deg,rgba(37,99,235,.09),rgba(13,148,136,.06));border:1px solid rgba(37,99,235,.15);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.875rem;margin-bottom:1.25rem}
+.d-stat{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center}
+.d-stat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.65rem;line-height:1}
+.d-stat-l{font-size:.7rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+.dash-two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.dash-sec-label{font-size:.7rem;font-weight:500;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+
+/* JOBS */
+.job-search-box{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+.job-search-row{display:flex;gap:10px;margin-bottom:.75rem;flex-wrap:wrap}
+.job-filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted2)}
+.radius-row{display:flex;align-items:center;gap:7px}
+.jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+.job-card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1.2rem;transition:all .2s;position:relative;overflow:hidden}
+.job-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--teal));opacity:0;transition:opacity .2s}
+.job-card:hover{border-color:rgba(37,99,235,.28);transform:translateY(-2px)}.job-card:hover::after{opacity:1}
+.j-source{font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.j-company{font-size:.77rem;color:var(--muted2);margin-bottom:3px}
+.j-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;margin-bottom:.55rem;color:var(--white)}
+.j-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.7rem}
+.j-tag{font-size:.68rem;padding:2px 8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:100px;color:var(--muted2)}
+.j-desc{font-size:.78rem;color:var(--muted);line-height:1.65;margin-bottom:.8rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.j-actions{display:flex;gap:6px;flex-wrap:wrap}
+.match-pill{position:absolute;top:.875rem;right:.875rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.7rem;padding:2px 8px;border-radius:100px}
+.m-hi{background:rgba(5,150,105,.15);color:#34D399;border:1px solid rgba(5,150,105,.2)}
+.m-mid{background:rgba(217,119,6,.14);color:var(--amber2);border:1px solid rgba(217,119,6,.2)}
+.m-lo{background:rgba(220,38,38,.1);color:var(--red2);border:1px solid rgba(220,38,38,.15)}
+.source-note{background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.14);border-radius:8px;padding:.75rem 1rem;font-size:.77rem;color:var(--blue2);margin-bottom:1rem;line-height:1.6}
+
+/* MY CV */
+.cv-box{background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:1.5rem;font-size:.82rem;line-height:1.85;color:var(--muted2);white-space:pre-wrap;min-height:300px;max-height:600px;overflow-y:auto}
+
+/* APPLICATIONS */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.k-col{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1rem;min-height:160px}
+.k-head{font-family:'Syne',sans-serif;font-weight:700;font-size:.77rem;margin-bottom:.7rem;display:flex;justify-content:space-between}
+.k-card{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.55rem}
+.k-card-title{font-weight:500;font-size:.8rem;color:var(--white);margin-bottom:2px}
+.k-card-sub{font-size:.7rem;color:var(--muted)}
+.k-acts{display:flex;gap:4px;margin-top:.45rem;flex-wrap:wrap}
+
+/* INTERVIEW PREP */
+.prep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem}
+.p-stat{background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:.875rem;text-align:center}
+.p-stat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.45rem;line-height:1}
+.p-stat-l{font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:3px}
+.game-select{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1rem}
+.game-card{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;cursor:pointer;transition:all .2s;text-align:center}
+.game-card:hover,.game-card.sel{border-color:rgba(37,99,235,.4);background:rgba(37,99,235,.05)}
+.game-card.sel{border-color:var(--blue)}
+.g-icon{font-size:1.85rem;margin-bottom:.65rem}
+.g-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:.3rem}
+.g-desc{font-size:.74rem;color:var(--muted2);line-height:1.5}
+/* Game area */
+.game-area{display:none}.game-area.active{display:block}
+.g-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.g-timer{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem}
+.timer-bar{height:4px;background:var(--navy3);border-radius:2px;overflow:hidden;margin-bottom:1.25rem}
+.t-fill{height:100%;background:var(--blue);border-radius:2px;transition:width 1s linear}
+.t-fill.warn{background:var(--amber)}.t-fill.danger{background:var(--red)}
+.q-cat{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.q-text{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--white);line-height:1.45;margin-bottom:1.1rem;min-height:50px}
+.mc-opts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.9rem}
+.mc-opt{background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:.8rem .9rem;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:.65rem;text-align:left}
+.mc-opt:hover:not(.disabled){border-color:rgba(37,99,235,.4);background:rgba(37,99,235,.06)}
+.mc-opt.correct{background:rgba(5,150,105,.12);border-color:var(--green2)}
+.mc-opt.wrong{background:rgba(220,38,38,.08);border-color:var(--red2)}
+.mc-opt.reveal{background:rgba(5,150,105,.07);border-color:rgba(5,150,105,.28)}
+.mc-opt.disabled{cursor:default;opacity:.75}
+.mc-ltr{width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.75rem;flex-shrink:0}
+.mc-opt.correct .mc-ltr{background:var(--green);color:#fff}
+.mc-opt.wrong .mc-ltr{background:var(--red);color:#fff}
+.mc-txt{font-size:.82rem;color:var(--muted2);line-height:1.5}
+.exp-box{background:var(--navy3);border-radius:8px;padding:.8rem;font-size:.8rem;color:var(--muted2);line-height:1.65;margin-top:.8rem;display:none;border-left:3px solid var(--teal)}
+.exp-box.show{display:block}
+.tf-question{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;text-align:center;min-height:80px;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--navy3);border-radius:12px;margin-bottom:1.1rem;line-height:1.4}
+.tf-btns{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:.9rem}
+.tf-btn{height:66px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;cursor:pointer;border:1px solid var(--border2);transition:all .15s}
+.tf-t{background:rgba(5,150,105,.1);color:var(--green2);border-color:rgba(5,150,105,.2)}.tf-t:hover:not(.disabled){background:rgba(5,150,105,.18)}
+.tf-f{background:rgba(220,38,38,.08);color:var(--red2);border-color:rgba(220,38,38,.15)}.tf-f:hover:not(.disabled){background:rgba(220,38,38,.14)}
+.tf-btn.correct{background:rgba(5,150,105,.22);border-color:var(--green2)}
+.tf-btn.wrong{background:rgba(220,38,38,.18);border-color:var(--red2)}
+.score-screen{text-align:center;padding:2.5rem 1rem;display:none}
+.score-num{font-family:'Syne',sans-serif;font-weight:800;font-size:3.5rem;color:var(--accent)}
+.score-sub{font-size:.95rem;color:var(--muted2);margin-top:.4rem}
+.score-xp{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--amber2);margin-top:.6rem}
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:90%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;margin-bottom:.25rem}
+.modal-meta{font-size:.76rem;color:var(--muted);margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:.65rem}
+.modal-desc{font-size:.83rem;color:var(--muted2);line-height:1.75;white-space:pre-wrap;max-height:260px;overflow-y:auto;background:var(--navy3);border-radius:8px;padding:1rem;margin-bottom:.875rem}
+.modal-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:1.25rem;justify-content:flex-end}
+.ai-box{background:var(--navy3);border-radius:8px;padding:1rem;font-size:.82rem;color:var(--muted2);line-height:1.7;white-space:pre-wrap;max-height:240px;overflow-y:auto}
+.cl-box{background:var(--navy3);border-radius:8px;padding:1rem;font-size:.82rem;color:var(--muted2);line-height:1.8;white-space:pre-wrap;max-height:380px;overflow-y:auto}
+/* UTILS */
+.loading{display:none;text-align:center;padding:2.5rem;color:var(--muted)}
+.spinner{width:25px;height:25px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto .8rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:2.5rem 2rem}
+.empty-icon{font-size:2.25rem;opacity:.32;margin-bottom:.8rem}
+.empty-title{font-family:'Syne',sans-serif;font-size:.9rem;color:var(--muted2);margin-bottom:.35rem}
+.empty-desc{font-size:.78rem;color:var(--muted);line-height:1.6}
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy2);border:1px solid var(--border2);border-radius:9px;padding:.7rem 1.2rem;font-size:.8rem;color:var(--white);transform:translateY(60px);opacity:0;transition:all .25s;z-index:999;pointer-events:none;max-width:270px}
+#toast.show{transform:translateY(0);opacity:1}
+.xp-pop{position:fixed;bottom:4rem;right:1.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--amber2);opacity:0;transform:translateY(0);transition:all .8s ease;z-index:998;pointer-events:none}
+.xp-pop.show{opacity:1;transform:translateY(-22px)}
+.settings-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.msg-bubble{max-width:85%;padding:.8rem 1rem;border-radius:12px;font-size:.83rem;line-height:1.7;animation:msgFade .3s ease}
+.msg-ai{background:var(--navy3);border:1px solid var(--border);border-bottom-left-radius:2px;color:var(--muted2)}
+.msg-user{background:rgba(123,106,232,.14);border:1px solid rgba(123,106,232,.2);border-bottom-right-radius:2px;color:var(--white)}
+.msg-wrap{display:flex;flex-direction:column}.msg-wrap.user{align-items:flex-end}
+.msg-label{font-size:.67rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+@keyframes msgFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes typingDot{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.strength-item,.improve-item{display:flex;gap:7px;font-size:.8rem;color:var(--muted2);line-height:1.6;margin-bottom:.55rem;align-items:flex-start}
+.s-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.qb-item{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:.9rem;margin-bottom:.55rem}
+.qb-q{font-size:.8rem;font-weight:500;color:var(--white);margin-bottom:.3rem;display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.qb-a{font-size:.76rem;color:var(--muted);margin-bottom:.4rem;font-style:italic;line-height:1.55}
+.qb-fb{font-size:.8rem;color:var(--muted2);line-height:1.6}
+.q-score-pill{font-size:.68rem;font-family:'Syne',sans-serif;font-weight:700;padding:2px 7px;border-radius:100px;white-space:nowrap;flex-shrink:0}
+.skill-suggest-item{padding:8px 14px;font-size:.82rem;color:var(--muted2);cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--border)}
+.skill-suggest-item:last-child{border-bottom:none}
+.skill-suggest-item:hover{background:rgba(123,106,232,.1);color:var(--white)}
+.inp:focus{box-shadow:0 0 0 3px rgba(123,106,232,.12)}
+
+.info-box{background:rgba(13,148,136,.05);border:1px solid rgba(13,148,136,.14);border-radius:8px;padding:.875rem;font-size:.77rem;color:var(--muted2);line-height:1.65}
+.info-box a{color:var(--teal2);text-decoration:none}
+@media(max-width:700px){
+  .landing-nav{padding:1rem 1.25rem}.hero-h1{font-size:2.5rem}
+  .input-row{grid-template-columns:1fr}.mc-opts{grid-template-columns:1fr}
+  .kanban{grid-template-columns:1fr 1fr}.game-select{grid-template-columns:1fr}
+  .prep-stats{grid-template-columns:repeat(2,1fr)}.settings-cols{grid-template-columns:1fr}
+  .dash-two{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LANDING ══ -->
+<div id="screen-landing" class="screen active">
+  <nav class="landing-nav">
+    <div class="logo-wrap"><span class="logo-pill">🚀</span> Launchpad</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-hero btn-hero-g" onclick="startApp()" style="padding:8px 16px;font-size:.8rem;border-radius:8px">Sign in</button>
+      <button class="btn-hero btn-hero-p" onclick="startOnboarding()" style="padding:8px 16px;font-size:.8rem;border-radius:8px">Get started →</button>
+    </div>
+  </nav>
+  <div class="landing-hero">
+    <div class="hero-tag">✦ Built for graduates &amp; career changers</div>
+    <h1 class="hero-h1">Land your next job<br><span>faster</span></h1>
+    <p class="hero-desc">Find real jobs, build a tailored CV, generate cover letters, and sharpen your interview skills — all in one place, powered by AI.</p>
+    <div class="hero-ctas">
+      <button class="btn-hero btn-hero-p" onclick="startOnboarding()">Build your profile — it's free →</button>
+      <button class="btn-hero btn-hero-g" onclick="startApp()">I already have a profile</button>
+    </div>
+  </div>
+  <div class="feats">
+    <div class="feat">
+      <div class="feat-icon" style="background:rgba(37,99,235,.1)">💼</div>
+      <h3>Real job search</h3>
+      <p>Pull listings from Seek, Indeed, Jora &amp; more via Adzuna. Location + radius filtering. Full descriptions stored for precise CV &amp; cover letter tailoring.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon" style="background:rgba(13,148,136,.1)">📄</div>
+      <h3>AI CV &amp; cover letters</h3>
+      <p>Generate a professional CV from your profile in one click. Tailor it to any job. Write a cover letter that sounds like you, not a robot.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon" style="background:rgba(217,119,6,.1)">🎮</div>
+      <h3>Interview prep games</h3>
+      <p>Three game modes — Quick Quiz (A/B/C/D), Scenario Challenge, and Speed Round. Earn XP, keep your streak alive, level up.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon" style="background:rgba(124,58,237,.1)">📋</div>
+      <h3>Application tracker</h3>
+      <p>Kanban pipeline for every job you apply to. Applied → Interview → Offer. Never lose track of where you're at.</p>
+    </div>
+  </div>
+  <div class="land-foot">Built with ✨ AI — no backend, no data sent anywhere except Anthropic API when you use AI features.</div>
+</div>
+
+<!-- ══ ONBOARDING ══ -->
+<div id="screen-onboard" class="screen">
+  <div class="ob-wrap">
+    <div class="ob-topbar">
+      <div class="logo-wrap" style="font-size:.88rem"><span class="logo-pill" style="padding:2px 8px;font-size:.72rem">🚀</span> Launchpad</div>
+      <button class="btn btn-g btn-sm" onclick="startApp()">Skip for now</button>
+    </div>
+    <div class="ob-dots" id="obDots"></div>
+
+    <!-- Step 1 -->
+    <div class="ob-step active" id="os-1">
+      <div class="ob-head">
+        <h2>Great to meet you</h2>
+        <p>These details power your CV and cover letters. Fields marked <span class="req">*</span> are required to continue.</p>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>Full name <span class="req">*</span></label><input class="inp" id="o-name" placeholder="Ethan Bouterey"></div>
+        <div class="field"><label>Email <span class="req">*</span></label><input class="inp" id="o-email" type="email" placeholder="you@email.com"></div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>Phone</label><input class="inp" id="o-phone" placeholder="020 411 87159"></div>
+        <div class="field"><label>Location <span class="req">*</span></label><div style="display:flex;gap:8px"><input class="inp" id="o-location" list="nz-cities" placeholder="New Plymouth, New Zealand" autocomplete="off" style="flex:1"><button type="button" class="btn btn-g btn-sm" onclick="useMyLocation()" style="height:38px;flex-shrink:0">📍 Detect</button></div></div>
+      </div>
+      <div class="field"><label>Career summary <span class="req">*</span> <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(2–3 sentences)</span></label>
+        <textarea class="inp" id="o-summary" placeholder="e.g. BCom grad in Information Systems with a background in customer engagement and digital tools. Genuinely interested in digital marketing and AI, looking to break into paid social..."></textarea>
+        <button type="button" class="btn btn-g btn-sm" onclick="aiSummaryHelp()" style="margin-top:6px;font-size:.75rem">✨ Help me write this</button>
+      </div>
+      <div class="field"><label>Target role <span class="req">*</span></label><input class="inp" id="o-target" list="job-titles" placeholder="e.g. Paid Social Specialist" autocomplete="off"></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="ob-step" id="os-2">
+      <div class="ob-head">
+        <h2>Your background</h2>
+        <p>The more detail you add, the better your CV matches and job tailoring will be.</p>
+      </div>
+      <div class="field"><label>Most recent role <span class="req">*</span> <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(Title — Company)</span></label><input class="inp" id="o-role1" placeholder="e.g. Brand Ambassador — Dentsu Creative (MKTG)"></div>
+      <div class="field"><label>What you did &amp; key achievements</label><textarea class="inp" id="o-role1-desc" placeholder="e.g. Promoted brands at live events, adapted messaging to different audiences, collected and reported customer insights back to the campaign team..."></textarea></div>
+      <div class="field"><label>Previous roles</label><input class="inp" id="o-role2" placeholder="e.g. Operational Support — Mainfreight, Labourer — HR Labour Wellington"></div>
+      <div class="field"><label>Education <span class="req">*</span></label><input class="inp" id="o-edu" placeholder="e.g. BCom Information Systems — Victoria University of Wellington, 2023"></div>
+      <div class="field"><label>Other qualifications / courses</label><input class="inp" id="o-quals" placeholder="e.g. Generative AI – ICTE3000, Open Polytechnic NZ, 2026"></div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="ob-step" id="os-3">
+      <div class="ob-head">
+        <h2>What you bring</h2>
+        <p>Select everything that applies — shapes your CV and job match scores.</p>
+      </div>
+      <div class="field"><label>Click to select your skills</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:.5rem" id="skillPicker"></div>
+      </div>
+      <div style="position:relative;margin:.75rem 0"><div style="display:flex;gap:8px"><input class="inp" id="customSkill" placeholder="Type to search or add a skill..." style="flex:1" oninput="showSkillSuggestions(this.value)" autocomplete="off"><button class="btn btn-g btn-sm" onclick="addCustomSkill()" style="height:38px">+ Add</button></div><div id="skill-suggestions" style="display:none;position:absolute;top:100%;left:0;right:50px;background:var(--navy3);border:1px solid var(--border2);border-radius:8px;margin-top:4px;z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)"></div></div>
+      <div class="field"><label>Personal strengths <span class="req">*</span> <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(how would you describe yourself?)</span></label>
+        <input class="inp" id="o-strengths" placeholder="e.g. Reliable, fast learner, self-managed, data literate, good communicator">
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="ob-step" id="os-4">
+      <div class="ob-head">
+        <h2>Your ideal role</h2>
+        <p>Helps the job search find the right listings for you.</p>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>Target industries</label><input class="inp" id="o-industries" placeholder="e.g. Digital marketing, tech, tourism, SaaS"></div>
+        <div class="field"><label>Work preference</label>
+          <select class="inp" id="o-work-type">
+            <option value="">Select...</option><option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option><option value="On-site">On-site</option><option value="Any">Any</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field"><label>Salary expectation</label><input class="inp" id="o-salary" placeholder="e.g. $55,000–$70,000 NZD"></div>
+        <div class="field"><label>Default job search location</label><input class="inp" id="o-search-loc" list="nz-cities" placeholder="e.g. Auckland, New Zealand" autocomplete="off"></div>
+      </div>
+      <div class="field"><label>Culture preference</label>
+        <textarea class="inp" id="o-culture" placeholder="e.g. Remote-first, collaborative team, values initiative and continuous improvement..."></textarea>
+      </div>
+    </div>
+
+    <div class="ob-nav">
+      <button class="btn btn-g btn-sm" id="ob-prev" onclick="obPrev()" style="visibility:hidden">← Back</button>
+      <span style="font-size:.76rem;color:var(--muted)" id="ob-step-lbl">Step 1 of 4</span>
+      <button class="btn btn-p btn-sm" id="ob-next" onclick="obNext()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="screen-app" class="screen">
+  <div class="appbar">
+    <div class="app-logo"><span class="app-pill">🚀</span> Launchpad</div>
+    <div class="xp-area">
+      <span style="font-size:.68rem;color:var(--teal2);white-space:nowrap" id="appLevel">Job Seeker</span>
+      <div class="xp-bg"><div class="xp-fill" id="appXPFill" style="width:0%"></div></div>
+      <span style="font-size:.68rem;color:var(--muted);white-space:nowrap" id="appXPNum">0 XP</span>
+    </div>
+    <div class="streak-pill">🔥 <span id="appStreak">0</span></div>
+    <div class="apptabs">
+      <button class="apptab active" onclick="showAppTab('dashboard')">🏠 Home</button>
+      <button class="apptab" onclick="showAppTab('jobs')">💼 Jobs</button>
+      <button class="apptab" onclick="showAppTab('mycv')">📄 My CV</button>
+      <button class="apptab" onclick="showAppTab('applications')">📋 Applications</button>
+      <button class="apptab" onclick="showAppTab('prep')">🎮 Prep</button>
+      <button class="apptab" onclick="showAppTab('settings')">⚙</button>
+    </div>
+  </div>
+
+  <div class="app-main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="appsec active">
+      <div class="dash-welcome">
+        <div>
+          <div style="font-size:.72rem;color:var(--teal2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Welcome back</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.45rem" id="dashName">there</div>
+          <div style="font-size:.8rem;color:var(--muted2);margin-top:3px">You're doing great. Every session counts.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-p btn-sm" onclick="showAppTab('jobs')">Find jobs →</button>
+          <button class="btn btn-amber btn-sm" onclick="showAppTab('prep')">Practice today 🔥</button>
+        </div>
+      </div>
+      <div class="dash-grid" id="dashStats"></div>
+      <div class="dash-two">
+        <div class="card">
+          <div class="dash-sec-label">Today's challenge</div>
+          <div style="font-size:.88rem;font-weight:500;color:var(--white);margin-bottom:.75rem;line-height:1.45" id="dashChallenge">Loading...</div>
+          <button class="btn btn-amber btn-sm" onclick="showAppTab('prep')">Practice now 🔥</button>
+        </div>
+        <div class="card">
+          <div class="dash-sec-label">Application pipeline</div>
+          <div id="dashPipeline" style="font-size:.83rem;color:var(--muted2);line-height:2.1">–</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div id="jobs" class="appsec">
+      <div class="pg-title">Job search</div>
+      <div class="pg-sub">Real listings from Seek, Indeed, Jora &amp; more — with location and radius filtering.</div>
+      <div class="source-note">💡 <strong>How this works:</strong> Jobs are pulled via Adzuna's free API, which aggregates from Seek, Indeed, Jora, Trade Me Jobs and other NZ/AU boards. Add your Adzuna key in Settings for live results. Demo jobs load by default so you can see the full workflow.</div>
+      <div class="job-search-box">
+        <div class="job-search-row" style="position:relative">
+          <input class="inp" id="jobQ" placeholder='"digital marketing" or "paid social"' style="flex:2;min-width:150px" value="digital marketing">
+          <input class="inp" id="jobLoc" placeholder="e.g. Auckland, Wellington..." style="flex:1;min-width:120px" list="nz-cities" autocomplete="off" oninput="suggestLoc(this.value)" onblur="setTimeout(hideLoc,180)"><div id="loc-drop" style="display:none;position:absolute;top:44px;left:0;right:0;max-width:300px;background:var(--navy3);border:1px solid var(--border2);border-radius:8px;z-index:60;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)"></div>
+          <button class="btn btn-p" onclick="searchJobs()">🔍 Search</button>
+          <button class="btn btn-g" onclick="loadDemoJobs()">Demo jobs</button>
+        </div>
+        <div class="job-filter-row">
+          <div class="radius-row">
+            Radius:
+            <input type="range" id="radiusSlider" min="0" max="200" value="50" step="10" style="width:90px" oninput="document.getElementById('radVal').textContent=this.value+'km'">
+            <span id="radVal" style="min-width:40px">50km</span>
+          </div>
+          <button class="chip on" onclick="filterJobs('all',this)">All</button>
+          <button class="chip" onclick="filterJobs('remote',this)">Remote</button>
+          <button class="chip" onclick="filterJobs('fulltime',this)">Full-time</button>
+          <button class="chip" onclick="filterJobs('saved',this)">♥ Saved</button>
+        </div>
+      </div>
+      <div id="jobLoading" class="loading"><div class="spinner"></div>Searching listings...</div>
+      <div class="jobs-grid" id="jobsGrid"></div>
+      <div id="jobEmpty" class="empty" style="display:none">
+        <div class="empty-icon">💼</div>
+        <div class="empty-title">No results</div>
+        <div class="empty-desc">Try a different keyword, or hit "Demo jobs".<br>For live NZ results add your Adzuna key in Settings.</div>
+      </div>
+    </div>
+
+    <!-- MY CV -->
+    <div id="mycv" class="appsec">
+      <div class="pg-title">My CV</div>
+      <div class="pg-sub">Generate from your profile. Tailor to any specific job in one click.</div>
+      <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-p" onclick="generateCV()">✨ Generate CV</button>
+        <button class="btn btn-g" onclick="copyCV()">📋 Copy</button>
+        <select class="inp" id="tailorSel" style="width:210px;height:40px;padding:0 .75rem"><option value="">Tailor to a saved job...</option></select>
+        <button class="btn btn-teal btn-sm" onclick="tailorCV()" style="height:40px">Tailor →</button>
+      </div>
+      <div id="cvSpinner" style="display:none;font-size:.8rem;color:var(--muted);margin-bottom:.75rem">✍ Generating your CV...</div>
+      <div class="cv-box" id="cvBox">Your generated CV will appear here. Complete your profile and click "Generate CV".</div>
+    </div>
+
+    <!-- APPLICATIONS -->
+    <div id="applications" class="appsec">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px">
+        <div><div class="pg-title">Application tracker</div><div class="pg-sub" style="margin-bottom:0">Track every application through the pipeline.</div></div>
+        <button class="btn btn-g btn-sm" onclick="openAddApp()">+ Add manually</button>
+      </div>
+      <div class="kanban" id="kanban"></div>
+    </div>
+
+    <!-- PREP -->
+    <div id="prep" class="appsec">
+      <div class="pg-title">Interview prep 🔥</div>
+      <div class="pg-sub">Three game modes. Earn XP. Keep your streak alive.</div>
+      <div class="prep-stats" id="prepStats"></div>
+
+      <div id="gameSelectWrap">
+        <div class="game-select">
+          <div class="game-card sel" id="gc-mc" onclick="selectGame('mc',this)">
+            <div class="g-icon">🔢</div>
+            <div class="g-name">Quick Quiz</div>
+            <div class="g-desc">A/B/C/D multiple choice. 30-second timer. Digital marketing knowledge.</div>
+          </div>
+          <div class="game-card" id="gc-scenario" onclick="selectGame('scenario',this)">
+            <div class="g-icon">💡</div>
+            <div class="g-name">Scenario Challenge</div>
+            <div class="g-desc">Real-world situations. What would you actually do? Tests professional judgement.</div>
+          </div>
+          <div class="game-card" id="gc-tf" onclick="selectGame('tf',this)">
+            <div class="g-icon">⚡</div>
+            <div class="g-name">Speed Round</div>
+            <div class="g-desc">10 True/False questions. 60 seconds. How many can you nail?</div>
+          </div>
+          <div class="game-card" id="gc-mock" onclick="selectGame('mock',this)">
+            <div class="g-icon">🎙</div>
+            <div class="g-name">Mock Interview</div>
+            <div class="g-desc">AI plays the hiring manager. Real questions, real debrief. The closest thing to the real thing.</div>
+          </div>
+        </div>
+        <button class="btn btn-p" onclick="startGame()" style="width:100%;justify-content:center;margin-top:.5rem">Play selected game →</button>
+      </div>
+
+      <!-- MC -->
+      <div class="game-area" id="game-mc">
+        <div class="g-header">
+          <div><span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Quick quiz</span> <span style="font-size:.76rem;color:var(--muted2);margin-left:.6rem" id="mc-prog"></span></div>
+          <div class="g-timer" id="mc-timer">30</div>
+        </div>
+        <div class="timer-bar"><div class="t-fill" id="mc-tbar" style="width:100%"></div></div>
+        <div class="q-cat" id="mc-cat"></div>
+        <div class="q-text" id="mc-q"></div>
+        <div class="mc-opts" id="mc-opts"></div>
+        <div class="exp-box" id="mc-exp"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:.875rem">
+          <button class="btn btn-g btn-sm" onclick="endGame()">← Exit</button>
+          <button class="btn btn-p btn-sm" id="mc-next" onclick="nextMC()" style="display:none">Continue →</button>
+        </div>
+        <div class="score-screen" id="mc-score">
+          <div class="score-num" id="mc-sn"></div><div class="score-sub" id="mc-sl"></div><div class="score-xp" id="mc-sx"></div>
+          <div style="margin-top:1.5rem;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-p" onclick="startGame()">Play again</button>
+            <button class="btn btn-g" onclick="endGame()">Back to games</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENARIO -->
+      <div class="game-area" id="game-scenario">
+        <div class="g-header">
+          <div><span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Scenario challenge</span> <span style="font-size:.76rem;color:var(--muted2);margin-left:.6rem" id="sc-prog"></span></div>
+          <div class="g-timer" id="sc-timer">45</div>
+        </div>
+        <div class="timer-bar"><div class="t-fill" id="sc-tbar" style="width:100%"></div></div>
+        <div class="q-cat" id="sc-cat"></div>
+        <div class="q-text" id="sc-q"></div>
+        <div class="mc-opts" id="sc-opts"></div>
+        <div class="exp-box" id="sc-exp"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:.875rem">
+          <button class="btn btn-g btn-sm" onclick="endGame()">← Exit</button>
+          <button class="btn btn-p btn-sm" id="sc-next" onclick="nextSC()" style="display:none">Continue →</button>
+        </div>
+        <div class="score-screen" id="sc-score">
+          <div class="score-num" id="sc-sn"></div><div class="score-sub" id="sc-sl"></div><div class="score-xp" id="sc-sx"></div>
+          <div style="margin-top:1.5rem;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-p" onclick="startGame()">Play again</button>
+            <button class="btn btn-g" onclick="endGame()">Back to games</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TF -->
+      <div class="game-area" id="game-tf">
+        <div class="g-header">
+          <span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Speed round</span>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <span style="font-size:.76rem;color:var(--muted2)" id="tf-prog"></span>
+            <div class="g-timer" id="tf-timer" style="color:var(--amber2)">60</div>
+          </div>
+        </div>
+        <div class="timer-bar"><div class="t-fill" id="tf-tbar" style="width:100%;background:var(--amber)"></div></div>
+        <div class="tf-question" id="tf-q">Loading...</div>
+        <div class="tf-btns">
+          <button class="tf-btn tf-t" id="tf-tbtn" onclick="answerTF(true)">✓ TRUE</button>
+          <button class="tf-btn tf-f" id="tf-fbtn" onclick="answerTF(false)">✗ FALSE</button>
+        </div>
+        <div class="exp-box" id="tf-exp"></div>
+        <button class="btn btn-g btn-sm" onclick="endGame()">← Exit</button>
+        <div class="score-screen" id="tf-score">
+          <div class="score-num" id="tf-sn"></div><div class="score-sub" id="tf-sl"></div><div class="score-xp" id="tf-sx"></div>
+          <div style="margin-top:1.5rem;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-p" onclick="startGame()">Play again</button>
+            <button class="btn btn-g" onclick="endGame()">Back to games</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+      <!-- MOCK INTERVIEW -->
+      <div class="game-area" id="game-mock">
+        <!-- SETUP -->
+        <div id="mock-setup">
+          <div style="margin-bottom:1.5rem">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:.3rem">Mock interview</div>
+            <div style="font-size:.82rem;color:var(--muted2);line-height:1.6">AI plays the hiring manager. No coaching during — just like the real thing. Full scored debrief after.</div>
+          </div>
+          <div class="field">
+            <label>Interview for</label>
+            <select class="inp" id="mock-job-sel"><option value="">— select a saved job or paste description below —</option></select>
+          </div>
+          <div class="field">
+            <label>Or paste a job description</label>
+            <textarea class="inp" id="mock-job-paste" placeholder="Paste any job description and the AI will tailor every question to it..." style="min-height:80px"></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+            <div class="field" style="margin-bottom:0"><label>Questions</label>
+              <select class="inp" id="mock-q-count">
+                <option value="5">5 — Quick (10 min)</option>
+                <option value="8" selected>8 — Standard (20 min)</option>
+                <option value="10">10 — Full (25 min)</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0"><label>Style</label>
+              <select class="inp" id="mock-style">
+                <option value="conversational">Conversational</option>
+                <option value="structured">Structured</option>
+                <option value="challenging">Challenging</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0"><label>Focus</label>
+              <select class="inp" id="mock-focus">
+                <option value="balanced">Balanced</option>
+                <option value="behavioural">Behavioural</option>
+                <option value="technical">Role-specific</option>
+                <option value="culture">Culture fit</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-p" onclick="launchMockInterview()" style="flex:1;justify-content:center">Begin interview →</button>
+            <button class="btn btn-g btn-sm" onclick="endGame()">← Back</button>
+          </div>
+        </div>
+
+        <!-- ACTIVE INTERVIEW -->
+        <div id="mock-active" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem;border-bottom:.5px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div id="mock-avatar" style="width:40px;height:40px;border-radius:50%;background:rgba(123,106,232,.15);border:1px solid rgba(123,106,232,.3);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--blue2);flex-shrink:0">AJ</div>
+              <div><div id="mock-iname" style="font-weight:500;font-size:.88rem">Alex Johnson</div><div id="mock-irole" style="font-size:.7rem;color:var(--muted)">Hiring Manager</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem">
+              <span style="font-size:.76rem;color:var(--muted2)">Q <span id="mock-q-num" style="color:var(--white);font-weight:500">1</span>/<span id="mock-q-total">8</span></span>
+              <div id="mock-elapsed" style="font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--amber2)">0:00</div>
+              <button class="btn btn-red btn-sm" onclick="confirmEndInterview()">End</button>
+            </div>
+          </div>
+          <div id="mock-feed" style="min-height:260px;max-height:400px;overflow-y:auto;margin-bottom:1rem;display:flex;flex-direction:column;gap:.75rem"></div>
+          <div id="mock-typing" style="display:none;padding:.65rem 1rem;background:var(--navy3);border-radius:10px;border-bottom-left-radius:2px;width:fit-content;margin-bottom:.75rem">
+            <div style="display:flex;gap:4px;align-items:center">
+              <div style="width:5px;height:5px;border-radius:50%;background:var(--muted);animation:typingDot .8s ease-in-out infinite"></div>
+              <div style="width:5px;height:5px;border-radius:50%;background:var(--muted);animation:typingDot .8s ease-in-out .16s infinite"></div>
+              <div style="width:5px;height:5px;border-radius:50%;background:var(--muted);animation:typingDot .8s ease-in-out .32s infinite"></div>
+            </div>
+          </div>
+          <div id="mock-input-area">
+            <textarea class="inp" id="mock-answer" placeholder="Type your answer... Ctrl+Enter to submit" style="min-height:100px" onkeydown="handleMockKey(event)" oninput="updateMockCharCount()"></textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem">
+              <span id="mock-char-count" style="font-size:.7rem;color:var(--muted)">0 words</span>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-g btn-sm" onclick="skipMockQ()">Skip</button>
+                <button class="btn btn-p btn-sm" id="mock-submit-btn" onclick="submitMockAnswer()">Submit →</button>
+              </div>
+            </div>
+          </div>
+          <div id="mock-complete-area" style="display:none;text-align:center;padding:1.5rem">
+            <div style="font-size:1.25rem;margin-bottom:.5rem">✓</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:.35rem">Interview complete</div>
+            <div style="font-size:.82rem;color:var(--muted2);margin-bottom:1rem">Generating your debrief...</div>
+            <div class="spinner" style="display:block;margin:0 auto"></div>
+          </div>
+        </div>
+
+        <!-- DEBRIEF -->
+        <div id="mock-debrief" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">Interview debrief</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-p btn-sm" onclick="startMockAgain()">Go again</button>
+              <button class="btn btn-g btn-sm" onclick="endGame()">Back to prep</button>
+            </div>
+          </div>
+          <div id="mock-score-card" style="background:var(--navy3);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
+            <div style="text-align:center;flex-shrink:0">
+              <div id="mock-score-num" style="font-family:'Syne',sans-serif;font-weight:800;font-size:3.5rem;line-height:1;color:var(--accent)">—</div>
+              <div style="font-size:.7rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Score</div>
+            </div>
+            <div style="flex:1"><div id="mock-score-label" style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.3rem">—</div><div id="mock-overall-text" style="font-size:.82rem;color:var(--muted2);line-height:1.65">—</div></div>
+            <div id="mock-recommendation" style="padding:.4rem 1rem;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;flex-shrink:0">—</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+            <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:10px;padding:1.25rem">
+              <div style="font-size:.7rem;color:var(--green2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7rem;font-weight:500">Strengths</div>
+              <div id="mock-strengths"></div>
+            </div>
+            <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:1.25rem">
+              <div style="font-size:.7rem;color:var(--red2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7rem;font-weight:500">Areas to develop</div>
+              <div id="mock-improvements"></div>
+            </div>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7rem">Question by question</div>
+          <div id="mock-q-breakdown"></div>
+        </div>
+      </div>
+
+    <!-- SETTINGS -->
+    <div id="settings" class="appsec">
+      <div class="pg-title" style="margin-bottom:1.25rem">Settings</div>
+      <div class="settings-cols">
+        <div class="card">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:1rem">API configuration</div>
+          <div class="field"><label>Anthropic API key</label><input class="inp" id="s-claude" type="password" placeholder="sk-ant-..."></div>
+          <div class="field"><label>Adzuna App ID <span style="color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">— free at developer.adzuna.com</span></label><input class="inp" id="s-adz-id" placeholder="Your App ID"></div>
+          <div class="field"><label>Adzuna App Key</label><input class="inp" id="s-adz-key" type="password" placeholder="Your App Key"></div>
+          <button class="btn btn-p btn-sm" onclick="saveSettings()" style="margin-bottom:.875rem">Save settings</button>
+          <div class="info-box">Adzuna aggregates from <strong style="color:var(--white)">Seek, Indeed, Jora, Trade Me Jobs</strong> and other NZ/AU boards. Free tier: 100 requests/day.<br><br>For direct LinkedIn scraping, a backend proxy is needed — V2 roadmap feature.</div>
+        </div>
+        <div class="card">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:1rem">Your data</div>
+          <div style="font-size:.82rem;color:var(--muted2);line-height:1.7;margin-bottom:1.25rem">Profile, XP, streak and applications are stored locally in your browser only. Nothing sent externally except Anthropic API calls when using AI features.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-g btn-sm" onclick="editProfile()">✎ Edit profile</button>
+            <button class="btn btn-g btn-sm" onclick="exportData()">↓ Export data</button>
+            <button class="btn btn-red btn-sm" onclick="resetXP()">Reset XP</button>
+            <button class="btn btn-red btn-sm" onclick="clearAll()">Clear all</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app-main -->
+</div><!-- /screen-app -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="jobModal">
+  <div class="modal">
+    <div class="modal-title" id="jm-title"></div>
+    <div class="modal-meta" id="jm-meta"></div>
+    <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Job description</div>
+    <div class="modal-desc" id="jm-desc"></div>
+    <div id="jm-link-wrap" style="display:none;margin-bottom:.75rem"><a id="jm-link" href="#" target="_blank" class="btn btn-g btn-sm">🔗 View original listing ↗</a></div>
+    <div id="jm-skills-wrap" style="display:none;margin-bottom:.75rem">
+      <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Key skills mentioned</div>
+      <div id="jm-skills" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <div id="jm-ai-wrap" style="display:none;margin-bottom:.5rem">
+      <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">AI match analysis</div>
+      <div class="ai-box" id="jm-ai"></div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-g btn-sm" onclick="closeModal('jobModal')">Close</button>
+      <button class="btn btn-g btn-sm" onclick="openCL()">Cover letter</button>
+      <button class="btn btn-g btn-sm" onclick="analyseMatch()">✨ Match score</button>
+      <button class="btn btn-p btn-sm" onclick="trackJob()">+ Track application</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="clModal">
+  <div class="modal">
+    <div class="modal-title">Cover letter</div>
+    <div id="cl-loading" style="display:none;font-size:.8rem;color:var(--muted);margin:.5rem 0">Writing your cover letter...</div>
+    <div class="cl-box" id="cl-content">Select a job and generate a cover letter.</div>
+    <div class="modal-acts">
+      <button class="btn btn-g btn-sm" onclick="closeModal('clModal')">Close</button>
+      <button class="btn btn-p btn-sm" onclick="copyCL()">📋 Copy</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addAppModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">Track an application</div>
+    <div style="height:.75rem"></div>
+    <div class="field"><label>Job title <span class="req">*</span></label><input class="inp" id="aa-title" placeholder="e.g. Paid Social Specialist"></div>
+    <div class="field"><label>Company <span class="req">*</span></label><input class="inp" id="aa-company" placeholder="e.g. TOMIS"></div>
+    <div class="field"><label>Job URL</label><input class="inp" id="aa-url" placeholder="https://..."></div>
+    <div class="field"><label>Status</label>
+      <select class="inp" id="aa-status">
+        <option value="applied">Applied</option><option value="interview">Interview</option>
+        <option value="offer">Offer</option><option value="rejected">Rejected</option>
+      </select>
+    </div>
+    <div class="field"><label>Notes</label><textarea class="inp" id="aa-notes" placeholder="e.g. Interview scheduled for..."></textarea></div>
+    <div class="modal-acts">
+      <button class="btn btn-g btn-sm" onclick="closeModal('addAppModal')">Cancel</button>
+      <button class="btn btn-p btn-sm" onclick="saveApp()">Save application</button>
+    </div>
+  </div>
+</div>
+
+
+<datalist id="nz-cities">
+  <option value="Auckland"><option value="Auckland CBD"><option value="Auckland Central">
+  <option value="North Shore, Auckland"><option value="South Auckland">
+  <option value="East Tamaki, Auckland"><option value="Manukau, Auckland">
+  <option value="Takapuna, Auckland"><option value="Newmarket, Auckland">
+  <option value="Parnell, Auckland"><option value="Ponsonby, Auckland">
+  <option value="Albany, Auckland"><option value="Henderson, Auckland">
+  <option value="Botany, Auckland"><option value="Papakura, Auckland">
+  <option value="Wellington"><option value="Wellington CBD">
+  <option value="Christchurch"><option value="Hamilton"><option value="Tauranga">
+  <option value="Dunedin"><option value="Palmerston North"><option value="Nelson">
+  <option value="Rotorua"><option value="New Plymouth"><option value="Whangarei">
+  <option value="Invercargill"><option value="Napier"><option value="Hastings">
+  <option value="Lower Hutt"><option value="Blenheim"><option value="Gisborne">
+  <option value="Whanganui"><option value="Remote (NZ)">
+  <option value="Remote"><option value="Remote (Anywhere)">
+  <option value="New Zealand"><option value="Sydney, Australia">
+  <option value="Melbourne, Australia"><option value="Brisbane, Australia">
+</datalist>
+<datalist id="job-titles">
+  <option value="Paid Social Specialist"><option value="Digital Marketing Coordinator">
+  <option value="Digital Marketing Manager"><option value="Social Media Manager">
+  <option value="Content Marketing Specialist"><option value="Growth Marketer">
+  <option value="Marketing Executive"><option value="Performance Marketing Analyst">
+  <option value="SEO Specialist"><option value="Email Marketing Specialist">
+  <option value="Marketing Coordinator"><option value="Brand Manager">
+  <option value="Campaign Manager"><option value="Marketing Analyst">
+  <option value="Customer Success Manager"><option value="Operations Coordinator">
+  <option value="Business Analyst"><option value="Data Analyst">
+  <option value="Account Manager"><option value="Sales Development Representative">
+  <option value="Project Manager"><option value="Product Manager">
+</datalist>
+<datalist id="industries-list">
+  <option value="Digital Marketing"><option value="Tourism and Hospitality">
+  <option value="Technology and SaaS"><option value="E-commerce">
+  <option value="Finance and Fintech"><option value="Healthcare"><option value="Education">
+  <option value="Media and Publishing"><option value="Retail"><option value="Real Estate">
+  <option value="Non-profit"><option value="Government"><option value="Consulting">
+  <option value="Agency"><option value="Startup"><option value="Enterprise">
+</datalist>
+<div id="toast"></div>
+<div class="xp-pop" id="xpPop"></div>
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let profile  = JSON.parse(localStorage.getItem('lp2_profile')  ||'{}');
+let settings = (()=>{const s=JSON.parse(localStorage.getItem('lp2_settings')||'{}');if(!s.adzunaId)s.adzunaId='b465b1e4';if(!s.adzunaKey)s.adzunaKey='82820e4ac4a0facfc1e8fe7f050e2c04';return s;})();
+let progress = JSON.parse(localStorage.getItem('lp2_progress') ||'{"xp":0,"streak":0,"lastActive":"","answered":0,"gamesPlayed":0}');
+let savedJobs= JSON.parse(localStorage.getItem('lp2_jobs')     ||'[]');
+let apps     = JSON.parse(localStorage.getItem('lp2_apps')     ||'[]');
+let allJobs=[], currentJobIdx=-1, obStep=1, selGame='mc', cvText='';
+let gameTimer=null, gameTimeLeft=0, gameQ=[], gameIdx=0, gameScore=0;
+let tfIdx=0, tfScore=0;
+
+// ── SKILLS ────────────────────────────────────────────────────────────────────
+const SKILLS=['Digital Marketing','Paid Social Advertising','Meta Ads Manager','SEO','Content Marketing','Email Marketing','Copywriting','Data Analysis','SQL','Python','Shopify','AI & Prompt Engineering','Microsoft Excel','Customer Engagement','CRM Systems','Campaign Management','A/B Testing','Client Communication','Brand Communication','Social Media','Google Analytics','Project Management','Remote Work','Reporting & Analytics','Systems Analysis'];
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function startOnboarding(){ showScreen('screen-onboard'); renderObDots(); renderSkillPicker(); populateProfile(); }
+function startApp(){
+  if(!profile.name){ startOnboarding(); return; }
+  showScreen('screen-app'); updateXPBar(); updateStreakDisplay(); renderDashboard(); loadDemoJobs(); populateTailorSel();
+}
+function showAppTab(id){
+  document.querySelectorAll('.appsec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.apptab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.apptab').forEach(t=>{ if(t.getAttribute('onclick')===`showAppTab('${id}')`) t.classList.add('active'); });
+  if(id==='applications') renderKanban();
+  if(id==='prep'){ renderPrepStats(); renderGameSelectUI(); }
+  if(id==='mycv') populateTailorSel();
+  if(id==='dashboard') renderDashboard();
+  if(id==='jobs'){ const jq=document.getElementById('jobQ'); const jl=document.getElementById('jobLoc'); if(jq&&!jq.value&&profile.targetRole) jq.value=profile.targetRole; if(jl&&!jl.value&&profile.searchLoc) jl.value=profile.searchLoc; }
+}
+
+// ── ONBOARDING ────────────────────────────────────────────────────────────────
+const OB_TOTAL=4;
+function renderObDots(){
+  let h='';
+  for(let i=1;i<=OB_TOTAL;i++){
+    if(i>1) h+=`<div class="ob-line${i-1<obStep?' done':''}"></div>`;
+    h+=`<div class="ob-dot ${i<obStep?'done':i===obStep?'active':'pending'}">${i<obStep?'✓':i}</div>`;
+  }
+  document.getElementById('obDots').innerHTML=h;
+  document.getElementById('ob-step-lbl').textContent=`Step ${obStep} of ${OB_TOTAL}`;
+  document.getElementById('ob-prev').style.visibility=obStep>1?'visible':'hidden';
+  document.getElementById('ob-next').textContent=obStep===OB_TOTAL?'Save & launch ✓':'Continue →';
+}
+function populateProfile(){
+  const flds={name:'o-name',email:'o-email',phone:'o-phone',location:'o-location',summary:'o-summary',targetRole:'o-target',role1:'o-role1',role1desc:'o-role1-desc',role2:'o-role2',education:'o-edu',quals:'o-quals',strengths:'o-strengths',industries:'o-industries',workType:'o-work-type',salary:'o-salary',searchLoc:'o-search-loc',culture:'o-culture'};
+  Object.entries(flds).forEach(([k,id])=>{ const el=document.getElementById(id); if(el&&profile[k]) el.value=profile[k]; });
+}
+function renderSkillPicker(){
+  const sel=profile.skills||[];
+  document.getElementById('skillPicker').innerHTML=SKILLS.map(s=>`<button class="chip${sel.includes(s)?' on':''}" onclick="toggleSkill('${s}',this)">${s}</button>`).join('');
+}
+function toggleSkill(s,el){ if(!profile.skills)profile.skills=[]; if(profile.skills.includes(s)){profile.skills=profile.skills.filter(x=>x!==s);el.classList.remove('on');}else{profile.skills.push(s);el.classList.add('on');} }
+function addCustomSkill(){ const v=document.getElementById('customSkill').value.trim(); if(!v)return; if(!profile.skills)profile.skills=[]; if(!profile.skills.includes(v)){profile.skills.push(v);const b=document.createElement('button');b.className='chip on';b.textContent=v;b.onclick=()=>toggleSkill(v,b);document.getElementById('skillPicker').appendChild(b);} document.getElementById('customSkill').value=''; }
+function obValidate(){
+  const req={1:['o-name','o-email','o-location','o-summary','o-target'],2:['o-role1','o-edu'],3:['o-strengths'],4:[]};
+  let ok=true; (req[obStep]||[]).forEach(id=>{ const el=document.getElementById(id); if(!el.value.trim()){el.classList.add('err');ok=false;}else el.classList.remove('err'); });
+  if(!ok) showToast('Please fill in the required fields ↑');
+  return ok;
+}
+function obSave(){
+  if(obStep===1){profile.name=g('o-name');profile.email=g('o-email');profile.phone=g('o-phone');profile.location=g('o-location');profile.summary=g('o-summary');profile.targetRole=g('o-target');}
+  if(obStep===2){profile.role1=g('o-role1');profile.role1desc=g('o-role1-desc');profile.role2=g('o-role2');profile.education=g('o-edu');profile.quals=g('o-quals');}
+  if(obStep===3){profile.strengths=g('o-strengths');}
+  if(obStep===4){profile.industries=g('o-industries');profile.workType=g('o-work-type');profile.salary=g('o-salary');profile.searchLoc=g('o-search-loc');profile.culture=g('o-culture');}
+}
+function obNext(){ if(!obValidate())return; obSave(); if(obStep===OB_TOTAL){localStorage.setItem('lp2_profile',JSON.stringify(profile));awardXP(50,'Profile completed');startApp();return;} document.getElementById(`os-${obStep}`).classList.remove('active'); obStep++; document.getElementById(`os-${obStep}`).classList.add('active'); renderObDots(); }
+function obPrev(){ obSave(); document.getElementById(`os-${obStep}`).classList.remove('active'); obStep--; document.getElementById(`os-${obStep}`).classList.add('active'); renderObDots(); }
+function editProfile(){ obStep=1; startOnboarding(); }
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+const DAILY_QS=['Tell me about yourself.','Why do you want to work in digital marketing?','Describe a time you adapted quickly to something new.','What do you know about paid social advertising?','How do you measure campaign success?','How does AI fit into modern marketing?','Tell me about a time you worked under pressure to meet a deadline.','Why this specific company?','Where do you see yourself in 2–3 years?','How would you explain campaign results to a non-technical client?','Describe a time you had to prioritise competing deadlines.','What makes a good ad creative for a tourism brand?'];
+function renderDashboard(){
+  document.getElementById('dashName').textContent=profile.name?.split(' ')[0]||'there';
+  const stats=[{n:progress.xp||0,l:'Total XP',c:'var(--teal2)'},{n:progress.streak||0,l:'Day streak',c:'var(--amber2)'},{n:apps.length,l:'Applications',c:'var(--blue2)'},{n:savedJobs.length,l:'Saved jobs',c:'var(--purple2)'}];
+  document.getElementById('dashStats').innerHTML=stats.map(s=>`<div class="d-stat"><div class="d-stat-n" style="color:${s.c}">${s.n}</div><div class="d-stat-l">${s.l}</div></div>`).join('');
+  document.getElementById('dashChallenge').textContent=DAILY_QS[new Date().getDate()%DAILY_QS.length];
+  const cols={applied:0,interview:0,offer:0,rejected:0}; apps.forEach(a=>{if(cols[a.status]!==undefined)cols[a.status]++;});
+  document.getElementById('dashPipeline').innerHTML=`<div>Applied <strong style="color:var(--blue2)">${cols.applied}</strong></div><div>Interview <strong style="color:var(--amber2)">${cols.interview}</strong></div><div>Offer <strong style="color:var(--green2)">${cols.offer}</strong></div><div>Rejected <strong style="color:var(--muted)">${cols.rejected}</strong></div>`;
+}
+
+// ── JOBS ──────────────────────────────────────────────────────────────────────
+const DEMO_JOBS=[
+  {id:'d1',title:'Paid Social Specialist',company:'TOMIS',location:'Remote (NZ)',type:'Full-time',salary:'$55k–$70k NZD',source:'TOMIS Careers',url:'https://ats.rippling.com/en-GB/tomis-careers/jobs/acc23af8-d094-4cbd-9e1e-07b541e1a482',contact:'jobs@tomis.com',skills:['Meta Ads','Campaign Management','Client Communication','Analytics','Tourism'],
+    desc:`TOMIS is a digital marketing agency specialising in tourism. We're looking for a Paid Social Specialist to manage Facebook and Instagram campaigns for tour operators and travel brands across NZ and Australia.\n\nResponsibilities:\n- Plan, build and manage paid social campaigns across Meta platforms\n- Develop audience targeting strategies including lookalike and retargeting\n- Monitor campaign performance and optimise for KPIs\n- Produce monthly client performance reports\n- Collaborate with creative teams on ad content\n- Communicate regularly with clients on strategy and results\n\nWe're remote-first and value initiative, data-driven thinking, and clear communication.`},
+  {id:'d2',title:'Digital Marketing Coordinator',company:'TradeMe',location:'Wellington, NZ',type:'Full-time',salary:'$58k–$72k NZD',source:'Seek',url:'https://seek.co.nz',contact:'careers@trademe.co.nz',skills:['Digital Marketing','Analytics','Email Marketing','Reporting','A/B Testing'],
+    desc:`TradeMe is looking for a Digital Marketing Coordinator to support our performance marketing team across paid search, paid social, and email.\n\nWhat you'll do:\n- Assist planning and executing paid digital campaigns\n- Build performance reports and present insights\n- Support creative production and A/B testing\n- Manage email marketing calendar\n\nStrong analytical skills and genuine curiosity about digital channels required. Training provided.`},
+  {id:'d3',title:'Junior Growth Marketer',company:'Partly (YC-backed)',location:'Remote (NZ/AU)',type:'Full-time',salary:'$50k–$65k NZD',source:'LinkedIn',url:'https://linkedin.com',contact:'growth@partly.com',skills:['Paid Social','SEO','Email Marketing','Analytics','Growth'],
+    desc:`Partly is a YC-backed startup building the global marketplace for auto parts. We're hiring a Junior Growth Marketer to help scale through paid channels, SEO, and lifecycle marketing.\n\nYou'll work with the Growth Lead on:\n- Running and optimising paid social campaigns (Meta, Google)\n- Managing SEO content\n- Building email flows\n- Analysing funnel metrics\n\nNo startup experience required — smart, curious, ready to own outcomes.`},
+  {id:'d4',title:'Social Media & Content Manager',company:'Tourism New Zealand',location:'Auckland, NZ',type:'Full-time',salary:'$65k–$80k NZD',source:'Indeed',url:'https://indeed.co.nz',contact:'people@tnz.govt.nz',skills:['Social Media','Content Strategy','Digital Marketing','Analytics','Campaign Management'],
+    desc:`Tourism New Zealand seeks a Social Media & Content Manager to develop and execute social strategies across international markets.\n\n- Manage organic and paid social across Instagram, Facebook, YouTube\n- Develop audience-specific strategies for AU, US, UK markets\n- Analyse and report on content and paid social performance\n- Work with creative agencies and internal teams\n\nStrong writing, eye for content, data-driven mindset essential.`},
+  {id:'d5',title:'Performance Marketing Analyst',company:'Pushpay',location:'Auckland or Remote',type:'Full-time',salary:'$60k–$75k NZD',source:'Seek',url:'https://seek.co.nz',contact:'talent@pushpay.com',skills:['Analytics','Reporting','Paid Social','Excel','Data Analysis'],
+    desc:`Pushpay is hiring a Performance Marketing Analyst to own reporting across paid channels.\n\n- Build and maintain performance dashboards across Meta, Google, LinkedIn\n- Identify optimisation opportunities\n- Support A/B test analysis\n- Present insights to the marketing team\n\nStrong Excel/data skills and clear communication non-negotiable.`},
+  {id:'d6',title:'Marketing Executive',company:'Vend by Lightspeed',location:'Remote (NZ)',type:'Full-time',salary:'$58k–$73k NZD',source:'LinkedIn',url:'https://linkedin.com',contact:'marketing@vendhq.com',skills:['Email Marketing','Paid Social','Content','HubSpot','Campaign Management'],
+    desc:`Supporting demand generation across email, social, content, and paid channels.\n\n- Execute email marketing campaigns (HubSpot)\n- Manage organic and paid social channels\n- Create and schedule content\n- Report on campaign performance weekly\n\nBroad marketing experience in a fast-moving SaaS environment with genuine scope to grow.`},
+];
+
+function loadDemoJobs(){ allJobs=[...DEMO_JOBS]; renderJobs(allJobs); }
+async function searchJobs(){
+  const q = (g('jobQ') || profile.targetRole || 'marketing').trim();
+  const loc = (g('jobLoc') || profile.searchLoc || '').trim();
+  const radius = document.getElementById('radiusSlider')?.value || '50';
+
+  document.getElementById('jobLoading').style.display = 'block';
+  document.getElementById('jobsGrid').innerHTML = '';
+  document.getElementById('jobEmpty').style.display = 'none';
+
+  // ── 1. Adzuna: try direct, then via CORS proxy ─────────────────────────────
+  const aid  = settings.adzunaId  || 'b465b1e4';
+  const akey = settings.adzunaKey || '82820e4ac4a0facfc1e8fe7f050e2c04';
+  const params = new URLSearchParams({
+    app_id: aid, app_key: akey,
+    results_per_page: '20', what: q,
+    ...(loc                        ? { where: loc }                        : {}),
+    ...(radius && radius !== '0'   ? { distance_from_location_km: radius } : {})
+  });
+  const adzunaBase = `https://api.adzuna.com/v1/api/jobs/nz/search/1?${params}`;
+  const proxies    = [adzunaBase, `https://corsproxy.io/?${encodeURIComponent(adzunaBase)}`];
+
+  for (const url of proxies) {
+    try {
+      const res  = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const jobs = (data.results || []).map(j => ({
+        id:       j.id || String(Math.random()),
+        title:    j.title || '',
+        company:  j.company?.display_name || '',
+        location: j.location?.display_name || loc || 'New Zealand',
+        type:     j.contract_time === 'permanent' ? 'Full-time' : (j.contract_time || 'Full-time'),
+        salary:   j.salary_min
+                    ? `$${Math.round(j.salary_min/1000)}k–$${Math.round((j.salary_max||j.salary_min+15000)/1000)}k NZD`
+                    : '',
+        source:   'Seek / Adzuna',
+        url:      j.redirect_url || '',
+        contact:  '',
+        skills:   [j.category?.label || ''].filter(Boolean),
+        desc:     (j.description || '').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim()
+      }));
+      if (jobs.length > 0) {
+        document.getElementById('jobLoading').style.display = 'none';
+        allJobs = jobs; renderJobs(jobs);
+        showToast(`${jobs.length} live NZ listings found`);
+        return;
+      }
+    } catch(e) { console.warn('Adzuna attempt failed:', e.message); }
+  }
+
+  // ── 2. AI-powered job generation ──────────────────────────────────────────
+  try {
+    const locCtx  = loc ? `in ${loc}` : 'in New Zealand or remote';
+    const profCtx = profile.targetRole
+      ? `Candidate targets: ${profile.targetRole}. Skills: ${(profile.skills||[]).slice(0,5).join(', ')}.`
+      : '';
+
+    const prompt = `Generate 8 job listings for "${q}" ${locCtx}. ${profCtx}
+
+CRITICAL: Return ONLY a raw JSON array. No markdown. No backticks. No newlines inside string values.
+
+Format (use exactly this structure, all strings on one line):
+[{"id":"1","title":"Job Title","company":"Company Name","location":"City, NZ","type":"Full-time","salary":"$60k-$75k NZD","source":"Seek","url":"https://seek.co.nz/jobs?keywords=job+title&where=city","contact":"careers@company.co.nz","skills":["Skill1","Skill2","Skill3"],"desc":"Two sentence description of role and requirements. Key responsibilities and what they are looking for in a candidate."}]
+
+Use real NZ companies. Realistic NZD salaries. Keep desc under 50 words. Vary sources: Seek, LinkedIn, Indeed, Company Direct.`;
+
+    const raw  = await callClaude(prompt, 'Return only a raw JSON array of job objects. No markdown, no backticks, no explanatory text.', 2000);
+    const jobs = parseJobsJSON(raw);
+    if (!jobs?.length) throw new Error('empty array');
+    jobs.forEach((j,i) => { if(!j.id) j.id = `ai-${i}`; j.aiGenerated = true; });
+    document.getElementById('jobLoading').style.display = 'none';
+    allJobs = jobs; renderJobs(jobs);
+    showToast(`${jobs.length} AI-matched jobs for "${q}"`);
+    return;
+  } catch(e) { console.warn('AI search failed:', e.message); }
+
+  // ── 3. Demo fallback ───────────────────────────────────────────────────────
+  document.getElementById('jobLoading').style.display = 'none';
+  loadDemoJobs();
+  showToast('Showing sample jobs');
+}
+
+// Robust JSON parser — handles AI quirks (bare newlines, trailing commas, etc.)
+function parseJobsJSON(raw) {
+  const start = raw.indexOf('[');
+  const end   = raw.lastIndexOf(']');
+  if (start < 0 || end < 0) throw new Error('No JSON array found');
+  let str = raw.slice(start, end + 1);
+  // Try direct parse first
+  try { const r = JSON.parse(str); if (r.length) return r; } catch(_) {}
+  // Sanitise: collapse literal newlines/tabs inside the string
+  str = str.replace(/\\n/g,'__NL__').replace(/[\n\r\t]/g,' ').replace(/__NL__/g,'\\n');
+  try { const r = JSON.parse(str); if (r.length) return r; } catch(_) {}
+  // Remove trailing commas before } or ]
+  str = str.replace(/,\s*([}\]])/g, '$1');
+  try { const r = JSON.parse(str); if (r.length) return r; } catch(_) {}
+  throw new Error('Could not parse JSON after sanitisation');
+}
+
+
+function filterJobs(type,btn){ document.querySelectorAll('#jobs .chip').forEach(c=>c.classList.remove('on')); btn.classList.add('on'); if(type==='all')renderJobs(allJobs); else if(type==='remote')renderJobs(allJobs.filter(j=>(j.location+j.type).toLowerCase().includes('remote'))); else if(type==='fulltime')renderJobs(allJobs.filter(j=>(j.type||'').toLowerCase().includes('full'))); else if(type==='saved')renderJobs(savedJobs); }
+function toggleSave(i,btn){ const j=allJobs[i]; const idx=savedJobs.findIndex(s=>s.id===j.id); if(idx>-1){savedJobs.splice(idx,1);btn.innerHTML='♡ Save';}else{savedJobs.push(j);btn.innerHTML='♥ Saved';awardXP(5,'Job saved');} localStorage.setItem('lp2_jobs',JSON.stringify(savedJobs)); populateTailorSel(); }
+function openJob(i){ currentJobIdx=i; const j=allJobs[i];
+  document.getElementById('jm-title').textContent=`${j.title} — ${j.company}`;
+  document.getElementById('jm-meta').innerHTML=`<span>📍 ${esc(j.location||'')}</span>${j.type?`<span>${esc(j.type)}</span>`:''}${j.salary?`<span>💰 ${esc(j.salary)}</span>`:''}${j.contact?`<span>✉ ${esc(j.contact)}</span>`:''}`;
+  document.getElementById('jm-desc').textContent=j.desc||'';
+  const lw=document.getElementById('jm-link-wrap'); if(j.url){lw.style.display='block';document.getElementById('jm-link').href=j.url;}else lw.style.display='none';
+  const sw=document.getElementById('jm-skills-wrap'); if(j.skills&&j.skills.length){sw.style.display='block';document.getElementById('jm-skills').innerHTML=j.skills.map(s=>`<span class="chip on" style="cursor:default">${esc(s)}</span>`).join('');}else sw.style.display='none';
+  document.getElementById('jm-ai-wrap').style.display='none';
+  document.getElementById('jobModal').classList.add('open'); }
+async function analyseMatch(){ const j=allJobs[currentJobIdx]; if(!j)return;
+  document.getElementById('jm-ai-wrap').style.display='block'; document.getElementById('jm-ai').textContent='Analysing...';
+  try{ const t=await callClaude(`Job: ${j.title} at ${j.company}\nDescription: ${j.desc}\n\nCandidate:\n${profileText()}\n\nGive: 1) Match score 0-100 2) Top 3 fit reasons 3) Key gaps 4) One interview tip. Be honest and specific.`,'Career advisor. Direct honest match analysis.');
+    document.getElementById('jm-ai').textContent=t; const m=t.match(/\b(\d{1,2}|100)(?:\s*\/\s*100|%|\s+out\s+of\s+100)/i); if(m){allJobs[currentJobIdx].matchScore=parseInt(m[1]);renderJobs(allJobs);} awardXP(10,'Match analysis');
+  }catch(e){document.getElementById('jm-ai').textContent='Something went wrong — try again.';} }
+function openCL(){ closeModal('jobModal'); quickCL(currentJobIdx); }
+async function quickCL(i){ const j=allJobs[i];
+  document.getElementById('clModal').classList.add('open'); document.getElementById('cl-loading').style.display='block'; document.getElementById('cl-content').textContent='';
+  try{ const t=await callClaude(`Write a cover letter for:\nJob: ${j.title} at ${j.company}\nDescription: ${j.desc}\n\nCandidate: ${profileText()}\n\n3-4 paragraphs. Professional but genuine. No buzzwords. Honest about experience level. Sign off [SIGNATURE].`,'Write honest, human cover letters. Confident and direct. Not corporate.');
+    const sig=`${profile.name||'Your Name'}\n${profile.email||''}\n${profile.phone||''}`;
+    document.getElementById('cl-content').textContent=t.replace(/\[SIGNATURE\]/g,sig); awardXP(20,'Cover letter generated');
+  }catch(e){document.getElementById('cl-content').textContent='Something went wrong — try again.';}
+  document.getElementById('cl-loading').style.display='none'; }
+function copyCL(){ navigator.clipboard.writeText(document.getElementById('cl-content').textContent).then(()=>showToast('Copied!')); }
+function trackJob(){ const j=allJobs[currentJobIdx]; if(!j)return; apps.push({id:Date.now()+'',title:j.title,company:j.company,url:j.url||'',status:'applied',notes:'',date:new Date().toISOString().split('T')[0]}); localStorage.setItem('lp2_apps',JSON.stringify(apps)); closeModal('jobModal'); awardXP(10,'Application tracked'); showToast('Application tracked +10 XP'); }
+
+// ── MY CV ─────────────────────────────────────────────────────────────────────
+async function generateCV(){ document.getElementById('cvSpinner').style.display='block'; try{ cvText=await callClaude(`Generate a professional CV. Sections: Contact, Career Profile, Professional Experience, Education, Professional Development, Technical Skills, Key Strengths. Clear, honest, no buzzwords.\n\nProfile:\n${profileText()}`,'Generate clean, professional CVs. Concise. Human voice.'); document.getElementById('cvBox').textContent=cvText; awardXP(30,'CV generated'); showToast('CV generated +30 XP'); }catch(e){document.getElementById('cvBox').textContent='Something went wrong — try again.';} document.getElementById('cvSpinner').style.display='none'; }
+async function tailorCV(){ const id=document.getElementById('tailorSel').value; const j=[...savedJobs,...allJobs].find(x=>x.id===id); if(!j){showToast('Select a job first');return;} if(!cvText){showToast('Generate your CV first');return;} document.getElementById('cvSpinner').style.display='block'; try{ cvText=await callClaude(`CV:\n${cvText}\n\nTailor for: ${j.title} at ${j.company}\nJob: ${j.desc}\n\nEmphasise relevant experience. Don't invent. Keep the voice.`,'Tailor CVs honestly. Same voice, better focus.'); document.getElementById('cvBox').textContent=cvText; awardXP(20,'CV tailored'); }catch(e){showToast('Something went wrong — try again.');} document.getElementById('cvSpinner').style.display='none'; }
+function copyCV(){ navigator.clipboard.writeText(cvText||document.getElementById('cvBox').textContent).then(()=>showToast('CV copied')); }
+function populateTailorSel(){ const jobs=[...savedJobs,...allJobs.filter(j=>!savedJobs.find(s=>s.id===j.id))]; document.getElementById('tailorSel').innerHTML='<option value="">Tailor to a saved job...</option>'+jobs.map(j=>`<option value="${j.id}">${esc(j.title)} — ${esc(j.company)}</option>`).join(''); }
+
+// ── APPLICATIONS ──────────────────────────────────────────────────────────────
+function renderKanban(){
+  const cols=[{k:'applied',l:'Applied',c:'var(--blue2)'},{k:'interview',l:'Interview 📅',c:'var(--amber2)'},{k:'offer',l:'Offer 🎉',c:'var(--green2)'},{k:'rejected',l:'Rejected',c:'var(--muted)'}];
+  const by={}; cols.forEach(c=>by[c.k]=[]); apps.forEach(a=>{if(by[a.status])by[a.status].push(a);});
+  document.getElementById('kanban').innerHTML=cols.map(col=>`<div class="k-col">
+    <div class="k-head" style="color:${col.c}">${col.l} <span style="color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400">${by[col.k].length}</span></div>
+    ${by[col.k].map(a=>`<div class="k-card"><div class="k-card-title">${esc(a.title)}</div><div class="k-card-sub">${esc(a.company)} · ${a.date||''}</div>${a.url?`<a href="${a.url}" target="_blank" style="font-size:.68rem;color:var(--blue2)">View listing ↗</a>`:''}<div class="k-acts">${cols.filter(c=>c.k!==col.k).map(c=>`<button class="btn btn-g btn-sm" onclick="moveApp('${a.id}','${c.k}')" style="height:22px;font-size:.65rem;padding:0 5px">${c.l.split(' ')[0]}</button>`).join('')}<button class="btn btn-red btn-sm" onclick="removeApp('${a.id}')" style="height:22px;font-size:.65rem;padding:0 5px">✕</button></div></div>`).join('')}
+  </div>`).join('');
+}
+function openAddApp(){ document.getElementById('addAppModal').classList.add('open'); }
+function saveApp(){ const title=g('aa-title'),company=g('aa-company'); if(!title||!company){showToast('Title and company required');return;} apps.push({id:Date.now()+'',title,company,url:g('aa-url'),status:g('aa-status')||'applied',notes:g('aa-notes'),date:new Date().toISOString().split('T')[0]}); localStorage.setItem('lp2_apps',JSON.stringify(apps)); closeModal('addAppModal'); renderKanban(); awardXP(10,'Application tracked'); ['aa-title','aa-company','aa-url','aa-notes'].forEach(id=>document.getElementById(id).value=''); }
+function moveApp(id,status){ const a=apps.find(x=>x.id===id); if(a){a.status=status;localStorage.setItem('lp2_apps',JSON.stringify(apps));renderKanban();} }
+function removeApp(id){ apps=apps.filter(x=>x.id!==id); localStorage.setItem('lp2_apps',JSON.stringify(apps)); renderKanban(); }
+
+// ── QUESTION BANKS ────────────────────────────────────────────────────────────
+const MC_Q=[
+  {cat:'Communication',q:'When presenting data to a non-technical stakeholder, what should you prioritise?',opts:['Show every metric available','Focus on insights that connect to their business goals','Use technical language to appear credible','Keep it under 30 seconds no matter what'],c:1,exp:'Always tie data to outcomes they care about. What does it mean for the business — not how you calculated it.'},
+  {cat:'Workplace',q:'Your manager gives you critical feedback on a piece of work. What is the best first response?',opts:['Defend your choices immediately','Thank them, ask clarifying questions, and act on it','Agree to avoid conflict even if you disagree','Wait to see if they raise it again'],c:1,exp:'Receiving feedback well is a skill. Ask questions to understand it fully, then act on it constructively.'},
+  {cat:'Workplace',q:'You spot a process at work that is wasting significant time. What do you do?',opts:['Nothing — not your area','Complain to colleagues','Document the problem, propose a solution, raise it with your manager','Fix it yourself without telling anyone'],c:2,exp:'Spotting problems and proposing solutions is one of the most valued traits in any workplace. Come with a fix, not just a complaint.'},
+  {cat:'Remote Work',q:'What is the most important habit for staying productive when working remotely?',opts:['Working as many hours as possible','A structured daily routine with clear start and end times','Never logging off to show dedication','Responding to every message immediately'],c:1,exp:'Structure is the foundation of remote productivity. Clear routines — including firm boundaries — prevent burnout and keep output high.'},
+  {cat:'Digital Marketing',q:'What does ROAS stand for?',opts:['Return on Ad Spend','Rate of Ad Success','Return on Annual Sales','Reach of Ad System'],c:0,exp:'ROAS = Revenue ÷ Ad Spend. A ROAS of 4x means you earned $4 for every $1 spent on ads.'},
+  {cat:'Metrics',q:'What does CTR measure?',opts:['Cost per click','Click-through rate (clicks ÷ impressions)','Conversion tracking rate','Customer targeting reach'],c:1,exp:'CTR = Clicks ÷ Impressions × 100. It shows what % of people who saw your ad actually clicked it.'},
+  {cat:'Meta Ads',q:'Which campaign objective drives website purchases?',opts:['Reach','Traffic','Engagement','Sales / Conversions'],c:3,exp:'The Sales/Conversions objective tells Meta to optimise delivery for people most likely to complete a purchase. Traffic just drives clicks.'},
+  {cat:'Audience',q:'What is a Lookalike Audience?',opts:['A copy of an existing campaign','People similar to your existing customers','Past website visitors','People who liked your Page'],c:1,exp:'Lookalike audiences let Meta find new people who share characteristics with your source audience (e.g. past customers). Very effective for scaling.'},
+  {cat:'Meta Ads',q:'What is retargeting?',opts:['Running the same ad repeatedly','Showing ads to people who already interacted with your brand','Targeting competitors\' audiences','Adjusting bids by time of day'],c:1,exp:'Retargeting shows ads to people who visited your website, watched a video, or engaged with content — they\'re already warm.'},
+  {cat:'Metrics',q:'CPM stands for:',opts:['Cost per message','Cost per minute','Cost per 1,000 impressions','Clicks per month'],c:2,exp:'CPM = Cost Per Mille (thousand impressions). How much you pay to show your ad 1,000 times.'},
+  {cat:'Testing',q:'A/B testing means:',opts:['Testing an ad before publishing','Two versions with ONE variable changed','Testing different audiences simultaneously','Always/Both — running two campaigns'],c:1,exp:'A/B testing changes ONE variable at a time (headline, image, audience) so you know exactly what caused any difference in performance.'},
+  {cat:'Meta Ads',q:'What does the Facebook Pixel do?',opts:['Tracks organic social reach','Measures ad image quality','Tracks actions on your website after clicking an ad','Manages budget automatically'],c:2,exp:'The Pixel fires when someone takes action on your site (purchase, sign-up, page view) — allowing conversion tracking and custom audiences.'},
+  {cat:'Metrics',q:'What is "frequency" in paid social?',opts:['How often you post organically','Average times each person sees your ad','Speed at which budget is spent','How often you update creative'],c:1,exp:'High frequency (8+) means the same person sees your ad many times — can cause ad fatigue and declining performance.'},
+  {cat:'Funnel',q:'TOFU in marketing stands for:',opts:['Content used in landing pages','Top of Funnel — awareness stage','Total Output Formula','Time-on-page for Users'],c:1,exp:'TOFU = Top of Funnel (awareness). MOFU = Middle (consideration). BOFU = Bottom (conversion). Different objectives and content work at each stage.'},
+  {cat:'Analytics',q:'Conversion rate is:',opts:['Clicks ÷ Impressions','Revenue ÷ Ad Spend','Conversions ÷ Clicks × 100','Impressions ÷ Reach'],c:2,exp:'Conversion Rate = (Conversions ÷ Clicks) × 100. If 100 clicks led to 5 conversions, that\'s a 5% conversion rate.'},
+  {cat:'Strategy',q:'When is CPC more useful than CPM?',opts:['When you want brand awareness','When driving specific actions or traffic','When you have a large audience','When running video campaigns'],c:1,exp:'CPM suits awareness (max reach). CPC is better when you want people to take action — the cost per click tells you more about efficiency.'},
+];
+const SC_Q=[
+  {cat:'Campaign Management',q:"Your Meta campaign has 80,000 impressions but only a 0.3% CTR. What's the most likely issue?",opts:['Increase the budget immediately','Review and test new creative — low CTR suggests messaging isn\'t resonating','Expand the audience targeting','Change the campaign objective'],c:1,exp:'0.3% CTR with high impressions = a creative problem. The ad is seen but not compelling. Fix the creative before touching budget or audience.'},
+  {cat:'Client Management',q:"A client is upset because last month's CPA was 40% above target. How do you respond?",opts:['Apologise and offer a refund','Ask for more budget','Acknowledge honestly, show the data, explain what happened, present a clear optimisation plan','Tell them industry benchmarks are similar'],c:2,exp:'Never be defensive. Acknowledge, show data, explain root cause, path forward. Clients stay when you handle bad results with transparency and a plan.'},
+  {cat:'Prioritisation',q:'You have 3 tasks due today: client report (urgent), new campaign setup (important), team meeting prep. You can only fully complete two. What do you do?',opts:['Do all three partially','Skip meeting prep — least urgent','Complete client report and campaign setup, flag meeting prep proactively to your manager','Skip the campaign — reports are more important'],c:2,exp:'Client-facing deliverables first. Proactively communicate when something is deprioritised — never silently miss things.'},
+  {cat:'Testing',q:"An A/B test: Version A gets 2.1% CTR, Version B gets 1.9%. You've had 500 impressions each. What do you do?",opts:['Scale Version A immediately — it\'s winning','Wait for more data — 500 impressions isn\'t statistically significant','Pause Version B and create Version C','Report Version A as winner to client'],c:1,exp:'500 impressions is nowhere near enough. Most platforms need 1,000+ impressions per variant, ideally 50+ conversions, before declaring a winner.'},
+  {cat:'Strategy',q:'A tourism client wants to target "everyone interested in travel" on Facebook. What\'s your advice?',opts:['That\'s perfect — broad audiences work best','Agree and run it — more reach is better','Recommend layered targeting: specific destination interests + travel intent + lookalikes from past bookers','Tell them Facebook targeting doesn\'t work for tourism'],c:2,exp:'Broad "interest in travel" is too generic and expensive. Layer interests with intent signals and lookalikes from actual past customers.'},
+  {cat:'Reporting',q:'Your manager asks you to present last month\'s campaign results to the client. What do you focus on?',opts:['Every single metric from the dashboard','Only the metrics that look good','Metrics aligned to original campaign objectives, with clear narrative on wins, issues, and next steps','Impressions and reach — they\'re always high'],c:2,exp:'Always tie results to objectives. Tell a story: what worked, what didn\'t, what we\'re changing. The best presenters frame data in terms of business outcomes.'},
+];
+const TF_Q=[
+  {q:'Higher CTR always means a better performing campaign.',a:false,exp:'CTR measures clicks, not conversions or revenue. High CTR with poor conversion rate can waste budget.'},
+  {q:'Lookalike audiences require a source audience to generate from.',a:true,exp:'You need source data (customer list, website visitors) for Meta to find similar people.'},
+  {q:'CPM stands for Cost Per Message.',a:false,exp:'CPM = Cost Per Mille — cost per 1,000 impressions.'},
+  {q:'Facebook and Instagram ads are both managed through Meta Ads Manager.',a:true,exp:'Meta Ads Manager manages both Facebook and Instagram advertising from one place.'},
+  {q:'Ad frequency measures how many different people saw your ad.',a:false,exp:'Frequency = average times each person saw your ad. Reach = unique people.'},
+  {q:'In A/B testing, you should change multiple variables for faster results.',a:false,exp:'Change ONE variable at a time. Changing multiple means you can\'t isolate what made the difference.'},
+  {q:'The Conversions campaign objective generally has a higher CPC than Traffic.',a:true,exp:'Conversions optimises for higher-intent actions — you pay more per click but they\'re more likely to convert.'},
+  {q:'A ROAS of 1x means you broke even on your ad spend.',a:true,exp:'ROAS 1x = $1 revenue per $1 spent. Above 1x is profitable (before other costs).'},
+  {q:'Retargeting audiences are generally colder than lookalike audiences.',a:false,exp:'Retargeting (people who visited or engaged) is warm. Lookalikes are cold — they\'ve never heard of you.'},
+  {q:'BOFU content is best for brand awareness campaigns.',a:false,exp:'BOFU = Bottom of Funnel (conversion — people close to buying). TOFU is for awareness.'},
+  {q:'A 5% conversion rate means 5 out of every 100 clicks converted.',a:true,exp:'Conversion rate = (Conversions ÷ Clicks) × 100. 5% is considered solid for paid social.'},
+  {q:'Increasing ad budget always improves campaign performance.',a:false,exp:'Budget scales existing performance — good or bad. Fix creative, targeting, objective before scaling spend.'},
+];
+
+// ── GAME ENGINE ───────────────────────────────────────────────────────────────
+function renderGameSelectUI(){ document.getElementById('gameSelectWrap').style.display='block'; document.querySelectorAll('.game-area').forEach(a=>a.classList.remove('active')); }
+function selectGame(type,el){ selGame=type; document.querySelectorAll('.game-card').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
+function endGame(){ clearInterval(gameTimer); renderGameSelectUI(); renderPrepStats(); }
+function startGame(){
+  document.getElementById('gameSelectWrap').style.display='none';
+  document.querySelectorAll('.game-area').forEach(a=>a.classList.remove('active'));
+  clearInterval(gameTimer); gameIdx=0; gameScore=0;
+  if(selGame==='mc') startMC();
+  else if(selGame==='scenario') startSC();
+  else if(selGame==='tf') startTF();
+  else if(selGame==='mock') startMockSetup();
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
+// MC
+function startMC(){ document.getElementById('game-mc').classList.add('active'); document.getElementById('mc-score').style.display='none'; gameQ=shuffle([...MC_Q]).slice(0,8); gameIdx=0; nextMC(); }
+function nextMC(){
+  clearInterval(gameTimer); document.getElementById('mc-score').style.display='none';
+  if(gameIdx>=gameQ.length){finishMC();return;}
+  const q=gameQ[gameIdx]; gameTimeLeft=30;
+  document.getElementById('mc-cat').textContent=q.cat;
+  document.getElementById('mc-q').textContent=q.q;
+  document.getElementById('mc-prog').textContent=`${gameIdx+1} / ${gameQ.length}`;
+  document.getElementById('mc-next').style.display='none';
+  document.getElementById('mc-exp').classList.remove('show');
+  const L=['A','B','C','D'];
+  document.getElementById('mc-opts').innerHTML=q.opts.map((o,i)=>`<div class="mc-opt" id="mc-o${i}" onclick="pickMC(${i})"><div class="mc-ltr">${L[i]}</div><div class="mc-txt">${esc(o)}</div></div>`).join('');
+  tickMC(30);
+  gameTimer=setInterval(()=>{gameTimeLeft--;tickMC(gameTimeLeft);if(gameTimeLeft<=0){clearInterval(gameTimer);revealMC(-1);}},1000);
+}
+function tickMC(t){ document.getElementById('mc-timer').textContent=t; const b=document.getElementById('mc-tbar'); b.style.width=(t/30*100)+'%'; b.style.transition='width 1s linear'; b.className='t-fill'+(t<=10?' danger':t<=20?' warn':''); }
+function pickMC(i){ clearInterval(gameTimer); revealMC(i); }
+function revealMC(sel){
+  const q=gameQ[gameIdx]; const c=q.c;
+  document.querySelectorAll('.mc-opt').forEach(o=>o.classList.add('disabled'));
+  if(sel===c){document.getElementById(`mc-o${c}`).classList.add('correct');gameScore++;popXP('+15 XP');}
+  else{if(sel>=0)document.getElementById(`mc-o${sel}`).classList.add('wrong');document.getElementById(`mc-o${c}`).classList.add('reveal');}
+  document.getElementById('mc-exp').textContent=q.exp; document.getElementById('mc-exp').classList.add('show');
+  document.getElementById('mc-next').style.display='inline-flex';
+  document.getElementById('mc-next').textContent=gameIdx+1>=gameQ.length?'See results ✓':'Continue →';
+  const xp=sel===c?(gameTimeLeft>20?15:10):5; awardXP(xp,''); progress.answered=(progress.answered||0)+1; updateStreak(); saveProgress();
+  gameIdx++;
+}
+function finishMC(){
+  const pct=Math.round(gameScore/gameQ.length*100);
+  document.getElementById('mc-score').style.display='block';
+  document.getElementById('mc-sn').textContent=`${gameScore}/${gameQ.length}`;
+  document.getElementById('mc-sl').textContent=pct>=80?'Excellent! 🏆':pct>=60?'Solid! 💪':pct>=40?'Getting there 📈':'Keep practising 🔥';
+  document.getElementById('mc-sx').textContent=`+${gameScore*12} XP earned this game`;
+  progress.gamesPlayed=(progress.gamesPlayed||0)+1; saveProgress(); renderPrepStats();
+}
+// SCENARIO
+function startSC(){ document.getElementById('game-scenario').classList.add('active'); document.getElementById('sc-score').style.display='none'; gameQ=shuffle([...SC_Q]); gameIdx=0; gameScore=0; nextSC(); }
+function nextSC(){
+  clearInterval(gameTimer); document.getElementById('sc-score').style.display='none';
+  if(gameIdx>=gameQ.length){finishSC();return;}
+  const q=gameQ[gameIdx]; gameTimeLeft=45;
+  document.getElementById('sc-cat').textContent=q.cat;
+  document.getElementById('sc-q').textContent=q.q;
+  document.getElementById('sc-prog').textContent=`${gameIdx+1} / ${gameQ.length}`;
+  document.getElementById('sc-next').style.display='none';
+  document.getElementById('sc-exp').classList.remove('show');
+  const L=['A','B','C','D'];
+  document.getElementById('sc-opts').innerHTML=q.opts.map((o,i)=>`<div class="mc-opt" id="sc-o${i}" onclick="pickSC(${i})"><div class="mc-ltr">${L[i]}</div><div class="mc-txt">${esc(o)}</div></div>`).join('');
+  tickSC(45);
+  gameTimer=setInterval(()=>{gameTimeLeft--;tickSC(gameTimeLeft);if(gameTimeLeft<=0){clearInterval(gameTimer);revealSC(-1);}},1000);
+}
+function tickSC(t){ document.getElementById('sc-timer').textContent=t; const b=document.getElementById('sc-tbar'); b.style.width=(t/45*100)+'%'; b.style.transition='width 1s linear'; b.className='t-fill'+(t<=15?' danger':t<=25?' warn':''); }
+function pickSC(i){ clearInterval(gameTimer); revealSC(i); }
+function revealSC(sel){
+  const q=gameQ[gameIdx]; const c=q.c;
+  document.querySelectorAll('#sc-opts .mc-opt').forEach(o=>o.classList.add('disabled'));
+  if(sel===c){document.getElementById(`sc-o${c}`).classList.add('correct');gameScore++;popXP('+15 XP');}
+  else{if(sel>=0)document.getElementById(`sc-o${sel}`).classList.add('wrong');document.getElementById(`sc-o${c}`).classList.add('reveal');}
+  document.getElementById('sc-exp').textContent=q.exp; document.getElementById('sc-exp').classList.add('show');
+  document.getElementById('sc-next').style.display='inline-flex';
+  document.getElementById('sc-next').textContent=gameIdx+1>=gameQ.length?'See results ✓':'Continue →';
+  awardXP(sel===c?15:5,''); progress.answered=(progress.answered||0)+1; updateStreak(); saveProgress();
+  gameIdx++;
+}
+function finishSC(){
+  const pct=Math.round(gameScore/gameQ.length*100);
+  document.getElementById('sc-score').style.display='block';
+  document.getElementById('sc-sn').textContent=`${gameScore}/${gameQ.length}`;
+  document.getElementById('sc-sl').textContent=pct>=80?'Excellent judgement! 🏆':pct>=60?'Good thinking 💪':pct>=40?'Getting sharper 📈':'Keep practising 🔥';
+  document.getElementById('sc-sx').textContent=`+${gameScore*12} XP earned`;
+  progress.gamesPlayed=(progress.gamesPlayed||0)+1; saveProgress(); renderPrepStats();
+}
+// TF
+function startTF(){ document.getElementById('game-tf').classList.add('active'); document.getElementById('tf-score').style.display='none'; gameQ=shuffle([...TF_Q]).slice(0,10); tfIdx=0; tfScore=0; gameTimeLeft=60; nextTF(); startTFClock(); }
+function startTFClock(){ gameTimer=setInterval(()=>{ gameTimeLeft--; const b=document.getElementById('tf-tbar'); b.style.width=(gameTimeLeft/60*100)+'%'; b.style.transition='width 1s linear'; b.className='t-fill'+(gameTimeLeft<=15?' danger':gameTimeLeft<=30?' warn':''); document.getElementById('tf-timer').textContent=gameTimeLeft; if(gameTimeLeft<=0){clearInterval(gameTimer);finishTF();}},1000); }
+function nextTF(){
+  document.getElementById('tf-exp').classList.remove('show');
+  if(tfIdx>=gameQ.length){clearInterval(gameTimer);finishTF();return;}
+  document.getElementById('tf-q').textContent=gameQ[tfIdx].q;
+  document.getElementById('tf-prog').textContent=`${tfIdx+1} / ${gameQ.length}`;
+  document.getElementById('tf-tbtn').className='tf-btn tf-t'; document.getElementById('tf-fbtn').className='tf-btn tf-f';
+  ['tf-tbtn','tf-fbtn'].forEach(id=>document.getElementById(id).classList.remove('disabled'));
+}
+function answerTF(answer){ const q=gameQ[tfIdx]; const correct=answer===q.a;
+  document.getElementById('tf-tbtn').classList.add(q.a?'correct':'wrong');
+  document.getElementById('tf-fbtn').classList.add(!q.a?'correct':'wrong');
+  if(correct){tfScore++;popXP('+5 XP');}
+  document.getElementById('tf-exp').textContent=q.exp; document.getElementById('tf-exp').classList.add('show');
+  ['tf-tbtn','tf-fbtn'].forEach(id=>document.getElementById(id).classList.add('disabled'));
+  awardXP(correct?5:1,''); progress.answered=(progress.answered||0)+1; updateStreak(); saveProgress();
+  tfIdx++; setTimeout(()=>{document.getElementById('tf-exp').classList.remove('show');nextTF();},1600);
+}
+function finishTF(){
+  clearInterval(gameTimer); document.getElementById('tf-score').style.display='block';
+  document.getElementById('tf-sn').textContent=`${tfScore}/${gameQ.length}`;
+  document.getElementById('tf-sl').textContent=tfScore>=9?'On fire! 🔥':tfScore>=7?'Solid 💪':tfScore>=5?'Getting there 📈':'Keep going 💡';
+  document.getElementById('tf-sx').textContent=`+${tfScore*5} XP earned`;
+  progress.gamesPlayed=(progress.gamesPlayed||0)+1; saveProgress(); renderPrepStats();
+}
+function renderPrepStats(){ document.getElementById('prepStats').innerHTML=`<div class="p-stat"><div class="p-stat-n" style="color:var(--amber2)">${progress.streak||0}🔥</div><div class="p-stat-l">Day streak</div></div><div class="p-stat"><div class="p-stat-n" style="color:var(--blue2)">${progress.answered||0}</div><div class="p-stat-l">Answered</div></div><div class="p-stat"><div class="p-stat-n" style="color:var(--teal2)">${progress.gamesPlayed||0}</div><div class="p-stat-l">Games played</div></div><div class="p-stat"><div class="p-stat-n" style="color:var(--purple2)">${progress.xp||0}</div><div class="p-stat-l">Total XP</div></div>`; }
+
+// ── XP + STREAK ───────────────────────────────────────────────────────────────
+const LEVELS=[{min:0,l:'Job Seeker'},{min:100,l:'Career Builder'},{min:300,l:'Launch Ready'},{min:600,l:'Launchpad Pro'}];
+function awardXP(n,reason){ progress.xp=(progress.xp||0)+n; updateXPBar(); saveProgress(); if(reason) showToast(`+${n} XP — ${reason}`); }
+function popXP(t){ const el=document.getElementById('xpPop'); el.textContent=t; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),900); }
+function updateXPBar(){ const xp=progress.xp||0; const lv=LEVELS.reduce((a,x)=>xp>=x.min?x:a,LEVELS[0]); const nx=LEVELS[LEVELS.indexOf(lv)+1]; const pct=nx?Math.round((xp-lv.min)/(nx.min-lv.min)*100):100; document.getElementById('appLevel').textContent=lv.l; document.getElementById('appXPFill').style.width=pct+'%'; document.getElementById('appXPNum').textContent=xp+' XP'; }
+function updateStreak(){ const today=new Date().toISOString().split('T')[0]; const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0]; if(progress.lastActive===today)return; if(progress.lastActive===yesterday)progress.streak=(progress.streak||0)+1; else progress.streak=1; progress.lastActive=today; }
+function updateStreakDisplay(){ document.getElementById('appStreak').textContent=progress.streak||0; }
+function saveProgress(){ localStorage.setItem('lp2_progress',JSON.stringify(progress)); updateXPBar(); updateStreakDisplay(); }
+
+
+// ── LOCATION AUTOCOMPLETE (Nominatim) ────────────────────────────────────────
+let _locTimer=null;
+async function suggestLoc(val){
+  clearTimeout(_locTimer);
+  const box=document.getElementById('loc-drop');
+  if(!val||val.length<2){box.style.display='none';return;}
+  _locTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val+' New Zealand')}&format=json&limit=6&addressdetails=1`,{headers:{'User-Agent':'Launchpad/1.0','Accept-Language':'en'}});
+      const d=await r.json();
+      if(!d.length){box.style.display='none';return;}
+      box.innerHTML=d.map(x=>{
+        const city=x.address?.city||x.address?.town||x.address?.suburb||x.address?.village||'';
+        const region=x.address?.state||x.address?.county||'';
+        const label=city?(region?`${city}, ${region}`:city):x.display_name.split(',').slice(0,2).join(',').trim();
+        return `<div class="skill-suggest-item" onmousedown="pickLoc('${label.replace(/'/g,"&#39;")}')">${label}</div>`;
+      }).join('');
+      box.style.display='block';
+    }catch(e){box.style.display='none';}
+  },300);
+}
+function pickLoc(v){document.getElementById('jobLoc').value=v;document.getElementById('loc-drop').style.display='none';}
+function hideLoc(){const b=document.getElementById('loc-drop');if(b)b.style.display='none';}
+
+// ── SMART SKILL TYPEAHEAD ─────────────────────────────────────────────────────
+let _skillTimer=null;
+function showSkillSuggestions(val){
+  const box=document.getElementById('skill-suggestions');
+  if(!box)return;
+  clearTimeout(_skillTimer);
+  if(!val||val.length<2){box.style.display='none';return;}
+  const v=val.toLowerCase();
+  const SKILLS=['Digital Marketing','Paid Social Advertising','Meta Ads Manager','SEO','Content Marketing','Email Marketing','Copywriting','Data Analysis','SQL','Python','Shopify','AI & Prompt Engineering','Microsoft Excel','Customer Engagement','CRM Systems','Campaign Management','A/B Testing','Client Communication','Brand Communication','Social Media','Google Analytics','Project Management','Remote Work','Reporting & Analytics','Systems Analysis'];
+  const matches=SKILLS.filter(s=>s.toLowerCase().includes(v)&&!(profile.skills||[]).includes(s)).slice(0,7);
+  if(!matches.length){box.style.display='none';return;}
+  box.innerHTML=matches.map(s=>`<div class="skill-suggest-item" onclick="selectSuggestedSkill('${s}')">${s}</div>`).join('');
+  box.style.display='block';
+}
+function selectSuggestedSkill(s){
+  const inp=document.getElementById('customSkill');
+  if(inp)inp.value=s;
+  const box=document.getElementById('skill-suggestions');
+  if(box)box.style.display='none';
+  addCustomSkill();
+}
+function addCustomSkill(){
+  const inp=document.getElementById('customSkill');
+  if(!inp)return;
+  const v=inp.value.trim();
+  if(!v)return;
+  if(!profile.skills)profile.skills=[];
+  if(!profile.skills.includes(v)){
+    profile.skills.push(v);
+    const b=document.createElement('button');b.className='chip on';b.textContent=v;
+    b.onclick=()=>toggleSkill(v,b);
+    const picker=document.getElementById('skillPicker');
+    if(picker)picker.appendChild(b);
+  }
+  inp.value='';
+  const box=document.getElementById('skill-suggestions');
+  if(box)box.style.display='none';
+}
+
+// ── AI SUMMARY HELPER ─────────────────────────────────────────────────────────
+async function aiSummaryHelp(){
+  const btn=event.target; btn.textContent='Writing...'; btn.disabled=true;
+  try{
+    const t=await callClaude(
+      `Write a 2-3 sentence career summary.\nName: ${g('o-name')||'a recent graduate'}\nRole: ${g('o-role1')||'various'}\nEducation: ${g('o-edu')||'BCom'}\nTarget: ${g('o-target')||'digital marketing'}\n\nFirst person, genuine, no buzzwords.`,
+      'Write brief honest career summaries. Human voice.'
+    );
+    document.getElementById('o-summary').value=t;
+    showToast('Summary drafted — make it yours');
+  }catch(e){showToast('Something went wrong — try again');}
+  btn.textContent='✨ Help me write this'; btn.disabled=false;
+}
+
+// ── GEOLOCATION ───────────────────────────────────────────────────────────────
+function useMyLocation(){
+  if(!navigator.geolocation){showToast('Geolocation not available');return;}
+  const btn=event.target; btn.textContent='Detecting...'; btn.disabled=true;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`,{headers:{'User-Agent':'Launchpad/1.0'}});
+      const d=await r.json();
+      const city=d.address?.city||d.address?.town||d.address?.suburb||'';
+      const loc=city?`${city}, New Zealand`:'New Zealand';
+      const el=document.getElementById('o-location');
+      if(el)el.value=loc;
+      const sl=document.getElementById('o-search-loc');
+      if(sl)sl.value=loc;
+      showToast('Location: '+loc);
+    }catch(e){showToast('Could not detect — type it in');}
+    btn.textContent='📍 Detect'; btn.disabled=false;
+  },()=>{showToast('Location denied');btn.textContent='📍 Detect';btn.disabled=false;});
+}
+
+// ── AUTO-SAVE ONBOARDING ──────────────────────────────────────────────────────
+let _saveTimer=null;
+function scheduleAutoSave(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>{
+    obSave();
+    localStorage.setItem('lp2_profile',JSON.stringify(profile));
+  },800);
+}
+
+
+// ── MOCK INTERVIEW ────────────────────────────────────────────────────────────
+const INTERVIEWERS=[
+  {name:'Alex Johnson',role:'Digital Marketing Manager',initials:'AJ'},
+  {name:'Sarah Chen',role:'Head of Growth',initials:'SC'},
+  {name:'Marcus Reid',role:'Marketing Director',initials:'MR'},
+];
+let mockState={active:false,interviewer:null,jobTitle:'',jobDesc:'',company:'',maxQ:8,style:'conversational',focus:'balanced',history:[],answers:[],currentQ:0,elapsedTimer:null,elapsedSecs:0};
+
+function startMockSetup(){
+  document.getElementById('game-mock').classList.add('active');
+  document.getElementById('mock-setup').style.display='block';
+  document.getElementById('mock-active').style.display='none';
+  document.getElementById('mock-debrief').style.display='none';
+  const sel=document.getElementById('mock-job-sel');
+  sel.innerHTML='<option value="">— select a saved job —</option>'+[...savedJobs,...allJobs.filter(j=>!savedJobs.find(s=>s.id===j.id))].map(j=>`<option value="${j.id}">${esc(j.title)} — ${esc(j.company)}</option>`).join('');
+}
+
+async function launchMockInterview(){
+  const jobId=document.getElementById('mock-job-sel').value;
+  const pastedDesc=document.getElementById('mock-job-paste').value.trim();
+  const job=jobId?[...savedJobs,...allJobs].find(j=>j.id===jobId):null;
+  if(!job&&!pastedDesc){showToast('Select a job or paste a description first');return;}
+  mockState.interviewer=INTERVIEWERS[Math.floor(Math.random()*INTERVIEWERS.length)];
+  mockState.jobTitle=job?.title||'the role';
+  mockState.company=job?.company||'the company';
+  mockState.jobDesc=pastedDesc||job?.desc||'';
+  mockState.maxQ=parseInt(document.getElementById('mock-q-count').value);
+  mockState.style=document.getElementById('mock-style').value;
+  mockState.focus=document.getElementById('mock-focus').value;
+  mockState.history=[];mockState.answers=[];mockState.currentQ=0;mockState.elapsedSecs=0;
+  document.getElementById('mock-setup').style.display='none';
+  document.getElementById('mock-active').style.display='block';
+  document.getElementById('mock-debrief').style.display='none';
+  document.getElementById('mock-complete-area').style.display='none';
+  document.getElementById('mock-input-area').style.display='block';
+  document.getElementById('mock-feed').innerHTML='';
+  const iv=mockState.interviewer;
+  document.getElementById('mock-avatar').textContent=iv.initials;
+  document.getElementById('mock-iname').textContent=iv.name;
+  document.getElementById('mock-irole').textContent=iv.role+(mockState.company?' at '+mockState.company:'');
+  document.getElementById('mock-q-total').textContent=mockState.maxQ;
+  document.getElementById('mock-q-num').textContent='1';
+  clearInterval(mockState.elapsedTimer);
+  mockState.elapsedTimer=setInterval(()=>{mockState.elapsedSecs++;const m=Math.floor(mockState.elapsedSecs/60);const s=mockState.elapsedSecs%60;document.getElementById('mock-elapsed').textContent=m+':'+(s<10?'0':'')+s;},1000);
+  showTypingIndicator(true);
+  try{
+    const opening=await callClaudeWithHistory([{role:'user',content:'Please begin the interview with your opening and first question.'}],buildInterviewerPrompt(),500);
+    mockState.history.push({role:'assistant',content:opening});
+    showTypingIndicator(false);
+    addMockMessage('ai',opening);
+  }catch(e){showTypingIndicator(false);showToast('Something went wrong — try again');endGame();}
+}
+
+function buildInterviewerPrompt(){
+  const iv=mockState.interviewer;
+  const styleDesc=mockState.style==='challenging'?'rigorous — probe with follow-ups when answers are vague':mockState.style==='structured'?'structured and methodical':'warm and conversational but professional';
+  const focusDesc=mockState.focus==='behavioural'?'Focus on behavioural questions (tell me about a time...)':mockState.focus==='technical'?'Focus on role-specific knowledge and practical scenarios':mockState.focus==='culture'?'Focus on culture fit, working style, and values':'Ask a balanced mix of behavioural, role-specific, situational, and culture fit questions';
+  return `You are ${iv.name}, ${iv.role}${mockState.company?' at '+mockState.company:''}. Conducting a job interview for: ${mockState.jobTitle}.
+
+Role context: ${mockState.jobDesc||'A professional role requiring communication and analytical skills.'}
+
+Candidate: ${profileText()}
+
+Instructions:
+- Ask ONE question per turn
+- Acknowledge the candidate briefly (1-2 sentences) before your next question
+- Style: ${styleDesc}
+- ${focusDesc}
+- Do NOT give coaching, hints or feedback during the interview
+- After exactly ${mockState.maxQ} questions, close professionally and end with exactly: INTERVIEW_COMPLETE`;
+}
+
+async function submitMockAnswer(){
+  const answer=document.getElementById('mock-answer').value.trim();
+  if(!answer){showToast('Type your answer first');return;}
+  const btn=document.getElementById('mock-submit-btn');
+  btn.disabled=true;
+  addMockMessage('user',answer);
+  mockState.answers.push({q:mockState.currentQ+1,answer});
+  mockState.history.push({role:'user',content:answer});
+  document.getElementById('mock-answer').value='';
+  document.getElementById('mock-char-count').textContent='0 words';
+  mockState.currentQ++;
+  document.getElementById('mock-q-num').textContent=Math.min(mockState.currentQ+1,mockState.maxQ);
+  showTypingIndicator(true);
+  try{
+    const msgs=mockState.history.map(h=>({role:h.role,content:h.content}));
+    const res=await callClaudeWithHistory(msgs,buildInterviewerPrompt(),600);
+    mockState.history.push({role:'assistant',content:res});
+    showTypingIndicator(false);
+    if(res.includes('INTERVIEW_COMPLETE')){
+      addMockMessage('ai',res.replace('INTERVIEW_COMPLETE','').trim());
+      setTimeout(()=>finishMockInterview(),1500);
+    } else {
+      addMockMessage('ai',res);
+      btn.disabled=false;
+      document.getElementById('mock-answer').focus();
+    }
+  }catch(e){showTypingIndicator(false);showToast('Something went wrong — try again');btn.disabled=false;}
+}
+
+function skipMockQ(){document.getElementById('mock-answer').value='[Skipped]';submitMockAnswer();}
+function handleMockKey(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();submitMockAnswer();}}
+function updateMockCharCount(){const w=document.getElementById('mock-answer').value.trim().split(/\s+/).filter(Boolean).length;document.getElementById('mock-char-count').textContent=w+' word'+(w!==1?'s':'');}
+function confirmEndInterview(){if(confirm('End the interview early? Debrief will cover answers so far.')){clearInterval(mockState.elapsedTimer);finishMockInterview();}}
+
+function finishMockInterview(){
+  clearInterval(mockState.elapsedTimer);
+  document.getElementById('mock-input-area').style.display='none';
+  document.getElementById('mock-complete-area').style.display='block';
+  generateDebrief();
+}
+
+async function generateDebrief(){
+  try{
+    const prompt=`You conducted the above interview for: ${mockState.jobTitle}. Provide a debrief as ONLY valid JSON (no markdown):
+{"score":75,"label":"Strong candidate","overall":"2-3 sentence overall assessment.","recommendation":"Strong Consider","strengths":["Specific strength with example","Second","Third"],"improvements":["Specific area with suggestion","Second","Third"],"questions":[{"q":"The question","a_summary":"Their answer summary","feedback":"Your assessment","score":8}]}
+Recommendation options: Hire / Strong Consider / Consider / Not Yet. Be specific and honest.`;
+    const msgs=[...mockState.history.map(h=>({role:h.role,content:h.content})),{role:'user',content:prompt}];
+    const raw=await callClaudeWithHistory(msgs,'You are a professional interview assessor. Return only valid JSON.',1200);
+    const match=raw.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('no json');
+    renderDebrief(JSON.parse(match[0]));
+    awardXP(50,'Mock interview completed');
+    progress.answered=(progress.answered||0)+mockState.currentQ;
+    progress.gamesPlayed=(progress.gamesPlayed||0)+1;
+    updateStreak();saveProgress();
+  }catch(e){
+    // Plain text fallback
+    document.getElementById('mock-active').style.display='none';
+    document.getElementById('mock-debrief').style.display='block';
+    document.getElementById('mock-score-num').textContent='✓';
+    document.getElementById('mock-score-label').textContent='Interview complete';
+    document.getElementById('mock-overall-text').textContent='Debrief could not be generated automatically. Review your answers above.';
+    document.getElementById('mock-strengths').innerHTML='';
+    document.getElementById('mock-improvements').innerHTML='';
+    document.getElementById('mock-q-breakdown').innerHTML='';
+  }
+}
+
+function renderDebrief(d){
+  document.getElementById('mock-active').style.display='none';
+  document.getElementById('mock-debrief').style.display='block';
+  document.getElementById('mock-score-num').textContent=d.score||'—';
+  document.getElementById('mock-score-label').textContent=d.label||'';
+  document.getElementById('mock-overall-text').textContent=d.overall||'';
+  const rec=document.getElementById('mock-recommendation');
+  rec.textContent=d.recommendation||'';
+  const rcMap={'Hire':'rgba(16,185,129,.18)','Strong Consider':'rgba(123,106,232,.18)','Consider':'rgba(232,149,16,.15)','Not Yet':'rgba(239,68,68,.12)'};
+  const rtMap={'Hire':'var(--green2)','Strong Consider':'var(--blue2)','Consider':'var(--amber2)','Not Yet':'var(--red2)'};
+  rec.style.background=rcMap[d.recommendation]||'rgba(123,106,232,.15)';
+  rec.style.color=rtMap[d.recommendation]||'var(--blue2)';
+  rec.style.border=`1px solid ${rtMap[d.recommendation]||'var(--blue2)'}`;
+  document.getElementById('mock-strengths').innerHTML=(d.strengths||[]).map(s=>`<div class="strength-item"><div class="s-dot" style="background:var(--green2)"></div><div>${esc(s)}</div></div>`).join('');
+  document.getElementById('mock-improvements').innerHTML=(d.improvements||[]).map(s=>`<div class="improve-item"><div class="s-dot" style="background:var(--red2)"></div><div>${esc(s)}</div></div>`).join('');
+  const sc=n=>n>=8?'var(--green2)':n>=6?'var(--amber2)':'var(--red2)';
+  const sb=n=>n>=8?'rgba(16,185,129,.15)':n>=6?'rgba(232,149,16,.12)':'rgba(239,68,68,.1)';
+  document.getElementById('mock-q-breakdown').innerHTML=(d.questions||[]).map((q,i)=>`<div class="qb-item"><div class="qb-q"><span>Q${i+1}: ${esc(q.q||'')}</span>${q.score?`<span class="q-score-pill" style="background:${sb(q.score)};color:${sc(q.score)}">${q.score}/10</span>`:''}</div><div class="qb-a">"${esc((q.a_summary||'').slice(0,160))}${(q.a_summary||'').length>160?'...':''}"</div><div class="qb-fb">${esc(q.feedback||'')}</div></div>`).join('');
+}
+
+function addMockMessage(type,text){
+  const feed=document.getElementById('mock-feed');
+  const wrap=document.createElement('div');wrap.className='msg-wrap'+(type==='user'?' user':'');
+  const lbl=document.createElement('div');lbl.className='msg-label';lbl.textContent=type==='ai'?mockState.interviewer?.name||'Interviewer':'You';
+  const bub=document.createElement('div');bub.className='msg-bubble msg-'+type;bub.textContent=text;
+  wrap.appendChild(lbl);wrap.appendChild(bub);feed.appendChild(wrap);
+  feed.scrollTop=feed.scrollHeight;
+}
+function showTypingIndicator(show){
+  const t=document.getElementById('mock-typing');
+  if(t){t.style.display=show?'block':'none';}
+  if(show){const f=document.getElementById('mock-feed');if(f)f.scrollTop=f.scrollHeight;}
+}
+function startMockAgain(){startMockSetup();}
+
+async function callClaudeWithHistory(messages,sysMsg,max=800){
+  const key=settings.apiKey;
+  const h={'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+  if(key)h['x-api-key']=key;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:h,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:max,system:sysMsg,messages})});
+  const d=await r.json();
+  if(d.content?.[0])return d.content[0].text;
+  throw new Error(d.error?.message||'API error');
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function loadSettingsUI(){ document.getElementById('s-claude').value=settings.apiKey||''; document.getElementById('s-adz-id').value=settings.adzunaId||''; document.getElementById('s-adz-key').value=settings.adzunaKey||''; }
+function saveSettings(){ settings={apiKey:g('s-claude'),adzunaId:g('s-adz-id'),adzunaKey:g('s-adz-key')}; localStorage.setItem('lp2_settings',JSON.stringify(settings)); showToast('Settings saved'); }
+function exportData(){ const blob=new Blob([JSON.stringify({profile,progress,apps,savedJobs},null,2)],{type:'application/json'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='launchpad_data.json';a.click(); }
+function resetXP(){ if(confirm('Reset XP and streak?')){progress={xp:0,streak:0,lastActive:'',answered:0,gamesPlayed:0};saveProgress();showToast('Progress reset');} }
+function clearAll(){ if(confirm('Clear ALL Launchpad data?')){['lp2_profile','lp2_settings','lp2_progress','lp2_jobs','lp2_apps'].forEach(k=>localStorage.removeItem(k));location.reload();} }
+
+// ── AI ────────────────────────────────────────────────────────────────────────
+async function callClaude(userMsg,sysMsg,max=800){ const key=settings.apiKey; const h={'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}; if(key)h['x-api-key']=key; const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:h,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:max,system:sysMsg,messages:[{role:'user',content:userMsg}]})}); const d=await r.json(); if(d.content?.[0])return d.content[0].text; throw new Error(d.error?.message||'API error'); }
+function profileText(){ const p=profile; return`Name: ${p.name||''}, Location: ${p.location||'NZ'}, Summary: ${p.summary||''}, Target: ${p.targetRole||''}, Recent role: ${p.role1||''} — ${p.role1desc||''}, Previous: ${p.role2||''}, Education: ${p.education||''}, Quals: ${p.quals||''}, Skills: ${(p.skills||[]).join(', ')}, Strengths: ${p.strengths||''}, Work pref: ${p.workType||''}, Salary: ${p.salary||''}`; }
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function g(id){ return document.getElementById(id)?.value||''; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+let toastT;
+function showToast(msg){ const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadSettingsUI();
+document.querySelectorAll('.ob-step .inp').forEach(el=>{
+  el.addEventListener('input', scheduleAutoSave);
+  el.addEventListener('change', scheduleAutoSave);
+});
+document.getElementById('customSkill')?.addEventListener('keydown',e=>{if(e.key==='Enter')addCustomSkill();});
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);}));
+</script>
+</body>
+</html>
