@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Ads Analyser - Ethan Bouterey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0A0F1E; --navy2:#111827; --navy3:#161f33;
+  --blue:#1D6FE8; --blue-light:#3B82F6; --accent:#4FFFB0;
+  --amber:#FFB84F; --red:#FF6B6B; --white:#F8FAFC;
+  --muted:#94A3B8; --muted2:#64748B; --border:rgba(255,255,255,0.08);
+  --display:"Syne",system-ui,sans-serif; --body:"DM Sans",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--white);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1140px;margin:0 auto;padding:0 28px;}
+a{color:var(--blue-light);text-decoration:none;}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:rgba(10,15,30,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.brand{display:flex;align-items:center;gap:11px;}
+.brand .mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--blue),var(--accent));display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:13px;color:#07101f;}
+.brand .who{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.02em;}
+.brand .who span{color:var(--muted);font-weight:500;}
+nav .back{font-size:13px;color:var(--muted);}
+nav .back:hover{color:var(--white);}
+
+.hero{position:relative;padding:44px 0 8px;overflow:hidden;}
+.hero-bg{position:absolute;inset:-40px 0 0 0;z-index:0;background:radial-gradient(ellipse 55% 60% at 78% 10%,rgba(29,111,232,0.18) 0%,transparent 70%),radial-gradient(ellipse 40% 50% at 8% 90%,rgba(79,255,176,0.06) 0%,transparent 60%);}
+.hero-inner{position:relative;z-index:1;}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1;letter-spacing:-0.03em;margin-bottom:14px;}
+.hero p{color:var(--muted);max-width:620px;line-height:1.7;}
+
+.panel{background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-top:18px;}
+.panel-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.panel-h h2{font-family:var(--display);font-weight:700;font-size:1.05rem;}
+.panel-h .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+.panel-h .sub{font-size:12px;color:var(--muted2);}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.drop{flex:1;min-width:260px;border:1.5px dashed rgba(255,255,255,0.16);border-radius:12px;padding:20px;text-align:center;color:var(--muted);transition:border-color .2s,background .2s;cursor:pointer;}
+.drop:hover,.drop.over{border-color:var(--blue);background:rgba(29,111,232,0.06);color:var(--white);}
+.drop b{color:var(--white);}
+.drop small{display:block;margin-top:6px;font-size:12px;color:var(--muted2);}
+.btn{font-family:var(--body);font-size:14px;font-weight:600;padding:11px 18px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--white);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.3);}
+.btn-mint{background:var(--accent);color:#07101f;}
+.btn-mint:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+.verdict{position:relative;display:grid;grid-template-columns:1.5fr 1fr;gap:22px;background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-top:18px;overflow:hidden;}
+.verdict::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--amber),var(--accent));}
+.verdict .vkey{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.verdict .big{font-family:var(--display);font-weight:800;font-size:3.1rem;line-height:1;letter-spacing:-0.03em;color:var(--amber);}
+.verdict .lead{font-size:15.5px;color:var(--white);margin-top:10px;max-width:440px;}
+.verdict .sub{font-size:13px;color:var(--muted);margin-top:8px;max-width:440px;}
+.vstats{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:center;}
+.vstat{background:var(--navy3);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+.vstat .v{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1;letter-spacing:-0.02em;}
+.vstat .l{font-size:11px;color:var(--muted);margin-top:5px;}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.kpi{background:var(--navy2);padding:15px 17px;}
+.kpi .v{font-family:var(--display);font-weight:800;font-size:1.4rem;line-height:1.1;letter-spacing:-0.02em;}
+.kpi .l{font-size:11.5px;color:var(--muted);margin-top:3px;}
+
+.readout{list-style:none;display:flex;flex-direction:column;gap:13px;}
+.readout li{font-size:14px;line-height:1.55;padding-left:28px;position:relative;color:var(--white);}
+.readout li i{position:absolute;left:0;top:1px;width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-style:normal;}
+.readout li.good i{background:rgba(79,255,176,0.14);color:var(--accent);}
+.readout li.warn i{background:rgba(255,184,79,0.14);color:var(--amber);}
+.readout li.bad i{background:rgba(255,107,107,0.14);color:var(--red);}
+.readout li b.good{color:var(--accent);} .readout li b.warn{color:var(--amber);} .readout li b.bad{color:var(--red);}
+
+.charts{display:grid;grid-template-columns:1fr;gap:16px;}
+.chart-box{background:var(--navy3);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.chart-box h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.chart-box .cap{font-size:12.5px;color:var(--muted2);margin-bottom:14px;}
+.chart-box .cv{position:relative;width:100%;}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;font-size:12px;color:var(--muted);}
+.legend span{display:flex;align-items:center;gap:6px;}
+.legend .dot{width:10px;height:10px;border-radius:3px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:right;padding:10px 12px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;user-select:none;}
+thead th:first-child{text-align:left;}
+thead th:hover{color:var(--white);}
+tbody td{text-align:right;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap;}
+tbody td:first-child{text-align:left;font-weight:500;color:var(--white);max-width:240px;overflow:hidden;text-overflow:ellipsis;border-left:3px solid transparent;}
+tbody tr.r-good td:first-child{border-left-color:var(--accent);}
+tbody tr.r-warn td:first-child{border-left-color:var(--amber);}
+tbody tr.r-bad td:first-child{border-left-color:var(--red);}
+tbody tr:hover{background:rgba(255,255,255,0.02);}
+.tag{font-size:10.5px;padding:2px 9px;border-radius:100px;font-weight:600;white-space:nowrap;}
+.tag.good{background:rgba(79,255,176,0.10);color:var(--accent);border:1px solid rgba(79,255,176,0.22);}
+.tag.warn{background:rgba(255,184,79,0.10);color:var(--amber);border:1px solid rgba(255,184,79,0.24);}
+.tag.bad{background:rgba(255,107,107,0.10);color:var(--red);border:1px solid rgba(255,107,107,0.26);}
+
+.realloc{background:linear-gradient(90deg,rgba(79,255,176,0.07),transparent);border:1px solid rgba(79,255,176,0.20);border-radius:12px;padding:18px 20px;margin-top:16px;font-size:14px;line-height:1.65;color:var(--white);}
+.realloc .rk{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.realloc b{color:var(--accent);font-weight:600;}
+.realloc .caveat{display:block;margin-top:8px;font-size:12px;color:var(--muted2);}
+
+.api-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.api-row input{flex:1;min-width:220px;background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--white);font-family:var(--body);font-size:13px;}
+.api-row input:focus{outline:none;border-color:var(--blue);}
+.hint{font-size:12px;color:var(--muted2);margin-top:8px;}
+.insights .ai-card{background:var(--navy3);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:12px;}
+.insights .ai-card h4{font-family:var(--display);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.insights .scale h4{color:var(--accent);} .insights .fix h4{color:var(--amber);} .insights .cut h4{color:var(--red);}
+.insights .item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13.5px;}
+.insights .item:last-child{border-bottom:none;}
+.insights .item b{color:var(--white);}
+.headline{font-size:15px;color:var(--white);background:linear-gradient(90deg,rgba(29,111,232,0.10),transparent);border-left:2px solid var(--blue);padding:12px 16px;border-radius:0 8px 8px 0;}
+.struct{font-size:13.5px;color:var(--muted);} .struct b{color:var(--white);}
+pre.raw{white-space:pre-wrap;font-family:var(--body);font-size:13.5px;color:var(--muted);}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:7px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.hidden{display:none;}
+.empty{color:var(--muted2);text-align:center;padding:36px 20px;}
+.foot{margin:46px 0 30px;padding-top:18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+@media(max-width:760px){.verdict{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><div class="mark">EB</div><div class="who">Meta Ads Analyser <span>/ paid social</span></div></div>
+  <a class="back" href="https://ethanbouterey.github.io">&larr; Portfolio</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="wrap hero-inner">
+    <div class="eyebrow">Paid social &middot; campaign diagnostics</div>
+    <h1>Meta Ads Performance Analyser</h1>
+    <p>Drop in a Meta Ads Manager export and get the read a paid-social manager would give it in the first five minutes: one clear verdict, where the budget is leaking, and which campaigns to scale, fix, or cut. Optional Claude pass for a deeper strategist take.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="panel">
+    <div class="panel-h"><h2>Load your data</h2><span class="label">CSV in</span></div>
+    <div class="controls">
+      <div class="drop" id="drop">
+        <b>Drop a Meta Ads Manager CSV here</b> or click to browse
+        <small>Export at campaign level from Ads Manager. Columns are auto-detected. Nothing leaves your browser.</small>
+        <input type="file" id="file" accept=".csv" class="hidden">
+      </div>
+      <button class="btn btn-mint" id="sampleBtn">Try with sample data</button>
+    </div>
+    <div class="hint" id="loadHint"></div>
+  </div>
+
+  <div id="results" class="hidden">
+
+    <div class="verdict">
+      <div>
+        <div class="vkey">The verdict</div>
+        <div class="big" id="vBig">--</div>
+        <div class="lead" id="vLead"></div>
+        <div class="sub" id="vSub"></div>
+      </div>
+      <div class="vstats" id="vStats"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>Account snapshot</h2><span class="sub" id="snapMeta"></span></div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>What to do now</h2><span class="label">rule-based, no key needed</span></div>
+      <ul class="readout" id="instant"></ul>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>Efficiency map</h2><span class="sub">bubble size = results &middot; lower-left is better</span></div>
+      <div class="chart-box">
+        <h3>Spend vs cost per result</h3>
+        <div class="cap">Big bubbles to the upper right are the problem: high spend at a high cost per result. Tight to the left is efficient.</div>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--accent)"></span>Scaling</span>
+          <span><span class="dot" style="background:var(--amber)"></span>Watch</span>
+          <span><span class="dot" style="background:var(--red)"></span>Leaking</span>
+        </div>
+        <div class="cv" style="height:340px;"><canvas id="mapChart"></canvas></div>
+      </div>
+      <div class="chart-box" style="margin-top:16px;">
+        <h3>Spend by campaign</h3>
+        <div class="cap" id="spendCap">Where the budget actually goes, coloured by efficiency.</div>
+        <div class="cv" id="spendCv"><canvas id="spendChart"></canvas></div>
+      </div>
+      <div class="realloc" id="realloc"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>Campaign breakdown</h2><span class="sub">click a header to sort</span></div>
+      <div style="overflow-x:auto;"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h"><h2>AI strategist read</h2><span class="label">Claude, optional</span></div>
+      <div class="api-row">
+        <input type="password" id="apiKey" placeholder="Anthropic API key (sk-ant-...). Stored only in this browser.">
+        <button class="btn btn-mint" id="genBtn">Generate insights</button>
+      </div>
+      <div class="hint">Everything above works without this. Your key stays in your browser and is sent only to Anthropic.</div>
+      <div class="insights" id="insights"></div>
+    </div>
+
+  </div>
+
+  <div id="empty" class="empty">No data loaded yet. Drop a CSV or try the sample to see it work.</div>
+
+  <div class="foot">
+    <span>Ethan Bouterey &middot; built for paid social</span>
+    <span>Single-file &middot; no backend &middot; your data stays in your browser</span>
+  </div>
+</div>
+
+<script>
+var CUR="$";
+var ROWS=[];
+var AGG=null;
+var charts={};
+var sortState={key:"spend",dir:-1};
+
+var SAMPLE=`Campaign name,Amount spent (NZD),Impressions,Reach,Link clicks,Results,Result type,Cost per result,Purchase conversion value (NZD)
+Prospecting - Broad - Conversions,4820.55,612430,310220,7240,184,Purchases,26.20,16920
+Lookalike 3% - Purchases,3110.40,401200,205110,5180,166,Purchases,18.74,18260
+Retargeting - 30d Site Visitors,1980.25,142300,61240,3960,212,Purchases,9.34,27040
+Retargeting - Add to Cart,1240.10,78110,33020,2410,148,Purchases,8.38,21330
+Interest - Fitness Enthusiasts,2760.80,388970,221540,3120,58,Purchases,47.60,5120
+Prospecting - Video Views,1610.00,540220,402330,2010,22,Purchases,73.18,1980
+Brand Awareness - Reach,920.40,810540,640220,640,6,Purchases,153.40,540
+Lead Gen - Newsletter,540.70,61220,40110,1290,196,Leads,2.76,0`;
+
+function n(v){ if(v===null||v===undefined) return 0; var s=String(v).replace(/[^0-9.\-]/g,""); var f=parseFloat(s); return isNaN(f)?0:f; }
+function money(v){ return CUR+Number(v).toLocaleString(undefined,{maximumFractionDigits:0}); }
+function money2(v){ return CUR+Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function num(v){ return Number(v).toLocaleString(undefined,{maximumFractionDigits:0}); }
+function pct(v){ return Number(v).toFixed(2)+"%"; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function findCol(fields,patterns){
+  for(var p=0;p<patterns.length;p++){ for(var i=0;i<fields.length;i++){ if(fields[i] && fields[i].toLowerCase().indexOf(patterns[p])>-1) return fields[i]; } }
+  return null;
+}
+function detectCurrency(fields){
+  var m=fields.join(" ").match(/\((USD|NZD|AUD|GBP|EUR|CAD)\)/);
+  if(m){ if(m[1]==="GBP")return "GBP "; if(m[1]==="EUR")return "EUR "; return "$"; }
+  return "$";
+}
+function buildRows(data,fields){
+  CUR=detectCurrency(fields);
+  var col={
+    name:findCol(fields,["campaign name","campaign","ad set name","ad set"]),
+    spend:findCol(fields,["amount spent","spend"]),
+    impr:findCol(fields,["impressions"]),
+    reach:findCol(fields,["reach"]),
+    clicks:findCol(fields,["link clicks","clicks (all)","clicks"]),
+    results:findCol(fields,["results","purchases","conversions","leads"]),
+    rtype:findCol(fields,["result type"]),
+    rev:findCol(fields,["conversion value","purchase value","revenue"])
+  };
+  var out=[];
+  data.forEach(function(r){
+    var name=col.name?String(r[col.name]||"").trim():"";
+    if(!name) return;
+    var spend=n(r[col.spend]),impr=n(r[col.impr]),reach=n(r[col.reach]),clicks=n(r[col.clicks]),results=n(r[col.results]),rev=col.rev?n(r[col.rev]):0;
+    if(spend===0 && impr===0 && clicks===0) return;
+    out.push({name:name,rtype:col.rtype?String(r[col.rtype]||"").trim():"",spend:spend,impr:impr,reach:reach,clicks:clicks,results:results,rev:rev,
+      ctr:impr>0?(clicks/impr*100):0,cpc:clicks>0?(spend/clicks):0,cpm:impr>0?(spend/impr*1000):0,
+      cpa:results>0?(spend/results):0,roas:spend>0?(rev/spend):0,cvr:clicks>0?(results/clicks*100):0});
+  });
+  return out;
+}
+function aggregate(rows){
+  var t={spend:0,impr:0,reach:0,clicks:0,results:0,rev:0};
+  rows.forEach(function(r){ t.spend+=r.spend;t.impr+=r.impr;t.reach+=r.reach;t.clicks+=r.clicks;t.results+=r.results;t.rev+=r.rev; });
+  t.ctr=t.impr>0?(t.clicks/t.impr*100):0; t.cpc=t.clicks>0?(t.spend/t.clicks):0; t.cpm=t.impr>0?(t.spend/t.impr*1000):0;
+  t.cpa=t.results>0?(t.spend/t.results):0; t.roas=t.spend>0?(t.rev/t.spend):0; t.cvr=t.clicks>0?(t.results/t.clicks*100):0;
+  return t;
+}
+function ratingFor(r,t){
+  if(r.results>0){
+    if(t.cpa>0 && r.cpa<=t.cpa*0.8) return ["good","Scaler"];
+    if(t.cpa>0 && r.cpa>=t.cpa*1.5) return ["bad","Leaking"];
+    return ["warn","Watch"];
+  }
+  if(r.spend>t.spend*0.05) return ["bad","No results"];
+  return ["warn","Watch"];
+}
+function domObjective(rows){
+  var tc={}; rows.filter(function(r){return r.results>0;}).forEach(function(r){ var k=r.rtype||"Results"; tc[k]=(tc[k]||0)+1; });
+  var keys=Object.keys(tc); if(!keys.length) return "";
+  return keys.sort(function(a,b){return tc[b]-tc[a];})[0];
+}
+
+function renderKPIs(t){
+  var items=[["Total spend",money(t.spend)],["Impressions",num(t.impr)],["Link clicks",num(t.clicks)],["CTR",pct(t.ctr)],["CPC",money2(t.cpc)],["CPM",money2(t.cpm)],["Results",num(t.results)],["Cost / result",money2(t.cpa)]];
+  if(t.rev>0){ items.push(["Revenue",money(t.rev)]); items.push(["Blended ROAS",t.roas.toFixed(2)+"x"]); }
+  document.getElementById("kpis").innerHTML=items.map(function(it){ return "<div class=\"kpi\"><div class=\"v\">"+it[1]+"</div><div class=\"l\">"+it[0]+"</div></div>"; }).join("");
+}
+
+function renderVerdict(rows,t){
+  var leak=rows.filter(function(r){ return ratingFor(r,t)[1]==="Leaking"||ratingFor(r,t)[1]==="No results"; });
+  var leakSpend=0; leak.forEach(function(r){ leakSpend+=r.spend; });
+  var leakPct=t.spend>0?Math.round(leakSpend/t.spend*100):0;
+  var dom=domObjective(rows);
+  var domRes=rows.filter(function(r){return r.results>0 && (r.rtype||"")===dom;});
+  if(domRes.length<2)domRes=rows.filter(function(r){return r.results>0;});
+  var cpas=domRes.map(function(r){return r.cpa;}).sort(function(a,b){return a-b;});
+  var spread=(cpas.length>1 && cpas[0]>0)?(cpas[cpas.length-1]/cpas[0]):0;
+  var goodN=rows.filter(function(r){return ratingFor(r,t)[1]==="Scaler";}).length;
+  document.getElementById("vBig").textContent=leakPct+"%";
+  document.getElementById("vLead").innerHTML="of your spend ("+money(leakSpend)+") is going to underperforming campaigns.";
+  document.getElementById("vSub").textContent="The budget is weighted toward the wrong campaigns. Reallocating toward your efficient ones is the single biggest lever in this account.";
+  var stats=[
+    [money(leakSpend),"Reallocatable spend"],
+    [(spread>0?Math.round(spread)+"x":"-"),"Best-to-worst cost gap"],
+    [goodN+" of "+rows.length,"Campaigns scaling"],
+    [(t.rev>0?t.roas.toFixed(2)+"x":pct(t.ctr)),(t.rev>0?"Blended ROAS":"Account CTR")]
+  ];
+  document.getElementById("vStats").innerHTML=stats.map(function(s){ return "<div class=\"vstat\"><div class=\"v\">"+s[0]+"</div><div class=\"l\">"+s[1]+"</div></div>"; }).join("");
+}
+
+function renderInstant(){
+  var t=AGG,rows=ROWS,L=[];
+  L.push(["","report","Across <b>"+rows.length+" campaigns</b> you spent "+money(t.spend)+" for "+num(t.results)+" results at a blended "+money2(t.cpa)+" per result"+(t.rev>0?", "+t.roas.toFixed(2)+"x ROAS":"")+"."]);
+  var withRes=rows.filter(function(r){return r.results>0;});
+  if(withRes.length){
+    var dom=domObjective(rows);
+    var pool=withRes.filter(function(r){return (r.rtype||"")===dom;});
+    if(pool.length<2)pool=withRes;
+    var pSpend=0,pRes=0; pool.forEach(function(r){pSpend+=r.spend;pRes+=r.results;});
+    var poolAvg=pRes>0?pSpend/pRes:0;
+    var best=pool.slice().sort(function(a,b){return a.cpa-b.cpa;})[0];
+    var bp=poolAvg>0?Math.round((1-best.cpa/poolAvg)*100):0;
+    L.push(["good","+","<b class=\"good\">Scale.</b> "+esc(best.name)+" is your most efficient campaign at "+money2(best.cpa)+" per result"+(bp>0?", "+bp+"% below the average for your main objective":"")+". Put more budget here."]);
+  }
+  var leaks=rows.filter(function(r){return (r.results>0&&t.cpa>0&&r.cpa>=t.cpa*1.5)||(r.results===0&&r.spend>t.spend*0.05);});
+  if(leaks.length){
+    var worst=leaks.slice().sort(function(a,b){return b.spend-a.spend;})[0];
+    var wp=t.spend>0?Math.round(worst.spend/t.spend*100):0;
+    if(worst.results>0){ L.push(["bad","!","<b class=\"bad\">Fix or cut.</b> "+esc(worst.name)+" is spending "+money(worst.spend)+" ("+wp+"% of budget) at "+money2(worst.cpa)+" per result, well above the "+money2(t.cpa)+" average."]); }
+    else { L.push(["bad","!","<b class=\"bad\">Cut.</b> "+esc(worst.name)+" has spent "+money(worst.spend)+" ("+wp+"% of budget) with no results recorded."]); }
+  }
+  var lowCtr=rows.filter(function(r){return r.impr>5000&&r.ctr>0&&t.ctr>0&&r.ctr<t.ctr*0.6;});
+  if(lowCtr.length){
+    var lc=lowCtr.slice().sort(function(a,b){return b.impr-a.impr;})[0];
+    L.push(["warn","i","<b class=\"warn\">Creative check.</b> "+esc(lc.name)+" has a "+pct(lc.ctr)+" CTR against a "+pct(t.ctr)+" account average, a sign the creative or audience needs a refresh."]);
+  }
+  document.getElementById("instant").innerHTML=L.map(function(x){ return "<li class=\""+x[0]+"\"><i>"+x[1]+"</i>"+x[2]+"</li>"; }).join("");
+}
+
+function renderReallocation(rows,t){
+  var dom=domObjective(rows);
+  var domRows=rows.filter(function(r){return (r.rtype||"")===dom && r.results>0;});
+  if(domRows.length<2){ document.getElementById("realloc").classList.add("hidden"); return; }
+  document.getElementById("realloc").classList.remove("hidden");
+  var scalers=domRows.filter(function(r){return ratingFor(r,t)[1]==="Scaler";});
+  var leakers=domRows.filter(function(r){return ratingFor(r,t)[1]==="Leaking";});
+  var lSpend=0,lRes=0; leakers.forEach(function(r){lSpend+=r.spend;lRes+=r.results;});
+  var sSpend=0,sRes=0; scalers.forEach(function(r){sSpend+=r.spend;sRes+=r.results;});
+  var box=document.getElementById("realloc");
+  if(!leakers.length||!scalers.length||sRes===0){
+    box.innerHTML="<div class=\"rk\">The lever</div>Your efficient campaigns are carrying the account. Keep feeding them and hold the underperformers flat until their cost per result comes down.";
+    return;
+  }
+  var leakCpa=lRes>0?lSpend/lRes:0;
+  var scalerCpa=sSpend/sRes;
+  var couldGet=scalerCpa>0?Math.round(lSpend/scalerCpa):0;
+  box.innerHTML="<div class=\"rk\">The lever</div><b>"+money(lSpend)+"</b> is sitting in leaking campaigns at an average <b>"+money2(leakCpa)+"</b> per result. Your scalers are converting at <b>"+money2(scalerCpa)+"</b>. At that efficiency the same budget would be working toward roughly <b>"+num(couldGet)+" results</b> instead of the "+num(lRes)+" it is getting now. Shifting budget from the leakers to the scalers is the clearest move in this account.<span class=\"caveat\">Directional, not a promise: it assumes the scaler efficiency holds as budget increases, which is exactly the thing to test with a staged scale-up.</span>";
+}
+
+function colorFor(rating){ return rating==="Scaler"?"#4FFFB0":(rating==="Watch"?"#FFB84F":"#FF6B6B"); }
+
+function renderMap(rows,t){
+  var dom=domObjective(rows);
+  var pts=rows.filter(function(r){return r.results>0 && (r.rtype||"")===dom;});
+  if(pts.length<2)pts=rows.filter(function(r){return r.results>0;});
+  var maxRes=Math.max.apply(null,pts.map(function(r){return r.results;}));
+  var data=pts.map(function(r){
+    return {x:r.cpa,y:r.spend,r:6+Math.sqrt(r.results/(maxRes||1))*16,_name:r.name,_res:r.results,_rating:ratingFor(r,t)[1],
+      backgroundColor:colorFor(ratingFor(r,t)[1])+"cc",borderColor:colorFor(ratingFor(r,t)[1])};
+  });
+  Chart.defaults.color="#94A3B8";
+  Chart.defaults.font.family="DM Sans, system-ui, sans-serif";
+  if(charts.map)charts.map.destroy();
+  charts.map=new Chart(document.getElementById("mapChart"),{
+    type:"bubble",
+    data:{datasets:[{data:data,backgroundColor:data.map(function(d){return d.backgroundColor;}),borderColor:data.map(function(d){return d.borderColor;}),borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:function(c){var d=c.raw;return d._name+": "+money2(d.x)+"/result, "+money(d.y)+" spend, "+num(d._res)+" results";}}}},
+      scales:{
+        x:{title:{display:true,text:"Cost per result (lower is better)",color:"#64748B",font:{size:11}},grid:{color:"rgba(255,255,255,0.05)"},ticks:{callback:function(v){return CUR+v;}}},
+        y:{title:{display:true,text:"Spend",color:"#64748B",font:{size:11}},grid:{color:"rgba(255,255,255,0.05)"},ticks:{callback:function(v){return CUR+(v>=1000?(v/1000)+"k":v);}}}
+      }}
+  });
+}
+
+function renderSpend(rows,t){
+  var sorted=rows.slice().sort(function(a,b){return b.spend-a.spend;});
+  var labels=sorted.map(function(r){return r.name.length>26?r.name.slice(0,26)+"...":r.name;});
+  var vals=sorted.map(function(r){return r.spend.toFixed(0);});
+  var cols=sorted.map(function(r){return colorFor(ratingFor(r,t)[1]);});
+  document.getElementById("spendCv").style.height=(sorted.length*38+60)+"px";
+  if(charts.spend)charts.spend.destroy();
+  charts.spend=new Chart(document.getElementById("spendChart"),{
+    type:"bar",
+    data:{labels:labels,datasets:[{data:vals,backgroundColor:cols.map(function(c){return c+"cc";}),borderColor:cols,borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return CUR+Number(c.parsed.x).toLocaleString();}}}},
+      scales:{x:{grid:{color:"rgba(255,255,255,0.05)"},ticks:{callback:function(v){return CUR+(v>=1000?(v/1000)+"k":v);}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+}
+
+function renderTable(){
+  var t=AGG;
+  var cols=[["name","Campaign"],["spend","Spend"],["impr","Impr"],["clicks","Clicks"],["ctr","CTR"],["cpc","CPC"],["results","Results"],["cpa","Cost/res"],["roas","ROAS"],["rating","Read"]];
+  var thead=document.querySelector("#tbl thead");
+  thead.innerHTML="<tr>"+cols.map(function(c){ var arrow=sortState.key===c[0]?(sortState.dir<0?" &darr;":" &uarr;"):""; return "<th data-k=\""+c[0]+"\">"+c[1]+arrow+"</th>"; }).join("")+"</tr>";
+  thead.querySelectorAll("th").forEach(function(th){
+    th.onclick=function(){ var k=th.getAttribute("data-k"); if(k==="rating")k="cpa"; if(sortState.key===k)sortState.dir*=-1; else{sortState.key=k;sortState.dir=(k==="name")?1:-1;} renderTable(); };
+  });
+  var rows=ROWS.slice().sort(function(a,b){ var k=sortState.key; if(k==="name")return a.name.localeCompare(b.name)*sortState.dir; return (a[k]-b[k])*sortState.dir; });
+  var tbody=document.querySelector("#tbl tbody");
+  tbody.innerHTML=rows.map(function(r){
+    var rt=ratingFor(r,t);
+    return "<tr class=\"r-"+rt[0]+"\">"+
+      "<td title=\""+esc(r.name)+"\">"+esc(r.name)+"</td>"+
+      "<td>"+money(r.spend)+"</td><td>"+num(r.impr)+"</td><td>"+num(r.clicks)+"</td>"+
+      "<td>"+pct(r.ctr)+"</td><td>"+money2(r.cpc)+"</td><td>"+num(r.results)+"</td>"+
+      "<td>"+(r.results>0?money2(r.cpa):"-")+"</td><td>"+(r.rev>0?r.roas.toFixed(2)+"x":"-")+"</td>"+
+      "<td><span class=\"tag "+rt[0]+"\">"+rt[1]+"</span></td></tr>";
+  }).join("");
+}
+
+function showResults(){
+  document.getElementById("empty").classList.add("hidden");
+  document.getElementById("results").classList.remove("hidden");
+  document.getElementById("snapMeta").textContent=ROWS.length+" campaigns";
+  renderVerdict(ROWS,AGG);
+  renderKPIs(AGG);
+  renderInstant();
+  renderMap(ROWS,AGG);
+  renderSpend(ROWS,AGG);
+  renderReallocation(ROWS,AGG);
+  renderTable();
+}
+
+function ingest(text){
+  var parsed=Papa.parse(text,{header:true,skipEmptyLines:true});
+  if(!parsed.data||!parsed.data.length){ document.getElementById("loadHint").textContent="Could not read any rows from that file."; return; }
+  var fields=parsed.meta.fields||Object.keys(parsed.data[0]);
+  ROWS=buildRows(parsed.data,fields);
+  if(!ROWS.length){ document.getElementById("loadHint").textContent="No campaign rows detected. Check the export is at campaign level with a spend column."; return; }
+  AGG=aggregate(ROWS);
+  document.getElementById("loadHint").textContent="Loaded "+ROWS.length+" campaigns, "+money(AGG.spend)+" total spend.";
+  showResults();
+}
+function handleFile(file){ var reader=new FileReader(); reader.onload=function(e){ ingest(e.target.result); }; reader.readAsText(file); }
+
+function buildPrompt(){
+  var lines=ROWS.map(function(r){ return r.name+" | spend "+CUR+r.spend.toFixed(0)+" | impr "+r.impr+" | clicks "+r.clicks+" | CTR "+r.ctr.toFixed(2)+"% | CPC "+CUR+r.cpc.toFixed(2)+" | results "+r.results+" | cost/result "+CUR+r.cpa.toFixed(2)+" | ROAS "+r.roas.toFixed(2)+"x"; }).join("\n");
+  return "Account totals: spend "+CUR+AGG.spend.toFixed(0)+", results "+AGG.results+", blended cost/result "+CUR+AGG.cpa.toFixed(2)+", blended CTR "+AGG.ctr.toFixed(2)+"%, blended ROAS "+AGG.roas.toFixed(2)+"x.\n\nPer campaign:\n"+lines;
+}
+function renderInsights(obj){
+  var html="";
+  if(obj.headline) html+="<div class=\"ai-card\"><div class=\"headline\">"+esc(obj.headline)+"</div></div>";
+  function block(cls,title,arr){ if(!arr||!arr.length)return ""; var its=arr.map(function(x){return "<div class=\"item\"><b>"+esc(x.campaign||"")+"</b> - "+esc(x.why||"")+"</div>";}).join(""); return "<div class=\"ai-card "+cls+"\"><h4>"+title+"</h4>"+its+"</div>"; }
+  html+=block("scale","Scale these",obj.scale); html+=block("fix","Fix these",obj.fix); html+=block("cut","Cut or pause",obj.cut);
+  if(obj.structural) html+="<div class=\"ai-card\"><h4 style=\"color:var(--blue-light)\">Structural move</h4><div class=\"struct\">"+esc(obj.structural)+"</div></div>";
+  document.getElementById("insights").innerHTML=html;
+}
+function parseModel(text){ var m=text.match(/\{[\s\S]*\}/); if(!m)return null; var raw=m[0]; try{return JSON.parse(raw);}catch(e){} try{return JSON.parse(raw.replace(/[\r\n\t]+/g," "));}catch(e){} return null; }
+async function generateInsights(){
+  var key=document.getElementById("apiKey").value.trim();
+  var box=document.getElementById("insights");
+  if(!key){ box.innerHTML="<div class=\"ai-card\"><div class=\"struct\">Add your Anthropic API key above to run the AI strategist pass. Everything else on this page works without it.</div></div>"; return; }
+  if(!ROWS.length)return;
+  localStorage.setItem("maa_key",key);
+  var btn=document.getElementById("genBtn"); btn.disabled=true;
+  box.innerHTML="<div class=\"ai-card\"><div class=\"struct\"><span class=\"spinner\"></span>Reading the account like a paid-social manager...</div></div>";
+  var sys="You are a senior paid social strategist reviewing a Meta Ads account. Be direct and specific, use the numbers, no fluff. Judge each campaign against the account blended benchmarks and within its result type. Return ONLY a JSON object, no prose around it, with this shape: {\"headline\": string, \"scale\": [{\"campaign\": string, \"why\": string}], \"fix\": [{\"campaign\": string, \"why\": string}], \"cut\": [{\"campaign\": string, \"why\": string}], \"structural\": string}. Keep each why to one tight sentence grounded in the metrics.";
+  var h={"Content-Type":"application/json","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","x-api-key":key};
+  try{
+    var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1400,system:sys,messages:[{role:"user",content:buildPrompt()}]})});
+    if(!r.ok){ box.innerHTML="<div class=\"ai-card\"><div class=\"struct\">API error ("+r.status+"). Check the key and try again.</div></div>"; return; }
+    var dataj=await r.json();
+    var text=(dataj.content&&dataj.content[0]&&dataj.content[0].text)?dataj.content[0].text:"";
+    var obj=parseModel(text);
+    if(obj){ renderInsights(obj); } else { box.innerHTML="<div class=\"ai-card\"><pre class=\"raw\">"+esc(text)+"</pre></div>"; }
+  }catch(e){ box.innerHTML="<div class=\"ai-card\"><div class=\"struct\">Request failed. If this is a network or CORS issue, confirm the browser-access header is allowed for your key.</div></div>"; }
+  finally{ btn.disabled=false; }
+}
+
+var drop=document.getElementById("drop"),fileInput=document.getElementById("file");
+drop.onclick=function(){ fileInput.click(); };
+fileInput.onchange=function(e){ if(e.target.files[0])handleFile(e.target.files[0]); };
+drop.ondragover=function(e){ e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave=function(){ drop.classList.remove("over"); };
+drop.ondrop=function(e){ e.preventDefault(); drop.classList.remove("over"); if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]); };
+document.getElementById("sampleBtn").onclick=function(){ ingest(SAMPLE); document.getElementById("loadHint").textContent="Sample data loaded. Illustrative, not a real account."; };
+document.getElementById("genBtn").onclick=generateInsights;
+var savedKey=localStorage.getItem("maa_key"); if(savedKey)document.getElementById("apiKey").value=savedKey;
+</script>
+</body>
+</html>
