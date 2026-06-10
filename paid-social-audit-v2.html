@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paid Social Audit Agent (v2 preview) - Ethan Bouterey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{
+  --navy:#0A0F1E; --navy2:#111827; --navy3:#161f33;
+  --blue:#1D6FE8; --blue-light:#3B82F6; --accent:#4FFFB0;
+  --amber:#FFB84F; --red:#FF6B6B; --white:#F8FAFC;
+  --muted:#94A3B8; --muted2:#64748B; --border:rgba(255,255,255,0.08);
+  --display:"Syne",system-ui,sans-serif; --body:"DM Sans",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--navy);color:var(--white);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+a{color:var(--blue-light);text-decoration:none;}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:rgba(10,15,30,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.brand{display:flex;align-items:center;gap:11px;}
+.brand .mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--blue),var(--accent));display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:13px;color:#07101f;}
+.brand .who{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.02em;}
+.brand .who span{color:var(--muted);font-weight:500;}
+nav .back{font-size:13px;color:var(--muted);}
+nav .back:hover{color:var(--white);}
+
+.hero{position:relative;padding:42px 0 6px;overflow:hidden;}
+.hero-bg{position:absolute;inset:-40px 0 0 0;z-index:0;background:radial-gradient(ellipse 55% 60% at 78% 10%,rgba(29,111,232,0.18) 0%,transparent 70%),radial-gradient(ellipse 40% 50% at 8% 90%,rgba(79,255,176,0.06) 0%,transparent 60%);}
+.hero-inner{position:relative;z-index:1;}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3rem);line-height:1;letter-spacing:-0.03em;margin-bottom:14px;}
+.hero p{color:var(--muted);max-width:680px;line-height:1.7;}
+
+.panel{background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-top:18px;}
+.panel-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.panel-h h2{font-family:var(--display);font-weight:700;font-size:1.05rem;}
+.panel-h .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+
+.need{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;}
+.need ol{list-style:none;counter-reset:s;}
+.need ol li{counter-increment:s;position:relative;padding:6px 0 6px 30px;font-size:13.5px;color:var(--white);line-height:1.5;}
+.need ol li::before{content:counter(s);position:absolute;left:0;top:6px;width:20px;height:20px;border-radius:6px;background:rgba(29,111,232,0.15);color:var(--blue-light);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.need .cols{background:var(--navy3);border:1px solid var(--border);border-radius:11px;padding:14px 16px;}
+.need .cols h4{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
+.need .chip{display:inline-block;font-size:11.5px;padding:3px 9px;margin:0 5px 6px 0;border-radius:100px;background:rgba(79,255,176,0.08);border:1px solid rgba(79,255,176,0.2);color:var(--accent);}
+.need .chip.opt{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--muted);}
+.need .note{font-size:12px;color:var(--muted2);margin-top:10px;}
+.need a.dl{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;}
+
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.drop{flex:1;min-width:240px;border:1.5px dashed rgba(255,255,255,0.16);border-radius:12px;padding:18px;text-align:center;color:var(--muted);transition:border-color .2s,background .2s;cursor:pointer;}
+.drop:hover,.drop.over{border-color:var(--blue);background:rgba(29,111,232,0.06);color:var(--white);}
+.drop b{color:var(--white);}
+.drop small{display:block;margin-top:6px;font-size:12px;color:var(--muted2);}
+.btn{font-family:var(--body);font-size:14px;font-weight:600;padding:11px 18px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;}
+.btn-mint{background:var(--accent);color:#07101f;}
+.btn-mint:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--white);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.3);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.api-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px;}
+.api-row input{flex:1;min-width:220px;background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--white);font-family:var(--body);font-size:13px;}
+.api-row input:focus{outline:none;border-color:var(--blue);}
+.hint{font-size:12px;color:var(--muted2);margin-top:8px;}
+
+.agent{display:flex;flex-direction:column;gap:10px;}
+.step{border:1px solid var(--border);border-radius:11px;padding:13px 15px;background:var(--navy3);opacity:0;transform:translateY(6px);animation:rise .35s forwards;}
+@keyframes rise{to{opacity:1;transform:translateY(0);}}
+.step .sh{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px;}
+.step .ic{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+.step.plan .ic{background:rgba(29,111,232,0.15);color:var(--blue-light);} .step.plan .sh{color:var(--blue-light);}
+.step.tool .ic{background:rgba(79,255,176,0.14);color:var(--accent);} .step.tool .sh{color:var(--accent);}
+.step.observe .ic{background:rgba(255,184,79,0.14);color:var(--amber);} .step.observe .sh{color:var(--amber);}
+.step .body{font-size:13.5px;color:var(--white);line-height:1.55;}
+.step pre{margin-top:8px;background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--muted);white-space:pre-wrap;max-height:180px;overflow:auto;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:7px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.report{background:#fff;color:#0e1525;border-radius:14px;padding:30px 34px;margin-top:18px;}
+.report h3{font-family:var(--display);font-weight:800;font-size:1.5rem;color:#0A0F1E;letter-spacing:-0.01em;}
+.report .meta{font-size:12px;color:#64748B;margin-bottom:14px;}
+.report .scope{background:#f1f5fb;border:1px solid #e1e9f3;border-radius:9px;padding:11px 14px;font-size:12.5px;color:#475569;margin:8px 0 14px;}
+.report .scope b{color:#0A0F1E;}
+.report .verdict{background:#0A0F1E;color:#fff;border-radius:10px;padding:16px 18px;margin:14px 0;}
+.report .verdict b{color:var(--accent);}
+.report h4{font-family:var(--display);font-weight:700;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:#1D6FE8;margin:24px 0 9px;display:flex;align-items:center;gap:8px;}
+.report h4 .n{width:20px;height:20px;border-radius:6px;background:#eaf1fb;display:inline-flex;align-items:center;justify-content:center;font-size:11px;}
+.report ul.plain{list-style:none;} .report ul.plain li{padding:9px 0 9px 18px;position:relative;font-size:14px;border-bottom:1px solid #eef1f5;line-height:1.55;} .report ul.plain li:last-child{border-bottom:none;} .report ul.plain li::before{content:"";position:absolute;left:0;top:15px;width:7px;height:7px;border-radius:50%;background:#1D6FE8;}
+.report ul.plain li.good::before{background:#1f7a4d;} .report ul.plain li.bad::before{background:#b53a3a;}
+.report li b{color:#0A0F1E;}
+.report .tag{font-size:10px;padding:1px 8px;border-radius:100px;font-weight:800;margin-left:6px;letter-spacing:.02em;text-transform:uppercase;}
+.report .tag.week{background:#e6f6ec;color:#1f7a4d;} .report .tag.strat{background:#eef0fd;color:#3b41b5;}
+.report .tag.cut{background:#fdecec;color:#b53a3a;} .report .tag.scale{background:#e6f6ec;color:#1f7a4d;} .report .tag.fix{background:#fdf1dc;color:#9a6a12;}
+.report table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+.report th,.report td{text-align:left;padding:8px 8px;border-bottom:1px solid #eef1f5;vertical-align:middle;}
+.report th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748B;}
+.report td.r{text-align:right;white-space:nowrap;}
+.report .caveat{font-size:12px;color:#64748B;margin-top:10px;font-style:italic;}
+.report .cta{margin-top:24px;padding-top:16px;border-top:1px solid #e5e9ef;font-size:13.5px;color:#1f2937;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+.report .cta b{color:#0A0F1E;}
+.rep-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:8px;}
+.rep-bar .acts{display:flex;gap:8px;flex-wrap:wrap;}
+.rep-btn{font-family:var(--body);font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:7px;border:1px solid #d6dde8;background:#fff;color:#0A0F1E;cursor:pointer;}
+.rep-btn:hover{background:#f4f7fb;}
+.delta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0 8px;}
+.delta .d{background:#f6f8fb;border:1px solid #e8edf3;border-radius:9px;padding:10px 12px;}
+.delta .d .l{font-size:11px;color:#64748B;}
+.delta .d .v{font-size:17px;font-weight:700;color:#0A0F1E;margin-top:1px;}
+.delta .d .c{font-size:12px;font-weight:700;margin-top:1px;}
+.delta-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748B;margin-top:4px;}
+.fn-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #eef1f5;}
+.fn-row:last-child{border-bottom:none;}
+.fn-name{flex:none;width:170px;font-size:13px;}
+.fn-name b{display:block;color:#0A0F1E;} .fn-name span{font-size:11px;color:#64748B;}
+.fn-bar-wrap{flex:1;height:24px;background:#f1f4f8;border-radius:6px;overflow:hidden;position:relative;min-width:90px;}
+.fn-bar{height:100%;border-radius:6px;}
+.fn-bar.aw{background:#f0a93a;} .fn-bar.pr{background:#1D6FE8;} .fn-bar.rt{background:#12b886;}
+.fn-figs{flex:none;width:160px;text-align:right;font-size:12.5px;color:#475569;}
+.fn-figs b{color:#0A0F1E;}
+.fn-insight{background:#fff7ec;border:1px solid #f3e2c4;border-radius:9px;padding:12px 14px;margin-top:12px;font-size:13.5px;color:#5a4a25;line-height:1.55;}
+.fn-insight b{color:#0A0F1E;}
+.fn-nuance{font-size:12.5px;color:#64748B;margin-top:8px;line-height:1.5;}
+.sim{background:#f6f8fb;border:1px solid #e8edf3;border-radius:10px;padding:14px 16px;margin-top:10px;}
+.sim .sim-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;border-bottom:1px solid #e8edf3;}
+.sim .sim-row:last-of-type{border-bottom:none;}
+.sim .sim-row b{color:#0A0F1E;}
+.sim .grow{flex:1;}
+.sim .figs{color:#475569;white-space:nowrap;font-size:12px;}
+.sim-ctl{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12.5px;color:#475569;flex-wrap:wrap;}
+.sim-ctl input[type=range]{flex:1;min-width:140px;}
+.sim-out{margin-top:10px;background:#0A0F1E;color:#fff;border-radius:9px;padding:12px 14px;font-size:13.5px;line-height:1.55;}
+.sim-out b{color:#4FFFB0;}
+.tag.mom-fat{background:#fdecec;color:#b53a3a;}.tag.mom-creep{background:#fdf1dc;color:#9a6a12;}.tag.mom-up{background:#e6f6ec;color:#1f7a4d;}.tag.mom-flat{background:#eef0fd;color:#3b41b5;}
+.hidden{display:none;}
+.empty{color:var(--muted2);text-align:center;padding:34px 20px;}
+.foot{margin:46px 0 30px;padding-top:18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+@media print{ body *{visibility:hidden;} #report,#report *{visibility:visible;} #report{position:absolute;left:0;top:0;width:100%;margin:0;border-radius:0;} .rep-bar .acts,.report .cta .rep-btn,.sim{display:none;} .report .verdict,.report .tag,.fn-bar,.fn-insight,.report .scope{-webkit-print-color-adjust:exact;print-color-adjust:exact;} .report tr,.fn-row{page-break-inside:avoid;} .report h4{page-break-after:avoid;} }
+@media(max-width:760px){
+.need{grid-template-columns:1fr;}.delta{grid-template-columns:repeat(2,1fr);}
+.report{padding:20px 16px;}
+.report table{display:block;overflow-x:auto;}
+.rep-bar{flex-direction:column;align-items:stretch;}
+.fn-row{flex-wrap:wrap;}.fn-name{width:100%;display:flex;justify-content:space-between;align-items:baseline;}.fn-name b{display:inline;}
+.fn-bar-wrap{min-width:0;}.fn-figs{width:auto;text-align:left;}
+.sim .sim-row{flex-wrap:wrap;}.sim .figs{width:100%;padding-left:23px;}
+.controls{flex-direction:column;align-items:stretch;}.controls .btn{width:100%;}
+}
+
+.askwrap{margin-top:28px;border-top:1px solid #1E293B;padding-top:18px}
+.askhint{font-size:12px;color:#64748B;margin-bottom:10px}
+#askLog{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;margin-bottom:10px}
+.askmsg{padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.55;max-width:85%;white-space:pre-wrap}
+.askmsg.me{align-self:flex-end;background:#1D6FE8;color:#fff}
+.askmsg.bot{align-self:flex-start;background:#101826;border:1px solid #1E293B;color:#CBD5E1}
+.askrow{display:flex;gap:8px}
+.askrow input{flex:1;background:#0B1220;border:1px solid #1E293B;border-radius:8px;color:#E2E8F0;padding:10px 12px;font-size:13.5px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><div class="mark">EB</div><div class="who">Paid Social Audit <span>/ agent</span></div></div>
+  <a class="back" href="https://ethanbouterey.github.io">&larr; Portfolio</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="wrap hero-inner">
+    <div class="eyebrow">Paid social &middot; agentic audit</div>
+    <h1>Paid Social Audit Agent</h1>
+    <p>An agent that audits a Meta Ads account the way a senior buyer would. Give it a campaign export and it inspects the data, maps the spend across the funnel, decides its own next move based on what it finds, diagnoses each problem campaign, and writes a prioritised audit with the quick wins ranked first. The plan, act and observe loop is shown live. It runs as a real Claude agent with a key, or a real local decision loop with none.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="panel">
+    <div class="panel-h"><h2>What the agent needs</h2><span class="label">read this first</span></div>
+    <div class="need">
+      <div>
+        <p style="font-size:13.5px;color:var(--muted);margin-bottom:6px;">A campaign, ad set or ad level export from Meta Ads Manager. Two minutes:</p>
+        <ol>
+          <li>In Ads Manager, open the <b>Campaigns</b> tab (or Ad sets / Ads for a deeper audit) and set your date range (last 30 days is a good default).</li>
+          <li>Set the columns to <b>Performance</b> (or a custom set that includes spend, impressions, link clicks, results and result type).</li>
+          <li>Click <b>Reports</b> or the export icon and choose <b>Export table data</b> as CSV. Set Breakdown to <b>Day</b> first and the agent reads momentum too.</li>
+          <li>Drop that CSV in below. Nothing leaves your browser except the calls you choose to send to Anthropic.</li>
+        </ol>
+      </div>
+      <div class="cols">
+        <h4>Columns it reads (auto-detected)</h4>
+        <span class="chip">Campaign name</span><span class="chip">Amount spent</span><span class="chip">Impressions</span><span class="chip">Link clicks</span><span class="chip">Results</span><span class="chip">Result type</span>
+        <h4 style="margin-top:10px;">Used if present</h4>
+        <span class="chip opt">Conversion value</span><span class="chip opt">Reach</span><span class="chip opt">Day / date</span>
+        <div class="note">Campaign, ad set or ad level is auto-detected, as are different column names. Add a <b>Day</b> column (daily-breakdown export) and the agent also reads momentum: creative fatigue, cost creep, and what is quietly improving. Funnel stage is inferred from campaign names. If a column is missing, the agent tells you what it could and could not assess rather than guessing.</div>
+        <a class="dl" id="dlSample"><span>&darr;</span> Download a sample CSV</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-h"><h2>Load an account</h2><span class="label">CSV in</span></div>
+    <div class="controls">
+      <div class="drop" id="drop">
+        <b>Drop your Meta Ads CSV here</b> or click to browse
+        <input type="file" id="file" accept=".csv" class="hidden">
+        <small>Campaign-level export. Auto-detected.</small>
+      </div>
+      <button class="btn btn-ghost" id="sampleBtn">Load sample account</button>
+      <button class="btn btn-ghost" id="sampleDailyBtn">Sample with daily data</button>
+    </div>
+    <div class="api-row">
+      <input type="password" id="apiKey" placeholder="Anthropic API key (optional - leave blank for the local agent)">
+      <button class="btn btn-mint" id="runBtn" disabled>Run the audit</button>
+    </div>
+    <div class="hint" id="loadHint">Load an account to begin. With a key the planning is done by Claude; without one a local decision loop runs the same tools.</div>
+  </div>
+
+  <div id="agentPanel" class="panel hidden">
+    <div class="panel-h"><h2>The agent at work</h2><span class="label" id="agentMode">plan - act - observe</span></div>
+    <div class="agent" id="agent"></div>
+  </div>
+
+  <div id="report" class="report hidden"></div>
+
+  <div id="empty" class="empty">No account loaded yet. Drop a CSV or load the sample to run the agent.</div>
+
+  <div class="foot">
+    <span>Ethan Bouterey &middot; agentic paid social</span>
+    <span>Single-file &middot; funnel-aware &middot; your data stays in your browser</span>
+  </div>
+</div>
+
+<script>
+var CUR="$";
+var ROWS=[];
+var AGG=null;
+var HASREV=false, HASRTYPE=false;
+var BASELINE=null, USING_SAMPLE_BASELINE=false;
+var HASDAILY=false, LEVEL="campaign", SIMDATA=null;
+
+var SAMPLE=`Campaign name,Amount spent (NZD),Impressions,Reach,Link clicks,Results,Result type,Cost per result,Purchase conversion value (NZD)
+Prospecting - Broad - Conversions,4820.55,612430,310220,7240,184,Purchases,26.20,16920
+Lookalike 3% - Purchases,3110.40,401200,205110,5180,166,Purchases,18.74,18260
+Retargeting - 30d Site Visitors,1980.25,142300,61240,3960,212,Purchases,9.34,27040
+Retargeting - Add to Cart,1240.10,78110,33020,2410,148,Purchases,8.38,21330
+Interest - Fitness Enthusiasts,2760.80,388970,221540,3120,58,Purchases,47.60,5120
+Prospecting - Video Views,1610.00,540220,402330,2010,22,Purchases,73.18,1980
+Brand Awareness - Reach,920.40,810540,640220,640,6,Purchases,153.40,540
+Lead Gen - Newsletter,540.70,61220,40110,1290,196,Leads,2.76,0`;
+
+var SAMPLE_PRIOR={label:"sample previous 30 days",campaigns:8,spend:15800,results:760,cpa:20.79,leakPct:71};
+
+function genDailySample(){
+  var cfg=[
+    {name:"Prospecting - Broad - Conversions",rt:"Purchases",spend:172,impr:21870,ctr:1.18,cvr:0.0254,aov:92,ctrE:0.97,cvrE:0.5,impE:1},
+    {name:"Lookalike 3% - Purchases",rt:"Purchases",spend:111,impr:14330,ctr:1.29,cvr:0.032,aov:110,ctrE:1.05,cvrE:1.85,impE:1},
+    {name:"Retargeting - 30d Site Visitors",rt:"Purchases",spend:70.7,impr:5082,ctr:2.78,cvr:0.0535,aov:127,ctrE:1,cvrE:1,impE:1},
+    {name:"Retargeting - Add to Cart",rt:"Purchases",spend:44.3,impr:2790,ctr:3.08,cvr:0.0614,aov:144,ctrE:1,cvrE:1.04,impE:1},
+    {name:"Interest - Fitness Enthusiasts",rt:"Purchases",spend:98.6,impr:13890,ctr:0.8,cvr:0.0186,aov:88,ctrE:0.5,cvrE:0.85,impE:0.7},
+    {name:"Prospecting - Video Views",rt:"Purchases",spend:57.5,impr:19290,ctr:0.37,cvr:0.0109,aov:90,ctrE:0.9,cvrE:0.95,impE:1},
+    {name:"Brand Awareness - Reach",rt:"Purchases",spend:32.9,impr:28950,ctr:0.079,cvr:0.0094,aov:90,ctrE:1,cvrE:1,impE:1},
+    {name:"Lead Gen - Newsletter",rt:"Leads",spend:19.3,impr:2186,ctr:2.11,cvr:0.152,aov:0,ctrE:1,cvrE:1,impE:1}
+  ];
+  var lines=["Campaign name,Day,Amount spent (NZD),Impressions,Link clicks,Results,Result type,Purchase conversion value (NZD)"];
+  var t0=Date.UTC(2026,4,13);
+  cfg.forEach(function(c){
+    for(var d=0;d<28;d++){
+      var t=d/27, t2=t*t, day=new Date(t0+d*86400000).toISOString().slice(0,10);
+      var wig=1+0.06*Math.sin(d*1.7+c.name.length);
+      var spend=c.spend*wig;
+      var impr=Math.round(c.impr*wig*(1+(c.impE-1)*t2));
+      var ctr=c.ctr*(1+(c.ctrE-1)*t2);
+      var clicks=Math.round(impr*ctr/100);
+      var cvr=c.cvr*(1+(c.cvrE-1)*t2);
+      var results=Math.round(clicks*cvr);
+      var rev=Math.round(results*c.aov);
+      lines.push(c.name+","+day+","+spend.toFixed(2)+","+impr+","+clicks+","+results+","+c.rt+","+rev);
+    }
+  });
+  return lines.join("\n");
+}
+
+function n(v){
+  if(v===null||v===undefined)return 0;
+  var s=String(v).replace(/[^0-9.,\-]/g,""); if(!s)return 0;
+  var lc=s.lastIndexOf(","),ld=s.lastIndexOf(".");
+  if(lc>-1&&ld>-1){ if(lc>ld)s=s.replace(/\./g,"").replace(/,/g,"."); else s=s.replace(/,/g,""); }
+  else if(lc>-1){ var dec=s.length-lc-1; if(s.indexOf(",")!==lc||dec===3)s=s.replace(/,/g,""); else s=s.replace(/,/g,"."); }
+  else if(ld>-1&&/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,"");
+  var f=parseFloat(s); return isNaN(f)?0:f;
+}
+function money(v){ return CUR+Number(v).toLocaleString(undefined,{maximumFractionDigits:0}); }
+function money2(v){ return CUR+Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function num(v){ return Number(v).toLocaleString(undefined,{maximumFractionDigits:0}); }
+function pct(v){ return Number(v).toFixed(2)+"%"; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+
+function findCol(fields,patterns){ for(var p=0;p<patterns.length;p++){ for(var i=0;i<fields.length;i++){ if(fields[i]&&fields[i].toLowerCase().indexOf(patterns[p])>-1)return fields[i]; } } return null; }
+function detectCurrency(fields){ var m=fields.join(" ").match(/\((USD|NZD|AUD|GBP|EUR|CAD)\)/); if(m){ if(m[1]==="GBP")return "GBP "; if(m[1]==="EUR")return "EUR "; return "$"; } return "$"; }
+function buildRows(data,fields){
+  CUR=detectCurrency(fields);
+  var adCol=findCol(fields,["ad name"]),asCol=findCol(fields,["ad set name"]),cCol=findCol(fields,["campaign name","campaign"]);
+  LEVEL=adCol?"ad":(asCol?"ad set":"campaign");
+  var col={name:adCol||asCol||cCol,cname:cCol,date:findCol(fields,["day","date","reporting starts"]),spend:findCol(fields,["amount spent","spend"]),impr:findCol(fields,["impressions"]),clicks:findCol(fields,["link clicks","clicks (all)","clicks"]),results:findCol(fields,["results","purchases","conversions","leads"]),rtype:findCol(fields,["result type"]),rev:findCol(fields,["conversion value","purchase value","revenue"])};
+  HASREV=!!col.rev; HASRTYPE=!!col.rtype; HASDAILY=!!col.date;
+  var map={},order=[];
+  data.forEach(function(r){
+    var name=col.name?String(r[col.name]||"").trim():""; if(!name)return;
+    var low=name.toLowerCase(); if(low==="total"||low==="totals"||low.indexOf("results from ")===0||low.indexOf("grand total")===0)return;
+    var spend=n(r[col.spend]),impr=n(r[col.impr]),clicks=n(r[col.clicks]),results=n(r[col.results]),rev=col.rev?n(r[col.rev]):0;
+    if(spend===0&&impr===0&&clicks===0)return;
+    if(!map[name]){ map[name]={name:name,cname:(col.cname&&r[col.cname])?String(r[col.cname]).trim():name,rtype:col.rtype?String(r[col.rtype]||"").trim():"",spend:0,impr:0,clicks:0,results:0,rev:0,series:[]}; order.push(name); }
+    var m=map[name]; m.spend+=spend; m.impr+=impr; m.clicks+=clicks; m.results+=results; m.rev+=rev;
+    if(col.date)m.series.push({d:String(r[col.date]).trim(),spend:spend,impr:impr,clicks:clicks,results:results,rev:rev});
+  });
+  return order.map(function(k){
+    var m=map[k];
+    m.stage=stageOf(m.cname||m.name);
+    m.series.sort(function(a,b){return a.d<b.d?-1:1;});
+    m.ctr=m.impr>0?(m.clicks/m.impr*100):0; m.cpc=m.clicks>0?(m.spend/m.clicks):0; m.cpm=m.impr>0?(m.spend/m.impr*1000):0; m.cpa=m.results>0?(m.spend/m.results):0; m.roas=m.spend>0?(m.rev/m.spend):0;
+    return m;
+  });
+}
+function aggregate(rows){ var t={spend:0,impr:0,clicks:0,results:0,rev:0}; rows.forEach(function(r){ t.spend+=r.spend;t.impr+=r.impr;t.clicks+=r.clicks;t.results+=r.results;t.rev+=r.rev; }); t.ctr=t.impr>0?(t.clicks/t.impr*100):0; t.cpc=t.clicks>0?(t.spend/t.clicks):0; t.cpm=t.impr>0?(t.spend/t.impr*1000):0; t.cpa=t.results>0?(t.spend/t.results):0; t.roas=t.spend>0?(t.rev/t.spend):0; return t; }
+function ratingFor(r,t){ if(r.results>0){ if(t.cpa>0&&r.cpa<=t.cpa*0.8)return "Scaler"; if(t.cpa>0&&r.cpa>=t.cpa*1.5)return "Leaking"; return "Watch"; } return r.spend>t.spend*0.05?"No results":"Watch"; }
+function domObjective(rows){ var tc={}; rows.filter(function(r){return r.results>0;}).forEach(function(r){ var k=r.rtype||"Results"; tc[k]=(tc[k]||0)+1; }); var keys=Object.keys(tc); if(!keys.length)return ""; return keys.sort(function(a,b){return tc[b]-tc[a];})[0]; }
+
+var STAGE_ORDER=["Awareness","Prospecting","Retargeting"];
+var STAGE_META={Awareness:{label:"Top - Awareness",cls:"aw"},Prospecting:{label:"Middle - Prospecting",cls:"pr"},Retargeting:{label:"Bottom - Retargeting",cls:"rt"}};
+var STAGE_BOTTOM=["retarget","remarket","rtg","dpa","catalog","site visit","add to cart","addtocart","abandon","warm","existing","repeat purchas","past purchas","crm"];
+var STAGE_TOP=["awareness","reach","brand","video view","video views"," vv","engagement","impression","top of funnel","tof","traffic"];
+function stageOf(name){
+  var s=(name||"").toLowerCase();
+  for(var i=0;i<STAGE_BOTTOM.length;i++){ if(s.indexOf(STAGE_BOTTOM[i])>-1)return "Retargeting"; }
+  for(var j=0;j<STAGE_TOP.length;j++){ if(s.indexOf(STAGE_TOP[j])>-1)return "Awareness"; }
+  return "Prospecting";
+}
+var STAGE_MID=["prospect","lookalike","lal","cold","acquisition","new customer","broad"];
+function stageKnown(name){
+  var s=(name||"").toLowerCase();
+  for(var i=0;i<STAGE_BOTTOM.length;i++){ if(s.indexOf(STAGE_BOTTOM[i])>-1)return true; }
+  for(var j=0;j<STAGE_TOP.length;j++){ if(s.indexOf(STAGE_TOP[j])>-1)return true; }
+  for(var k=0;k<STAGE_MID.length;k++){ if(s.indexOf(STAGE_MID[k])>-1)return true; }
+  return false;
+}
+
+var BENCH={ctr:{label:"Link CTR",low:0.5,high:2.0},cpc:{label:"CPC (link)",low:0.4,high:2.5},cpm:{label:"CPM",low:5,high:18},roas:{label:"ROAS",low:2,high:4}};
+
+function toolInspect(){
+  var t=AGG;
+  var quality=["spend, impressions, clicks and results detected"];
+  if(HASRTYPE)quality.push("result type present, so campaigns are judged within their objective"); else quality.push("no result type column, so different objectives may be compared on one cost-per-result axis - treat cross-objective comparisons with care");
+  if(HASREV)quality.push("conversion value present, so ROAS is assessed"); else quality.push("no conversion value column, so ROAS cannot be assessed");
+  var d={campaigns:ROWS.length,spend:Math.round(t.spend),results:t.results,blended_cost_per_result:Number(t.cpa.toFixed(2)),blended_ctr:Number(t.ctr.toFixed(2)),roas:HASREV?Number(t.roas.toFixed(2)):null,dominant_objective:domObjective(ROWS)||"unknown",data_quality:quality};
+  return {summary:ROWS.length+" campaigns, "+money(t.spend)+" spend, blended "+money2(t.cpa)+" per result"+(HASREV?", "+t.roas.toFixed(2)+"x ROAS":"")+". "+(HASRTYPE?"Objective-aware.":"No objective column."),data:d};
+}
+function toolOutliers(){
+  var t=AGG,sc=[],lk=[],wt=[];
+  ROWS.forEach(function(r){ var g=ratingFor(r,t); if(g==="Scaler")sc.push(r); else if(g==="Leaking"||g==="No results")lk.push(r); else wt.push(r); });
+  lk.sort(function(a,b){return b.spend-a.spend;}); sc.sort(function(a,b){return a.cpa-b.cpa;});
+  var d={scaling:sc.map(function(r){return r.name;}),leaking:lk.map(function(r){return r.name;}),watch:wt.map(function(r){return r.name;})};
+  return {summary:sc.length+" scaling, "+lk.length+" leaking, "+wt.length+" on watch. Biggest leak: "+(lk[0]?esc(lk[0].name):"none")+".",data:d,leakers:lk,scalers:sc};
+}
+function toolBenchmarks(){
+  var t=AGG,flags=[];
+  if(t.ctr<BENCH.ctr.low)flags.push("account CTR "+pct(t.ctr)+" is below the "+BENCH.ctr.low+"% rule-of-thumb floor");
+  if(HASREV&&t.roas<BENCH.roas.low)flags.push("blended ROAS "+t.roas.toFixed(2)+"x is below the "+BENCH.roas.low+"x rule-of-thumb floor");
+  if(t.cpm>BENCH.cpm.high)flags.push("CPM "+money2(t.cpm)+" is above the typical "+BENCH.cpm.high+" ceiling");
+  return {summary:flags.length?("Benchmark flags: "+flags.join("; ")+".") :"Account-level metrics are within rule-of-thumb ranges, so the issues are campaign-specific, not account-wide.",data:{flags:flags}};
+}
+function funnelStages(){
+  var dom=domObjective(ROWS),map={};
+  STAGE_ORDER.forEach(function(s){ map[s]={stage:s,campaigns:0,spend:0,results:0,domSpend:0,domResults:0,types:{}}; });
+  ROWS.forEach(function(r){ var m=map[r.stage]; m.campaigns++; m.spend+=r.spend; m.results+=r.results; var k=r.rtype||"Results"; m.types[k]=(m.types[k]||0)+1; if((r.rtype||"")===dom){ m.domSpend+=r.spend; m.domResults+=r.results; } });
+  var total=AGG.spend;
+  STAGE_ORDER.forEach(function(s){ var m=map[s]; m.spendPct=total>0?Math.round(m.spend/total*100):0; m.cpa=m.results>0?(m.spend/m.results):0; m.domCpa=m.domResults>0?(m.domSpend/m.domResults):0; m.mixed=Object.keys(m.types).length>1; });
+  return STAGE_ORDER.map(function(s){return map[s];}).filter(function(m){return m.campaigns>0;});
+}
+function toolFunnel(){
+  var stages=funnelStages(),dom=domObjective(ROWS)||"results";
+  var eff=stages.filter(function(m){return m.domResults>0;}).slice().sort(function(a,b){return a.domCpa-b.domCpa;});
+  var best=eff[0],worst=eff[eff.length-1];
+  var heaviest=stages.slice().sort(function(a,b){return b.spend-a.spend;})[0];
+  var insight="";
+  if(stages.length===1){
+    var only=stages[0];
+    if(only.stage==="Retargeting")insight="All spend sits in retargeting with nothing feeding it. The warm pool will exhaust - prospecting is the structural gap.";
+    else insight="All spend sits in "+only.stage.toLowerCase()+". There is no bottom-of-funnel layer converting the demand this creates - usually the first structural fix.";
+  }
+  else if(best&&heaviest){
+    if(best.stage!==heaviest.stage&&best.domCpa>0)insight=best.stage+" converts "+dom.toLowerCase()+" cheapest at "+money2(best.domCpa)+", but holds only "+best.spendPct+"% of spend. "+heaviest.stage+" holds the most at "+heaviest.spendPct+"%"+(heaviest.domCpa>0?(" and costs "+money2(heaviest.domCpa)+" per "+dom.toLowerCase().replace(/s$/,"")):"")+". The budget is concentrated where conversions are most expensive.";
+    else insight="Spend is led by "+heaviest.stage+" at "+heaviest.spendPct+"% of budget.";
+  }
+  var unkSpend=0;ROWS.forEach(function(r){ if(!stageKnown(r.cname||r.name))unkSpend+=r.spend; });
+  var unkPct=AGG.spend>0?Math.round(unkSpend/AGG.spend*100):0;
+  if(unkPct>=50)insight+=(insight?" ":"")+"Caveat: "+unkPct+"% of spend sits in campaigns whose names carry no funnel signal, so stage labels are assumed (defaulted to Prospecting), not inferred - treat the funnel view as approximate and name campaigns by stage to unlock it properly.";
+  return {summary:stages.map(function(m){return m.stage+" "+m.spendPct+"%";}).join(", ")+". "+insight,
+    data:{stages:stages.map(function(m){return {stage:m.stage,campaigns:m.campaigns,spend:Math.round(m.spend),spend_pct:m.spendPct,results:m.results,cost_per_result:Number(m.domCpa.toFixed(2)),mixed_objectives:m.mixed};}),insight:insight,cheapest_stage:best?best.stage:null,heaviest_stage:heaviest?heaviest.stage:null,unlabeled_spend_pct:unkPct},
+    insight:insight,stages:stages,best:best,heaviest:heaviest,dom:dom};
+}
+function toolDiagnose(name){
+  var t=AGG,r=null; for(var i=0;i<ROWS.length;i++){ if(ROWS[i].name===name){r=ROWS[i];break;} }
+  if(!r)return {summary:"Campaign not found.",data:{}};
+  var reasons=[],fix="";
+  if(r.results===0){ reasons.push("spent "+money(r.spend)+" with no recorded results"); fix="Likely a tracking or objective mismatch. Pause it and check the pixel and conversion setup before it spends more."; }
+  else{
+    if(t.cpa>0&&r.cpa>=t.cpa*1.5)reasons.push("cost per result is "+money2(r.cpa)+" against the "+money2(t.cpa)+" account average");
+    if(t.ctr>0&&r.ctr<t.ctr*0.6)reasons.push("CTR is "+pct(r.ctr)+" against the "+pct(t.ctr)+" account average, so the leak is upstream of the landing page - the creative or audience is not landing");
+    else if(r.ctr>=t.ctr*0.9)reasons.push("CTR is healthy at "+pct(r.ctr)+", so people are clicking but not converting - the issue is the offer, the landing page or the audience quality, not the ad");
+    fix=(r.ctr<t.ctr*0.6)?"Refresh the creative or tighten the audience before adding budget.":"Hold or cut the budget and look at the post-click experience and audience intent.";
+  }
+  return {summary:esc(r.name)+": "+reasons.join("; ")+".",data:{campaign:r.name,stage:r.stage,spend:Math.round(r.spend),cpa:Number(r.cpa.toFixed(2)),ctr:Number(r.ctr.toFixed(2)),reasons:reasons,fix:fix}};
+}
+function winAgg(arr){ var t={spend:0,impr:0,clicks:0,results:0}; arr.forEach(function(x){t.spend+=x.spend;t.impr+=x.impr;t.clicks+=x.clicks;t.results+=x.results;}); t.ctr=t.impr>0?(t.clicks/t.impr*100):0; t.cpm=t.impr>0?(t.spend/t.impr*1000):0; t.cpa=t.results>0?(t.spend/t.results):0; return t; }
+function toolMomentum(){
+  if(!HASDAILY)return {summary:"No daily breakdown in this export, so momentum cannot be assessed. Export with Breakdown set to Day to unlock it.",data:{available:false},rows:[]};
+  var out=[];
+  ROWS.forEach(function(r){
+    if(r.series.length<8||r.spend<AGG.spend*0.02)return;
+    var k=Math.min(7,Math.floor(r.series.length/2));
+    var last=winAgg(r.series.slice(-k)),prior=winAgg(r.series.slice(-2*k,-k));
+    var cpaD=(prior.cpa>0&&last.cpa>0)?((last.cpa-prior.cpa)/prior.cpa*100):null;
+    var ctrD=prior.ctr>0?((last.ctr-prior.ctr)/prior.ctr*100):null;
+    var cpmD=prior.cpm>0?((last.cpm-prior.cpm)/prior.cpm*100):null;
+    var tag="steady",read="No significant move in the last window.";
+    if(ctrD!==null&&cpmD!==null&&ctrD<=-15&&cpmD>=8){ tag="fatiguing"; read="CTR fell "+Math.abs(Math.round(ctrD))+"% while CPM rose "+Math.round(cpmD)+"% - classic creative fatigue. Refresh the creative before adding budget."; }
+    else if(cpaD!==null&&cpaD>=20){ tag="cost creeping"; read="Cost per result is up "+Math.round(cpaD)+"% window on window. If it holds another week, treat it as a leak."; }
+    else if(cpaD!==null&&cpaD<=-15){ tag="improving"; read="Cost per result is down "+Math.abs(Math.round(cpaD))+"% - this one is earning a larger share of budget."; }
+    out.push({name:r.name,tag:tag,cpaLast:last.cpa,cpaPrior:prior.cpa,cpaD:cpaD,ctrD:ctrD,read:read});
+  });
+  var moving=out.filter(function(o){return o.tag!=="steady";});
+  return {summary:out.length+" campaigns assessed on the daily series ("+(out.length&&out[0]?"last 7 days vs the prior 7":"")+"): "+(moving.length?moving.map(function(o){return o.name+" is "+o.tag;}).join("; ")+".":"all steady - totals tell the true story here."),
+    data:{available:true,window:"last 7 days vs prior 7",rows:out.map(function(o){return {campaign:o.name,trend:o.tag,cpa_change_pct:o.cpaD===null?null:Math.round(o.cpaD),ctr_change_pct:o.ctrD===null?null:Math.round(o.ctrD)};})},rows:out};
+}
+function momentumHTML(mo){
+  if(!mo||!mo.rows||!mo.rows.length)return "";
+  var h="<h4><span class=\"n\">&#8599;</span>Momentum - last 7 days vs prior 7</h4><table><tr><th>Campaign</th><th>Trend</th><th class=\"r\">Cost/result</th><th>The read</th></tr>";
+  mo.rows.forEach(function(o){
+    var cls=o.tag==="fatiguing"?"mom-fat":(o.tag==="cost creeping"?"mom-creep":(o.tag==="improving"?"mom-up":"mom-flat"));
+    h+="<tr><td><b>"+esc(o.name)+"</b></td><td><span class=\"tag "+cls+"\">"+o.tag+"</span></td><td class=\"r\">"+(o.cpaPrior>0&&o.cpaLast>0?money2(o.cpaPrior)+" &rarr; "+money2(o.cpaLast):"-")+"</td><td style=\"font-size:12.5px\">"+esc(o.read)+"</td></tr>";
+  });
+  h+="</table><div class=\"caveat\">Momentum needs a daily-breakdown export. A campaign can look fine on 30-day totals while fatiguing fast - this is where that shows up first.</div>";
+  return h;
+}
+function simHTML(F){
+  if(!F.leakers.length||!F.scalers.length||!(F.scalerCpa>0))return "";
+  SIMDATA={cpa:F.scalerCpa,best:F.best?F.best.name:F.scalers[0].name};
+  var h="<h4><span class=\"n\">&#8644;</span>Reallocation simulator</h4><div class=\"sim\">";
+  F.leakers.forEach(function(r){
+    h+="<div class=\"sim-row\"><input type=\"checkbox\" class=\"sim-ck\" checked data-spend=\""+r.spend+"\" data-results=\""+r.results+"\" onchange=\"recalcSim()\"><div class=\"grow\"><b>"+esc(r.name)+"</b></div><div class=\"figs\">"+money(r.spend)+" &middot; "+num(r.results)+" results @ "+money2(r.cpa)+"</div></div>";
+  });
+  h+="<div class=\"sim-ctl\"><span>Efficiency loss as spend scales</span><input type=\"range\" id=\"simHair\" min=\"0\" max=\"50\" value=\"25\" oninput=\"recalcSim()\"><span id=\"simHairV\">25%</span></div>";
+  h+="<div class=\"sim-out\" id=\"simOut\"></div>";
+  h+="<div class=\"caveat\">The haircut exists because nothing scales at its current efficiency - warm audiences cap out and auctions get dearer as budgets rise. Freed budget is modelled at "+esc(SIMDATA.best)+" efficiency minus the haircut, not at a fantasy rate.</div></div>";
+  return h;
+}
+function recalcSim(){
+  if(!SIMDATA)return;
+  var spend=0,res=0,cks=document.querySelectorAll(".sim-ck");
+  for(var i=0;i<cks.length;i++){ if(cks[i].checked){ spend+=parseFloat(cks[i].getAttribute("data-spend"))||0; res+=parseFloat(cks[i].getAttribute("data-results"))||0; } }
+  var hEl=document.getElementById("simHair"),hc=hEl?parseInt(hEl.value,10):25; if(isNaN(hc)||hc<0||hc>90)hc=25;
+  var hv=document.getElementById("simHairV"); if(hv)hv.textContent=hc+"%";
+  var out=document.getElementById("simOut"); if(!out)return;
+  if(spend<=0){ out.innerHTML="Nothing paused. Tick a campaign above to model the move."; return; }
+  var proj=Math.round(spend*(1-hc/100)/SIMDATA.cpa),net=proj-Math.round(res);
+  out.innerHTML="Pause the ticked campaigns and you free <b>"+money(spend)+"</b>. Redirected to <b>"+esc(SIMDATA.best)+"</b> at "+money2(SIMDATA.cpa)+" per result with a "+hc+"% haircut, that models to <b>~"+num(proj)+" results</b> against the "+num(Math.round(res))+" that budget buys today"+(net>=0?" - a net gain of <b>~"+num(net)+"</b> on the same spend.":" - a net loss, so this specific move is not worth making.");
+}
+
+function computeFindings(){
+  var t=AGG,rows=ROWS,F={};
+  var leak=rows.filter(function(r){var g=ratingFor(r,t);return g==="Leaking"||g==="No results";});
+  var leakSpend=0;leak.forEach(function(r){leakSpend+=r.spend;});
+  F.leakPct=t.spend>0?Math.round(leakSpend/t.spend*100):0; F.leakSpend=leakSpend;
+  var dom=domObjective(rows);
+  var pool=rows.filter(function(r){return r.results>0&&(r.rtype||"")===dom;}); if(pool.length<2)pool=rows.filter(function(r){return r.results>0;});
+  var healthyPool=pool.filter(function(r){var g=ratingFor(r,t);return g!=="Leaking"&&g!=="No results";});
+  var sig=function(r){return r.results>=3&&r.spend>=t.spend*0.01;};
+  var sigHealthy=healthyPool.filter(sig);
+  F.best=(sigHealthy.length?sigHealthy:healthyPool.filter(function(r){return r.spend>0;})).slice().sort(function(a,b){return a.cpa-b.cpa;})[0];
+  var leakers=pool.filter(function(r){return ratingFor(r,t)==="Leaking";});
+  var scalers=pool.filter(function(r){return ratingFor(r,t)==="Scaler";});
+  var sigScalers=scalers.filter(sig);
+  if(sigScalers.length)scalers=sigScalers; else scalers=scalers.filter(function(r){return r.spend>0;});
+  F.worst=leakers.slice().sort(function(a,b){return b.spend-a.spend;})[0];
+  var ls=0,lr=0;leakers.forEach(function(r){ls+=r.spend;lr+=r.results;}); var ss=0,sr=0;scalers.forEach(function(r){ss+=r.spend;sr+=r.results;});
+  F.leakers=leakers;F.scalers=scalers;F.lSpend=ls;F.lRes=lr;F.scalerCpa=sr>0?ss/sr:0;F.couldGet=(sr>0&&ss>0)?Math.round(ls/(ss/sr)):0;
+  var lowCtr=rows.filter(function(r){return r.impr>5000&&r.ctr>0&&t.ctr>0&&r.ctr<t.ctr*0.6;});
+  F.lowCtr=lowCtr.slice().sort(function(a,b){return b.impr-a.impr;})[0];
+  var noRes=rows.filter(function(r){return r.results===0&&r.spend>t.spend*0.05;});
+  F.noRes=noRes.slice().sort(function(a,b){return b.spend-a.spend;})[0];
+  return F;
+}
+
+function stepEl(cls,icon,title,body,pre){
+  var d=document.createElement("div"); d.className="step "+cls;
+  var h="<div class=\"sh\"><span class=\"ic\">"+icon+"</span>"+title+"</div><div class=\"body\">"+body+"</div>";
+  if(pre)h+="<pre>"+esc(pre)+"</pre>";
+  d.innerHTML=h; document.getElementById("agent").appendChild(d); d.scrollIntoView({behavior:"smooth",block:"end"}); return d;
+}
+
+function deltaHTML(){
+  if(!BASELINE)return "";
+  var t=AGG,F=computeFindings(),b=BASELINE,h="";
+  function cell(label,cur,base,curStr,lowerGood,pts){
+    var c="";
+    if(base!==null&&base!==undefined&&base!==0){
+      var d=cur-base, good=lowerGood?(d<0):(d>0), col=d===0?"#64748B":(good?"#1f7a4d":"#b53a3a");
+      var arrow=d>0?"&uarr;":(d<0?"&darr;":"&middot;");
+      var txt=pts?((d>0?"+":"")+Math.round(d)+" pts"):((d>0?"+":"")+Math.round((d/base)*100)+"%");
+      c="<div class=\"c\" style=\"color:"+col+"\">"+arrow+" "+txt+"</div>";
+    }
+    return "<div class=\"d\"><div class=\"l\">"+label+"</div><div class=\"v\">"+curStr+"</div>"+c+"</div>";
+  }
+  h+="<div class=\"delta\">";
+  h+=cell("Cost per result",t.cpa,b.cpa,money2(t.cpa),true,false);
+  h+=cell("Wasted spend",F.leakPct,b.leakPct,F.leakPct+"%",true,true);
+  h+=cell("Results",t.results,b.results,num(t.results),false,false);
+  h+=cell("Spend",Math.round(t.spend),b.spend,money(t.spend),false,false);
+  h+="</div><div class=\"delta-label\">"+(USING_SAMPLE_BASELINE?"vs "+b.label:"since your last audit")+"</div>";
+  return h;
+}
+
+function funnelMatrixHTML(fn){
+  if(!fn||!fn.stages.length)return "";
+  var dom=fn.dom,h="<h4><span class=\"n\">&#9776;</span>Funnel map</h4>";
+  fn.stages.forEach(function(m){
+    var meta=STAGE_META[m.stage];
+    h+="<div class=\"fn-row\"><div class=\"fn-name\"><b>"+meta.label+"</b><span>"+m.campaigns+" campaign"+(m.campaigns>1?"s":"")+"</span></div>";
+    h+="<div class=\"fn-bar-wrap\"><div class=\"fn-bar "+meta.cls+"\" style=\"width:"+Math.max(m.spendPct,3)+"%\"></div></div>";
+    h+="<div class=\"fn-figs\"><b>"+money(m.spend)+"</b> ("+m.spendPct+"%)<br>"+(m.domCpa>0?money2(m.domCpa)+" per "+dom.toLowerCase().replace(/s$/,""):num(m.results)+" results")+(m.mixed?" &middot; mixed":"")+"</div></div>";
+  });
+  if(fn.insight)h+="<div class=\"fn-insight\"><b>"+(fn.best&&fn.heaviest&&fn.best.stage!==fn.heaviest.stage?"The funnel gap.":"The structural read.")+"</b> "+esc(fn.insight)+"</div>";
+  if(fn.best&&fn.heaviest&&fn.best.stage!==fn.heaviest.stage)h+="<div class=\"fn-nuance\">The honest caveat: "+fn.best.stage.toLowerCase()+" looks cheap partly because the upper funnel feeds it, and its warm audience is capped. The move is not to pour everything into it, but to cut the weakest upper-funnel campaigns and let "+fn.best.stage.toLowerCase()+" take more of the freed budget while it still converts, then rebuild prospecting more efficiently to keep filling it.</div>";
+  h+="<div class=\"caveat\">Funnel stage is inferred from campaign names. Rename campaigns or adjust if your structure differs.</div>";
+  return h;
+}
+
+function benchmarksHTML(){
+  var t=AGG,h="<h4><span class=\"n\">&#9878;</span>Benchmarks</h4><table><tr><th>Metric</th><th class=\"r\">Account</th><th class=\"r\">Rule-of-thumb</th></tr>";
+  h+="<tr><td>Link CTR</td><td class=\"r\">"+pct(t.ctr)+"</td><td class=\"r\">"+BENCH.ctr.low+"-"+BENCH.ctr.high+"%</td></tr>";
+  h+="<tr><td>CPC (link)</td><td class=\"r\">"+money2(t.cpc)+"</td><td class=\"r\">$"+BENCH.cpc.low+"-"+BENCH.cpc.high+"</td></tr>";
+  h+="<tr><td>CPM</td><td class=\"r\">"+money2(t.cpm)+"</td><td class=\"r\">$"+BENCH.cpm.low+"-"+BENCH.cpm.high+"</td></tr>";
+  if(HASREV)h+="<tr><td>ROAS</td><td class=\"r\">"+t.roas.toFixed(2)+"x</td><td class=\"r\">"+BENCH.roas.low+"-"+BENCH.roas.high+"x</td></tr>";
+  h+="</table><div class=\"caveat\">Benchmarks are directional. Each campaign judged against the account blended figure is the more reliable signal.</div>";
+  return h;
+}
+
+function reportHead(byline){
+  var t=AGG;
+  return "<div class=\"rep-bar\"><div><h3>Paid Social Audit</h3><div class=\"meta\">"+ROWS.length+" "+LEVEL+(ROWS.length===1?"":"s")+" &middot; "+money(t.spend)+" spend &middot; "+byline+"</div></div><div class=\"acts\"><button class=\"rep-btn\" onclick=\"saveBaseline()\">Save as baseline</button><button class=\"rep-btn\" onclick=\"window.print()\">Export / print</button></div></div>";
+}
+
+function buildReport(diagnoses,tests,fn,mo){
+  var t=AGG,F=computeFindings(),q=toolInspect().data.data_quality,h="";
+  h+=reportHead("produced by the audit agent");
+  h+=deltaHTML();
+  h+="<div class=\"scope\"><b>Scope of this audit, given your data:</b> "+q.join("; ")+".</div>";
+  if(F.leakSpend>0)h+="<div class=\"verdict\"><b>The opportunity:</b> "+F.leakPct+"% of spend ("+money(F.leakSpend)+") is in underperforming campaigns. Pointed at the parts of the account that already convert, that budget would do far more. Here is where it should go.</div>";
+  else h+="<div class=\"verdict\"><b>The verdict:</b> no meaningful waste detected - this account is in good shape. The job now is protecting that efficiency while scaling, and the watch points below are where it would slip first.</div>";
+
+  h+="<h4><span class=\"n\">&#10003;</span>What is working</h4><ul class=\"plain\">";
+  if(F.best)h+="<li class=\"good\"><b>"+esc(F.best.name)+"</b> is the most efficient at "+money2(F.best.cpa)+" per result on "+money(F.best.spend)+" spend ("+num(F.best.results)+" results) - this is the engine to feed.</li>";
+  if(fn&&fn.best&&fn.stages.length>1)h+="<li class=\"good\">Your <b>"+STAGE_META[fn.best.stage].label.toLowerCase()+"</b> layer converts cheapest. There is a clear, efficient pocket to expand into.</li>";
+  if(!F.best)h+="<li>No clearly efficient campaign yet - the priority is fixing the leaks below before scaling anything.</li>";
+  h+="</ul>";
+
+  h+="<h4><span class=\"n\">&#9888;</span>What is broken</h4>";
+  if(diagnoses&&diagnoses.length){
+    h+="<table><tr><th>Campaign</th><th class=\"r\">Spend</th><th>Diagnosis</th></tr>";
+    diagnoses.forEach(function(d){ h+="<tr><td><b>"+esc(d.campaign)+"</b><br><span style=\"font-size:11px;color:#64748B\">"+(STAGE_META[d.stage]?STAGE_META[d.stage].label:d.stage)+"</span></td><td class=\"r\">"+money(d.spend)+"</td><td>"+esc(d.reasons.join("; "))+". "+esc(d.fix)+"</td></tr>"; });
+    h+="</table>";
+  } else { h+="<ul class=\"plain\"><li>No significant leaks detected in this account.</li></ul>"; }
+
+  h+=funnelMatrixHTML(fn);
+  if(mo)h+=momentumHTML(mo);
+
+  h+="<h4><span class=\"n\">&#9889;</span>Fix this week</h4><ul class=\"plain\">";
+  if(F.worst)h+="<li class=\"bad\"><b>Pause or rework "+esc(F.worst.name)+"</b> <span class=\"tag week\">same-week</span> "+money(F.worst.spend)+" at "+money2(F.worst.cpa)+" per result is the biggest single leak. Stop the bleed first.</li>";
+  if(F.best&&(F.worst||F.noRes))h+="<li class=\"good\"><b>Move freed budget into "+esc(F.best.name)+"</b> <span class=\"tag week\">same-week</span> in measured steps, watching the "+money2(F.best.cpa)+" cost per result hold as it takes more spend.</li>";
+  if(F.noRes)h+="<li class=\"bad\"><b>Check tracking on "+esc(F.noRes.name)+"</b> <span class=\"tag week\">same-week</span> "+money(F.noRes.spend)+" spent with no recorded results is usually a pixel or conversion-setup issue, not a performance one.</li>";
+  if(F.leakers&&F.leakers.length&&F.scalers.length&&F.scalerCpa>0&&F.couldGet>F.lRes)h+="<li><b>Reallocate the leaking budget.</b> <span class=\"tag week\">same-week</span> "+money(F.lSpend)+" in leaking campaigns at the scaler efficiency of "+money2(F.scalerCpa)+" would work toward roughly <b>"+num(F.couldGet)+" results</b> instead of the "+num(F.lRes)+" it returns now.</li>";
+  if(!F.worst&&!F.noRes&&!F.leakers.length)h+="<li>No urgent fires this week. Watch creative age and frequency on the biggest spenders - efficiency erodes quietly before it shows up in cost per result.</li>";
+  h+="</ul>";
+
+  h+=simHTML(F);
+
+  h+="<h4><span class=\"n\">&#9737;</span>Strategic, next 30 days</h4><ul class=\"plain\">";
+  if(fn&&fn.best&&fn.heaviest&&fn.best.stage!==fn.heaviest.stage)h+="<li><b>Rebalance the funnel.</b> <span class=\"tag strat\">strategic</span> Shift weight from "+fn.heaviest.stage.toLowerCase()+" toward "+fn.best.stage.toLowerCase()+" gradually, and rebuild prospecting around the audiences that actually feed it rather than the cheapest reach.</li>";
+  if(F.lowCtr)h+="<li><b>Stand up a creative testing cadence on "+esc(F.lowCtr.name)+".</b> <span class=\"tag strat\">strategic</span> A "+pct(F.lowCtr.ctr)+" CTR is a creative problem; run two or three new angles against the current one rather than adding budget.</li>";
+  var hasRtg=fn&&fn.stages&&fn.stages.some(function(m){return m.stage==="Retargeting";});
+  if(hasRtg)h+="<li><b>Segment and expand retargeting</b> <span class=\"tag strat\">strategic</span> so the efficient pocket grows without exhausting one warm audience - separate site visitors, add-to-cart and past purchasers.</li>";
+  else h+="<li><b>Stand up a retargeting layer.</b> <span class=\"tag strat\">strategic</span> Nothing is converting the demand the rest of the account creates - even a basic site-visitor audience usually becomes the cheapest pocket in an account.</li>";
+  h+="</ul>";
+
+  h+=benchmarksHTML();
+  h+="<div class=\"cta\"><span><b>Want this on your real account?</b> Run your own export above, or get in touch and I will walk you through it.</span><button class=\"rep-btn\" onclick=\"saveBaseline()\">Save as baseline</button></div>";
+  return h;
+}
+function showReport(html){ document.getElementById("report").innerHTML=html; document.getElementById("report").classList.remove("hidden"); renderAskPanel(); }
+
+function auditContext(){
+  var t=AGG,F=computeFindings();
+  var rows=ROWS.slice().sort(function(a,b){return b.spend-a.spend;}).slice(0,40).map(function(r){
+    return {name:r.name,stage:r.stage,spend:Math.round(r.spend),results:r.results,cpa:Number(r.cpa.toFixed(2)),ctr:Number(r.ctr.toFixed(2)),rating:ratingFor(r,t)};
+  });
+  var ctx={account:{campaigns:ROWS.length,spend:Math.round(t.spend),results:t.results,avg_cpa:Number(t.cpa.toFixed(2)),avg_ctr:Number(t.ctr.toFixed(2)),roas_available:HASREV},
+    findings:{leak_pct:F.leakPct,leak_spend:Math.round(F.leakSpend),best:F.best?{name:F.best.name,cpa:Number(F.best.cpa.toFixed(2)),spend:Math.round(F.best.spend),results:F.best.results}:null,worst:F.worst?{name:F.worst.name,cpa:Number(F.worst.cpa.toFixed(2)),spend:Math.round(F.worst.spend)}:null,scaler_cpa:Number(F.scalerCpa.toFixed(2)),potential_results_from_realloc:F.couldGet,current_results_in_leakers:F.lRes},
+    funnel:toolFunnel().data,
+    momentum:HASDAILY?toolMomentum().data:{available:false},
+    campaigns_top_by_spend:rows,
+    note:ROWS.length>40?"table truncated to top 40 by spend":"complete"};
+  return JSON.stringify(ctx);
+}
+function renderAskPanel(){
+  var rep=document.getElementById("report");
+  if(!rep||document.getElementById("askWrap"))return;
+  var d=document.createElement("div");
+  d.className="askwrap";d.id="askWrap";
+  d.innerHTML="<h4><span class=\"n\">&#9993;</span>Ask the audit</h4><div class=\"askhint\">Answers come only from the audit above - nothing invented. Uses the API key field at the top of the page; the key stays in your browser.</div><div id=\"askLog\"></div><div class=\"askrow\"><input type=\"text\" id=\"askIn\" placeholder=\"e.g. why is my biggest campaign flagged as leaking?\"><button class=\"rep-btn\" id=\"askBtn\">Ask</button></div>";
+  rep.appendChild(d);
+  document.getElementById("askBtn").onclick=askAudit;
+  document.getElementById("askIn").addEventListener("keydown",function(e){ if(e.key==="Enter")askAudit(); });
+}
+async function askAudit(){
+  var inEl=document.getElementById("askIn"),log=document.getElementById("askLog"),btn=document.getElementById("askBtn");
+  var q=inEl.value.trim(); if(!q)return;
+  var key=document.getElementById("apiKey").value.trim();
+  function add(cls,txt){ var p=document.createElement("div"); p.className="askmsg "+cls; p.textContent=txt; log.appendChild(p); log.scrollTop=log.scrollHeight; }
+  add("me",q); inEl.value="";
+  if(!key){ add("bot","Add your Anthropic API key in the field at the top of the page to ask questions. It stays in your browser and is only used for this call."); return; }
+  btn.disabled=true; btn.textContent="...";
+  var sys="You are the interpreter for a completed Meta Ads audit. You receive the audit findings as JSON and one question. Rules: answer only from the JSON - never invent numbers or claims. If the answer is not in the data, say so plainly and name what would unlock it (a daily-breakdown export for momentum, a conversion value column for ROAS). Keep answers to 2-5 short sentences in plain language a business owner understands, quoting the relevant figures. You explain established findings; you do not produce new judgments or strategies beyond what the audit states. Use hyphens, never em-dashes.";
+  try{
+    var r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,system:sys,messages:[{role:"user",content:"AUDIT DATA:\n"+auditContext()+"\n\nQUESTION: "+q}]})});
+    if(r.status===401){ add("bot","That API key was rejected (401). Check the key and try again."); }
+    else if(r.status===429){ add("bot","Rate limited (429). Wait a moment and ask again."); }
+    else if(!r.ok){ add("bot","The request failed with status "+r.status+". Try again in a moment."); }
+    else{ var j=await r.json(); var txt=(j.content&&j.content[0]&&j.content[0].text)?j.content[0].text:"No answer returned."; add("bot",txt); }
+  }catch(e){ add("bot","Could not reach the API - check your connection and try again."); }
+  btn.disabled=false; btn.textContent="Ask";
+}
+
+function snapshot(){ var t=AGG,F=computeFindings(); return {label:"your last audit",date:Date.now(),campaigns:ROWS.length,spend:Math.round(t.spend),results:t.results,cpa:Number(t.cpa.toFixed(2)),leakPct:F.leakPct}; }
+function saveBaseline(){ try{ localStorage.setItem("psa_baseline",JSON.stringify(snapshot())); var hint=document.getElementById("loadHint"); if(hint)hint.textContent="Baseline saved. Your next audit will show the change since now."; alert("Baseline saved. Run another export later and the audit will show what changed."); }catch(e){ alert("Could not save baseline in this browser."); } }
+function getBaseline(){ try{ return JSON.parse(localStorage.getItem("psa_baseline")); }catch(e){ return null; } }
+
+async function runLocalAgent(){
+  var st={inspected:false,outliers:false,benchmarks:false,funnel:false,momentum:false,tests:false,toDiagnose:[],diagnoses:[],testList:[],fn:null,mo:null};
+  function planNext(){
+    if(!st.inspected)return {act:"inspect",why:"Start by understanding the account shape and what this data does and does not let me assess."};
+    if(!st.outliers)return {act:"outliers",why:"Separate the campaigns that work from the ones leaking, judged within each objective."};
+    if(!st.benchmarks)return {act:"benchmarks",why:"Check the account against directional benchmarks to see if the problem is account-wide or campaign-specific."};
+    if(!st.funnel)return {act:"funnel",why:"Map the spend across the funnel. Where the money sits versus where it converts is usually the real story."};
+    if(HASDAILY&&!st.momentum)return {act:"momentum",why:"The export has a daily breakdown, so read the direction of travel - a campaign can look fine on 30-day totals while fatiguing fast."};
+    if(st.toDiagnose.length)return {act:"diagnose",target:st.toDiagnose[0],why:"There is a significant leak in "+esc(st.toDiagnose[0])+". Diagnose the cause before recommending a fix - a high cost per result and a low click-through rate need different responses."};
+    if(!st.tests)return {act:"tests",why:"With the funnel mapped and leaks diagnosed, separate the same-week fixes from the strategic moves and write the audit."};
+    return {act:"conclude",why:"I have the shape, the outliers, the funnel, the diagnoses and the plan. Writing the audit."};
+  }
+  for(var i=0;i<18;i++){
+    var p=planNext();
+    stepEl("plan","P","Plan",p.why);
+    await wait(620);
+    if(p.act==="conclude"){ showReport(buildReport(st.diagnoses,st.testList,st.fn,st.mo)); stepEl("plan","D","Done","Audit complete. The report is below and can be exported."); return; }
+    var out;
+    if(p.act==="inspect"){ out=toolInspect(); st.inspected=true; }
+    else if(p.act==="outliers"){ out=toolOutliers(); st.outliers=true; st.toDiagnose=out.leakers.slice(0,3).map(function(r){return r.name;}); }
+    else if(p.act==="benchmarks"){ out=toolBenchmarks(); st.benchmarks=true; }
+    else if(p.act==="funnel"){ out=toolFunnel(); st.funnel=true; st.fn=out; }
+    else if(p.act==="momentum"){ out=toolMomentum(); st.momentum=true; st.mo=out; }
+    else if(p.act==="diagnose"){ out=toolDiagnose(p.target); st.diagnoses.push(out.data); st.toDiagnose.shift(); }
+    else if(p.act==="tests"){ out={summary:"Splitting findings into same-week wins and strategic moves.",data:{}}; st.tests=true; }
+    stepEl("tool","T","Tool: "+p.act,"The agent called this tool.",JSON.stringify(out.data,null,2));
+    await wait(430);
+    stepEl("observe","O","Observe",out.summary);
+    await wait(520);
+  }
+  showReport(buildReport(st.diagnoses,st.testList,st.fn,st.mo));
+}
+
+function execTool(name,input){
+  try{
+  if(name==="inspect_account")return JSON.stringify(toolInspect().data);
+  if(name==="find_outliers")return JSON.stringify(toolOutliers().data);
+  if(name==="check_benchmarks")return JSON.stringify(toolBenchmarks().data);
+  if(name==="map_funnel")return JSON.stringify(toolFunnel().data);
+  if(name==="check_momentum")return JSON.stringify(toolMomentum().data);
+  if(name==="diagnose_campaign")return JSON.stringify(toolDiagnose(input&&input.campaign).data);
+  return JSON.stringify({error:"unknown tool: "+name});
+  }catch(e){ return JSON.stringify({error:"tool failed: "+String(e&&e.message||e)}); }
+}
+function toolSchemas(){
+  return [
+    {name:"inspect_account",description:"Account-level summary plus a data-quality note on what can and cannot be assessed from the columns present.",input_schema:{type:"object",properties:{},required:[]}},
+    {name:"find_outliers",description:"Lists scaling, leaking and watch campaigns, judged within objective.",input_schema:{type:"object",properties:{},required:[]}},
+    {name:"check_benchmarks",description:"Flags account metrics that fall outside directional benchmark ranges.",input_schema:{type:"object",properties:{},required:[]}},
+    {name:"map_funnel",description:"Classifies campaigns into Awareness, Prospecting and Retargeting and returns spend share and cost per result for each stage, with the funnel-gap insight.",input_schema:{type:"object",properties:{},required:[]}},
+    {name:"check_momentum",description:"Per-campaign trend over the daily breakdown, last 7 days vs the prior 7: creative fatigue, cost creep, improvement. Only meaningful when the export includes a Day column.",input_schema:{type:"object",properties:{},required:[]}},
+    {name:"diagnose_campaign",description:"Diagnoses why a specific campaign is underperforming (high cost per result, low CTR, no results) and suggests the fix.",input_schema:{type:"object",properties:{campaign:{type:"string",description:"Exact campaign name"}},required:["campaign"]}}
+  ];
+}
+function localFinish(reason){
+  stepEl("observe","!","Finishing locally",reason);
+  var o=toolOutliers(),fn=toolFunnel(),mo=HASDAILY?toolMomentum():null,dg=[];
+  o.leakers.slice(0,3).forEach(function(r){ dg.push(toolDiagnose(r.name).data); });
+  showReport(buildReport(dg,[],fn,mo));
+  stepEl("plan","D","Done","Audit complete. The report is below and can be exported.");
+}
+async function runRealAgent(key){
+  var sys="You are a senior paid-social auditor agent. Work in a plan-act-observe loop, one tool call at a time, and react to what each tool actually returns - any thinking note must be one or two sentences and reference a concrete number from the previous result. First inspect the account and respect the data-quality note: never assess what the columns cannot support. Then find the outliers. Then check benchmarks. Then map the funnel and reason about where spend sits versus where it converts - but do not naively tell the user to pour everything into retargeting, because retargeting is efficient partly because prospecting feeds it and its audience is capped. If the export includes a daily breakdown, call check_momentum to catch creative fatigue and cost creep that totals hide; if it does not, skip it. Then diagnose each significant leaking campaign one at a time using diagnose_campaign - a high cost per result and a low CTR call for different fixes. Judge every campaign within its own result type, never compare cost per lead to cost per purchase. Never invent numbers the tools did not return. When done, write the final audit as plain text under 600 words with these sections: what is working, what is broken, the funnel read, fix this week (the same-week wins), and strategic over the next 30 days. Lead with wins, be specific, use the numbers.";
+  var messages=[{role:"user",content:"Audit the loaded Meta Ads account using your tools, then write the audit."}];
+  var h={"Content-Type":"application/json","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true","x-api-key":key};
+  for(var turn=0;turn<11;turn++){
+    var loading=stepEl("plan","...","Thinking","<span class=\"spinner\"></span>The agent is deciding its next move.");
+    var r;
+    try{ r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:h,body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1800,system:sys,tools:toolSchemas(),messages:messages})}); }
+    catch(e){ loading.remove(); stepEl("observe","!","Error","Request failed. If this is a network or CORS issue, confirm the browser-access header is allowed for your key."); return; }
+    loading.remove();
+    if(r.status===429){ stepEl("observe","!","Rate limited","The API returned 429 - too many requests. Wait a minute and run again, or run the local agent with no key."); return; }
+    if(!r.ok){ stepEl("observe","!","Error","API error ("+r.status+")."+(r.status===401?" The key was rejected - check it and try again.":" Try again, or run the local agent with no key.")); return; }
+    var data; try{ data=await r.json(); }catch(e){ stepEl("observe","!","Error","The API response could not be read. Try again, or run the local agent with no key."); return; }
+    var content=(data&&data.content)||[], toolUses=[];
+    content.forEach(function(b){ if(b.type==="text"&&b.text.trim())stepEl("plan","A","Agent","<span style=\"white-space:pre-wrap\">"+esc(b.text.trim())+"</span>"); if(b.type==="tool_use")toolUses.push(b); });
+    if(data.stop_reason==="tool_use"&&toolUses.length){
+      messages.push({role:"assistant",content:content});
+      var results=[];
+      toolUses.forEach(function(tu){ var out=execTool(tu.name,tu.input); stepEl("tool","T","Tool: "+tu.name+(tu.input&&tu.input.campaign?" ("+esc(tu.input.campaign)+")":""),"The agent requested this tool.",out); results.push({type:"tool_result",tool_use_id:tu.id,content:out}); });
+      messages.push({role:"user",content:results});
+      await wait(220);
+    } else {
+      var finalText=""; content.forEach(function(b){ if(b.type==="text")finalText+=b.text; });
+      if(!finalText.trim()){ localFinish("The model returned an empty final answer, so the local engine is finishing the audit from the same tools."); return; }
+      var html=reportHead("written by the agent")+deltaHTML()+"<div style=\"white-space:pre-wrap;font-size:14px;color:#1f2937;line-height:1.65;margin-top:6px;\">"+esc(finalText.trim())+"</div>"+funnelMatrixHTML(toolFunnel())+(HASDAILY?momentumHTML(toolMomentum()):"")+benchmarksHTML()+"<div class=\"cta\"><span><b>Want this on your real account?</b> Run your own export above, or get in touch.</span><button class=\"rep-btn\" onclick=\"saveBaseline()\">Save as baseline</button></div>";
+      showReport(html);
+      stepEl("plan","D","Done","Audit complete. The report is below and can be exported.");
+      return;
+    }
+  }
+  localFinish("The Claude loop hit its step limit, so the local engine is finishing the audit from the same tool results.");
+}
+
+function startAudit(){
+  document.getElementById("agent").innerHTML="";
+  document.getElementById("agentPanel").classList.remove("hidden");
+  document.getElementById("report").classList.add("hidden");
+  var key=document.getElementById("apiKey").value.trim();
+  var btn=document.getElementById("runBtn"); btn.disabled=true;
+  var done=function(){ btn.disabled=false; };
+  if(key){ localStorage.setItem("psa_key",key); document.getElementById("agentMode").textContent="claude agent - real tool use"; runRealAgent(key).then(done,done); }
+  else { document.getElementById("agentMode").textContent="local agent - real decision loop, no key"; runLocalAgent().then(done,done); }
+}
+
+function ingest(text,isSample){
+  var hint=document.getElementById("loadHint");
+  if(typeof Papa==="undefined"){ hint.textContent="The CSV parser did not load - check your connection and refresh the page."; return; }
+  if(typeof text==="string"&&text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+  var parsed=Papa.parse(text,{header:true,skipEmptyLines:true});
+  if(!parsed.data||!parsed.data.length){ hint.textContent="No data rows in that file. If this came from Ads Manager, check the date range actually had delivery and the export finished."; return; }
+  var fields=(parsed.meta.fields||Object.keys(parsed.data[0])).filter(function(f){return f&&String(f).trim();});
+  var nameLike=findCol(fields,["ad name"])||findCol(fields,["ad set name"])||findCol(fields,["campaign name","campaign"]);
+  var spendLike=findCol(fields,["amount spent","spend"]);
+  if(!nameLike||!spendLike){ hint.textContent="This does not look like a Meta Ads export - no "+(!nameLike?"campaign, ad set or ad name column":"spend column")+" was found. Columns seen: "+fields.slice(0,5).join(", ")+(fields.length>5?"...":"")+"."; return; }
+  var prev={rev:HASREV,rt:HASRTYPE,dy:HASDAILY,lv:LEVEL,cur:CUR};
+  var rows=buildRows(parsed.data,fields);
+  if(!rows.length){ HASREV=prev.rev;HASRTYPE=prev.rt;HASDAILY=prev.dy;LEVEL=prev.lv;CUR=prev.cur; hint.textContent="Columns look right but no usable rows came through - every row had zero spend, impressions and clicks. Check the date range."+(ROWS.length?" The previously loaded account is still active.":""); return; }
+  ROWS=rows;
+  AGG=aggregate(ROWS);
+  var saved=getBaseline();
+  if(saved){ BASELINE=saved; USING_SAMPLE_BASELINE=false; }
+  else if(isSample){ BASELINE=SAMPLE_PRIOR; USING_SAMPLE_BASELINE=true; }
+  else { BASELINE=null; USING_SAMPLE_BASELINE=false; }
+  document.getElementById("empty").classList.add("hidden");
+  document.getElementById("runBtn").disabled=false;
+  var miss=[]; if(!HASRTYPE)miss.push("no result-type column (objective comparisons get a caveat)"); if(!HASREV)miss.push("no conversion-value column (ROAS skipped)");
+  document.getElementById("loadHint").textContent="Loaded "+ROWS.length+" "+LEVEL+(ROWS.length===1?"":"s")+(HASDAILY?" with a daily breakdown (momentum on)":" (totals only)")+", "+money(AGG.spend)+" spend."+(miss.length?" Note: "+miss.join("; ")+".":" All key columns present.")+" Hit Run the audit.";
+}
+function handleFile(file){ var reader=new FileReader(); reader.onload=function(e){ ingest(e.target.result,false); }; reader.onerror=function(){ document.getElementById("loadHint").textContent="Could not read that file - it may be locked or corrupted. Re-export and try again."; }; reader.readAsText(file); }
+function downloadSample(){
+  var blob=new Blob([SAMPLE],{type:"text/csv"}); var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download="sample-meta-ads-export.csv"; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
+var drop=document.getElementById("drop"),fileInput=document.getElementById("file");
+drop.onclick=function(){ fileInput.click(); };
+fileInput.onchange=function(e){ if(e.target.files[0])handleFile(e.target.files[0]); };
+drop.ondragover=function(e){ e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave=function(){ drop.classList.remove("over"); };
+drop.ondrop=function(e){ e.preventDefault(); drop.classList.remove("over"); if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]); };
+document.getElementById("sampleBtn").onclick=function(){ ingest(SAMPLE,true); };
+document.getElementById("sampleDailyBtn").onclick=function(){ ingest(genDailySample(),true); };
+document.getElementById("runBtn").onclick=startAudit;
+document.getElementById("dlSample").onclick=downloadSample;
+var savedKey=localStorage.getItem("psa_key"); if(savedKey)document.getElementById("apiKey").value=savedKey;
+</script>
+</body>
+</html>
