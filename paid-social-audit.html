@@ -324,13 +324,19 @@ function domObjective(rows){ var tc={}; rows.filter(function(r){return r.results
 
 var STAGE_ORDER=["Awareness","Prospecting","Retargeting"];
 var STAGE_META={Awareness:{label:"Top - Awareness",cls:"aw"},Prospecting:{label:"Middle - Prospecting",cls:"pr"},Retargeting:{label:"Bottom - Retargeting",cls:"rt"}};
+var STAGE_BOTTOM=["retarget","remarket","rtg","dpa","catalog","site visit","add to cart","addtocart","abandon","warm","existing","repeat purchas","past purchas","crm"];
+var STAGE_TOP=["awareness","reach","brand","video view","video views"," vv","engagement","impression","top of funnel","tof","traffic"];
 function stageOf(name){
   var s=(name||"").toLowerCase();
-  var bottom=["retarget","remarket","rtg","dpa","catalog","site visit","add to cart","addtocart","abandon","warm","existing","repeat purchas","past purchas","crm"];
-  var top=["awareness","reach","brand","video view","video views"," vv","engagement","impression","top of funnel","tof","traffic"];
-  for(var i=0;i<bottom.length;i++){ if(s.indexOf(bottom[i])>-1)return "Retargeting"; }
-  for(var j=0;j<top.length;j++){ if(s.indexOf(top[j])>-1)return "Awareness"; }
+  for(var i=0;i<STAGE_BOTTOM.length;i++){ if(s.indexOf(STAGE_BOTTOM[i])>-1)return "Retargeting"; }
+  for(var j=0;j<STAGE_TOP.length;j++){ if(s.indexOf(STAGE_TOP[j])>-1)return "Awareness"; }
   return "Prospecting";
+}
+function stageKnown(name){
+  var s=(name||"").toLowerCase();
+  for(var i=0;i<STAGE_BOTTOM.length;i++){ if(s.indexOf(STAGE_BOTTOM[i])>-1)return true; }
+  for(var j=0;j<STAGE_TOP.length;j++){ if(s.indexOf(STAGE_TOP[j])>-1)return true; }
+  return false;
 }
 
 var BENCH={ctr:{label:"Link CTR",low:0.5,high:2.0},cpc:{label:"CPC (link)",low:0.4,high:2.5},cpm:{label:"CPM",low:5,high:18},roas:{label:"ROAS",low:2,high:4}};
@@ -380,8 +386,11 @@ function toolFunnel(){
     if(best.stage!==heaviest.stage&&best.domCpa>0)insight=best.stage+" converts "+dom.toLowerCase()+" cheapest at "+money2(best.domCpa)+", but holds only "+best.spendPct+"% of spend. "+heaviest.stage+" holds the most at "+heaviest.spendPct+"%"+(heaviest.domCpa>0?(" and costs "+money2(heaviest.domCpa)+" per "+dom.toLowerCase().replace(/s$/,"")):"")+". The budget is concentrated where conversions are most expensive.";
     else insight="Spend is led by "+heaviest.stage+" at "+heaviest.spendPct+"% of budget.";
   }
+  var unkSpend=0;ROWS.forEach(function(r){ if(!stageKnown(r.cname||r.name))unkSpend+=r.spend; });
+  var unkPct=AGG.spend>0?Math.round(unkSpend/AGG.spend*100):0;
+  if(unkPct>=50)insight+=(insight?" ":"")+"Caveat: "+unkPct+"% of spend sits in campaigns whose names carry no funnel signal, so stage labels are assumed (defaulted to Prospecting), not inferred - treat the funnel view as approximate and name campaigns by stage to unlock it properly.";
   return {summary:stages.map(function(m){return m.stage+" "+m.spendPct+"%";}).join(", ")+". "+insight,
-    data:{stages:stages.map(function(m){return {stage:m.stage,campaigns:m.campaigns,spend:Math.round(m.spend),spend_pct:m.spendPct,results:m.results,cost_per_result:Number(m.domCpa.toFixed(2)),mixed_objectives:m.mixed};}),insight:insight,cheapest_stage:best?best.stage:null,heaviest_stage:heaviest?heaviest.stage:null},
+    data:{stages:stages.map(function(m){return {stage:m.stage,campaigns:m.campaigns,spend:Math.round(m.spend),spend_pct:m.spendPct,results:m.results,cost_per_result:Number(m.domCpa.toFixed(2)),mixed_objectives:m.mixed};}),insight:insight,cheapest_stage:best?best.stage:null,heaviest_stage:heaviest?heaviest.stage:null,unlabeled_spend_pct:unkPct},
     insight:insight,stages:stages,best:best,heaviest:heaviest,dom:dom};
 }
 function toolDiagnose(name){
@@ -460,9 +469,13 @@ function computeFindings(){
   var dom=domObjective(rows);
   var pool=rows.filter(function(r){return r.results>0&&(r.rtype||"")===dom;}); if(pool.length<2)pool=rows.filter(function(r){return r.results>0;});
   var healthyPool=pool.filter(function(r){var g=ratingFor(r,t);return g!=="Leaking"&&g!=="No results";});
-  F.best=healthyPool.slice().sort(function(a,b){return a.cpa-b.cpa;})[0];
+  var sig=function(r){return r.results>=3&&r.spend>=t.spend*0.01;};
+  var sigHealthy=healthyPool.filter(sig);
+  F.best=(sigHealthy.length?sigHealthy:healthyPool.filter(function(r){return r.spend>0;})).slice().sort(function(a,b){return a.cpa-b.cpa;})[0];
   var leakers=pool.filter(function(r){return ratingFor(r,t)==="Leaking";});
   var scalers=pool.filter(function(r){return ratingFor(r,t)==="Scaler";});
+  var sigScalers=scalers.filter(sig);
+  if(sigScalers.length)scalers=sigScalers; else scalers=scalers.filter(function(r){return r.spend>0;});
   F.worst=leakers.slice().sort(function(a,b){return b.spend-a.spend;})[0];
   var ls=0,lr=0;leakers.forEach(function(r){ls+=r.spend;lr+=r.results;}); var ss=0,sr=0;scalers.forEach(function(r){ss+=r.spend;sr+=r.results;});
   F.leakers=leakers;F.scalers=scalers;F.lSpend=ls;F.lRes=lr;F.scalerCpa=sr>0?ss/sr:0;F.couldGet=(sr>0&&ss>0)?Math.round(ls/(ss/sr)):0;
@@ -541,7 +554,7 @@ function buildReport(diagnoses,tests,fn,mo){
   else h+="<div class=\"verdict\"><b>The verdict:</b> no meaningful waste detected - this account is in good shape. The job now is protecting that efficiency while scaling, and the watch points below are where it would slip first.</div>";
 
   h+="<h4><span class=\"n\">&#10003;</span>What is working</h4><ul class=\"plain\">";
-  if(F.best)h+="<li class=\"good\"><b>"+esc(F.best.name)+"</b> is the most efficient at "+money2(F.best.cpa)+" per result - this is the engine to feed.</li>";
+  if(F.best)h+="<li class=\"good\"><b>"+esc(F.best.name)+"</b> is the most efficient at "+money2(F.best.cpa)+" per result on "+money(F.best.spend)+" spend ("+num(F.best.results)+" results) - this is the engine to feed.</li>";
   if(fn&&fn.best&&fn.stages.length>1)h+="<li class=\"good\">Your <b>"+STAGE_META[fn.best.stage].label.toLowerCase()+"</b> layer converts cheapest. There is a clear, efficient pocket to expand into.</li>";
   if(!F.best)h+="<li>No clearly efficient campaign yet - the priority is fixing the leaks below before scaling anything.</li>";
   h+="</ul>";
