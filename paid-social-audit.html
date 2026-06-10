@@ -332,10 +332,12 @@ function stageOf(name){
   for(var j=0;j<STAGE_TOP.length;j++){ if(s.indexOf(STAGE_TOP[j])>-1)return "Awareness"; }
   return "Prospecting";
 }
+var STAGE_MID=["prospect","lookalike","lal","cold","acquisition","new customer","broad"];
 function stageKnown(name){
   var s=(name||"").toLowerCase();
   for(var i=0;i<STAGE_BOTTOM.length;i++){ if(s.indexOf(STAGE_BOTTOM[i])>-1)return true; }
   for(var j=0;j<STAGE_TOP.length;j++){ if(s.indexOf(STAGE_TOP[j])>-1)return true; }
+  for(var k=0;k<STAGE_MID.length;k++){ if(s.indexOf(STAGE_MID[k])>-1)return true; }
   return false;
 }
 
